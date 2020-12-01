@@ -568,19 +568,13 @@ export default {
           }
           this.items = [...this.items, ...response.payload.items]
           this.pagination = response.payload.pagination
-          // if (this.pagination.total > 0) {
-          //   this.showPage = true
-          //   this.showColumn = true
-          // } else {
-          //   this.showPage = false
-          //   this.showColumn = false
-          // }
           if (this.pagination.page === this.pagination.pages) {
             this.finished = true
           } else {
             this.pagination.page += 1
           }
         } else {
+          this.finished = true
           this.$dialog.alert({
             message: response.message
           })

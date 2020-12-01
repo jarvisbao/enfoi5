@@ -11,7 +11,8 @@
           <van-grid :border="false" :column-num="5">
             <van-grid-item v-for="(item, index) in permission_menus" :key="index" @click="routeGo(item)">
               <template #icon>
-                <i :class="[item.icon, 'color_' + parseInt(Math.random(0, 1) * 3)]" />
+                <i v-if="item.icon" :class="[item.icon, 'color_' + parseInt(Math.random(0, 1) * 3)]" />
+                <i v-else class="el-icon-menu" />
               </template>
               <template #text>
                 <div class="text">

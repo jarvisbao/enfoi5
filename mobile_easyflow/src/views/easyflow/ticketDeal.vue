@@ -60,7 +60,7 @@
         <tasks-record :tasks-record="tasksRecord" :module-init="moduleInit" />
       </div>
     </div>
-    <van-popup v-model="popupShow" position="right" :style="{ height: '100%', width: '100%' }">
+    <van-popup v-model="popupShow" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
       <van-sticky>
         <van-nav-bar
           :title="dialogTitle"

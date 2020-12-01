@@ -37,6 +37,13 @@ export default {
   created() {
     this.title = this.$route.query.name ? this.$route.query.name : this.$route.meta.title
   },
+  mounted() {
+    // 设置底部标签栏状态为 false
+    this.$store.commit('SET_TABBAR', false)
+  },
+  destroyed() {
+    this.$store.commit('SET_TABBAR', true)
+  },
   methods: {
     onClickLeft() {
       this.$router.go(-1)

@@ -16,7 +16,7 @@ export default [
         component: () => import('@/library/ui/pageDataMobile/pageDataByCode'),
         props: (route) => (route.query),
         meta: { title: '界面数据', isBack: true }
-      },
+      }
     ]
   },
   {
@@ -71,11 +71,6 @@ export default [
     ]
   },
   {
-    path: '/search',
-    name: 'search',
-    component: () => import('@/library/search/index')
-  },
-  {
     path: '/grid',
     sub_component: true,
     children: [
@@ -85,5 +80,5 @@ export default [
         component: () => import('@/library/grid/index')
       }
     ]
-  },
+  }
 ]

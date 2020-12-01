@@ -108,6 +108,11 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/search',
+    name: 'search',
+    component: () => import('@/components/search/list')
+  },
+  {
     path: '/user-center',
     component: Layout,
     children: [
@@ -143,5 +148,5 @@ export const constantRouterMap = [
       }
     ]
   },
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', component: () => import('@/components/404'), redirect: '/404', hidden: true }
 ]

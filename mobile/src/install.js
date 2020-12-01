@@ -34,14 +34,3 @@ window.jQuery = jQuery
 window.$ = jQuery
 Vue.prototype.$Utils = utils
 Vue.prototype.$Apis = apis
-
-// 全局过滤器，时间戳转换
-Vue.filter('formatData', function(value) {
-  if (!value) return ''
-  if (Number.isFinite(value)) {
-    const time = parseInt(value / 1000000)
-    return Vue.prototype.$Utils.util.formatDate(new Date(time), 'yyyy-MM-dd hh:mm:ss')
-  } else {
-    return value
-  }
-})

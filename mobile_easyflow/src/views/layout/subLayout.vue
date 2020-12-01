@@ -32,6 +32,21 @@ export default {
   created() {
     this.title = this.$route.query.name ? this.$route.query.name : this.$route.meta.title
   },
+  mounted() {
+    // 向主应用通信，设置底部标签栏为false
+    if (this.$actions) {
+      this.$actions.setGlobalState({
+        showTabbar: false
+      })
+    }
+  },
+  destroyed() {
+    if (this.$actions) {
+      this.$actions.setGlobalState({
+        showTabbar: true
+      })
+    }
+  },
   methods: {
     onClickLeft() {
       this.$router.go(-1)

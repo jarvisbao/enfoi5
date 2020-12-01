@@ -7,7 +7,7 @@
         @click-left="onClickLeft"
       >
         <template #right>
-          <div @click="handleSubmit">
+          <div v-if="edit" @click="handleSubmit">
             提交
           </div>
         </template>
@@ -15,11 +15,11 @@
     </van-sticky>
     <div class="generateform-box" v-if="show">
       <generate-form-mobile ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
-      <div class="handle-btn el-form submit-btn" v-if="edit">
-        <!-- <van-button id="submit" :loading="$store.state.app.loading" color="#158bf1" round @click="handleSubmit">
+      <!-- <div class="handle-btn el-form submit-btn" v-if="edit">
+        <van-button id="submit" :loading="$store.state.app.loading" color="#158bf1" round @click="handleSubmit">
           立即修改
-        </van-button> -->
-      </div>
+        </van-button>
+      </div> -->
     </div>
   </div>
 </template>
@@ -100,6 +100,13 @@ export default {
     this.get_object_id()
     this.get_method_id()
     this.fetchDate()
+  },
+  mounted() {
+    // 设置底部标签栏状态为 false
+    this.$store.commit('SET_TABBAR', false)
+  },
+  destroyed() {
+    this.$store.commit('SET_TABBAR', true)
   },
   methods: {
     get_object_id() {

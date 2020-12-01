@@ -92,6 +92,13 @@ export default {
     this.get_object_id()
     this.fetchDate()
   },
+  mounted() {
+    // 设置底部标签栏状态为 false
+    this.$store.commit('SET_TABBAR', false)
+  },
+  destroyed() {
+    this.$store.commit('SET_TABBAR', true)
+  },
   methods: {
     get_object_id() {
       if ('object_id' in this.$route.query) {

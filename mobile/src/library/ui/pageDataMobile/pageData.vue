@@ -517,6 +517,7 @@ export default {
             this.pagination.page += 1
           }
         } else {
+          this.finished = true
           this.$dialog.alert({
             message: response.message
           })

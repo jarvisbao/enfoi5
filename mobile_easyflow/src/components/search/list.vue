@@ -69,7 +69,7 @@ export default {
       },
       page_size: 10,
       api_name: null,
-      loading: false,
+      loading: true,
       finished: false,
       isLoad: false
     }
@@ -77,38 +77,54 @@ export default {
   created() {
     this.api_name = this.$route.params.api ? this.$route.params.api : 'initiated_ticket'
   },
+  mounted() {
+    // 向主应用通信，设置底部标签栏为false
+    if (this.$actions) {
+      this.$actions.setGlobalState({
+        showTabbar: false
+      })
+    }
+  },
+  destroyed() {
+    if (this.$actions) {
+      this.$actions.setGlobalState({
+        showTabbar: true
+      })
+    }
+  },
   methods: {
     onClickLeft() {
       this.$router.go(-1)
     },
     schfilter() {
       this.isLoad = true
+      this.pagination.page = 1
+      this.items = []
+      this.onLoad()
     },
     onLoad() {
       setTimeout(() => {
+        this.loading = true
         this.$Apis.ticket[this.api_name](this.text, this.pagination.page, this.page_size).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.items = response.payload.items
-            this.pagination = response.payload.pagination
-            this.pages = this.pagination.pages
-            for (let i = 1; i < this.pages; i++) {
-              this.pagination.page++
-              this.$Apis.ticket[this.api_name](this.text, this.pagination.page, this.page_size).then(response => {
-                if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-                  this.items = [...this.items, ...response.payload.items]
-                }
-              })
-            }
-            this.loading = false
-
-            if (this.pagination.page === this.pages) {
+            if (response.payload.items.length === 0) {
               this.finished = true
             }
+            this.items = [...this.items, ...response.payload.items]
+            this.pagination = response.payload.pagination
+
+            if (this.pagination.page === this.pagination.pages) {
+              this.finished = true
+            } else {
+              this.pagination.page += 1
+            }
           } else {
+            this.finished = true
             this.$dialog.alert({
               message: response.message
             })
           }
+          this.loading = false
         })
       }, 1000)
     }

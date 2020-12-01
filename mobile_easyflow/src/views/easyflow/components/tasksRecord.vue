@@ -29,7 +29,7 @@
             <van-tabs>
               <van-tab v-for="fm in item.display_forms" :key="fm.name" :title="fm.name">
                 <!-- <span slot="label">{{ fm.name }}</span> -->
-                <div>
+                <div style="margin-top: 15px;">
                   <generate-form-mobile
                     v-if="fm.fmShow"
                     ref="tasksRecordForm"
@@ -43,16 +43,16 @@
               </van-tab>
               <van-tab v-for="md in item.module_forms" :key="md.name" v-if="md.show" :title="md.label">
                 <!-- <span slot="label">{{ md.label }}</span> -->
-                <div>
+                <div style="margin-top: 15px;">
                   <component :ref="md.name" :is="md.name" :module-init="moduleInit" :form-value="md.editData" :active_option="active_option" :is-edit="false" keep-alive />
                 </div>
               </van-tab>
               <van-tab v-if="item.url_forms" title="URL表单">
-                <iframe :src="item.url_forms" width="100%" height="500" frameborder="0" />
+                <iframe :src="item.url_forms" width="100%" height="500" frameborder="0" style="margin-top: 15px;" />
               </van-tab>
             </van-tabs>
           </div>
-          <div v-if="item.comment_list.length > 0" class="comment-list">
+          <div v-if="item.comment_list && item.comment_list.length > 0" class="comment-list">
             <div class="list-box">
               <div v-for="(com, comIndex) in item.comment_list" :key="comIndex" class="record-box">
                 <div class="comment" @click="handleReplay(index, comIndex, com)">
@@ -154,17 +154,19 @@ export default {
     })
 
     this.tasksRecord.forEach(element => {
-      const getChild = function(list) {
-        list.forEach(function(row) {
-          if (row.child) {
-            getChild(row.child)
-          } else {
-            // row.child = row.child
-            return
-          }
-        })
+      if (element.comment_list) {
+        const getChild = function(list) {
+          list.forEach(function(row) {
+            if (row.child) {
+              getChild(row.child)
+            } else {
+              // row.child = row.child
+              return
+            }
+          })
+        }
+        getChild(element.comment_list)
       }
-      getChild(element.comment_list)
     })
   },
   methods: {

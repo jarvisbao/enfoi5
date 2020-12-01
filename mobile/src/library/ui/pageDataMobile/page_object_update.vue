@@ -34,6 +34,13 @@ export default {
   created() {
     this.showRecord = this.$route.query.record ? JSON.parse(this.$route.query.record) : false
   },
+  mounted() {
+    // 设置底部标签栏状态为 false
+    this.$store.commit('SET_TABBAR', false)
+  },
+  destroyed() {
+    this.$store.commit('SET_TABBAR', true)
+  },
   methods: {
     handleRecord() {
       if (this.text === '变动记录') {

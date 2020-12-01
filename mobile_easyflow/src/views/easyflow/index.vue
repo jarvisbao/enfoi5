@@ -52,7 +52,7 @@
   </div>
 </template>
 <script>
-import search from '@/components/search'
+import search from '@/components/search/index'
 
 export default {
   components: {

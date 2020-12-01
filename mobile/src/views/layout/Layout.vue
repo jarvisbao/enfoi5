@@ -8,7 +8,7 @@
     <section v-else class="app-main">
       <div v-if="content" v-html="content" />
     </section>
-    <page-footer />
+    <page-footer v-if="tabbar" />
   </div>
 </template>
 
@@ -26,11 +26,13 @@ export default {
       isShow: true
     }
   },
+  computed: {
+    tabbar() {
+      return this.$store.state.app.Tabbar
+    }
+  }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
 @import url("//at.alicdn.com/t/font_1321656_qrlhtqp5ah.css");
-.app-main {
-  // min-height: calc(100vh);
-}
 </style>

@@ -35,7 +35,7 @@ export default {
     }
   },
   components: {
-    search: () => import('@/components/search')
+    search: () => import('@/components/search/index')
   },
   data() {
     return {
@@ -88,6 +88,7 @@ export default {
             this.pagination.page += 1
           }
         } else {
+          this.finished = true
           this.$dialog.alert({
             message: response.message
           })

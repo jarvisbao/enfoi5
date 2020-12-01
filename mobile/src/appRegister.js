@@ -31,11 +31,13 @@ import NProgress from "nprogress";
 // 通讯
 const actions = initGlobalState({
   rsgComponent: null, // 初始化state，里面内容您随意
-  showComponent: null
+  showComponent: null,
+  showTabbar: true
 })
 // 在项目中任何需要监听的地方进行监听，在这里监听是为了方便
 actions.onGlobalStateChange((state, prev) => {
   // console.log('main state change', state)
+  store.commit('SET_TABBAR', state.showTabbar)
 })
 // 将action对象绑到Vue原型上，为了项目中其他地方使用方便
 Vue.prototype.$actions = actions
