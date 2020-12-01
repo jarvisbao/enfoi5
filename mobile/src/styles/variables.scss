@@ -1,0 +1,50 @@
+$headerBg:#ececec;
+$bg_fff: #fff;
+$bg_gray1: #f3f3f3;
+$bg_gray2: #f2f2f2;
+$bg_gray3: #eaeaea;
+$bg_blue_light: #ecf5ff;
+$bg_blue_light1: #b3d8ff;
+$border_color_gray1: #e4e4e4;
+$border_color_gray2: #eaeaea;
+$border_color_gray3: #f2f2f2;
+$border_color_gray4: #ddd;
+$color_blue1: #2a89ea;
+$color_blue2: #409eff;
+$color_white: #fff;
+$color_gray1: #969696;
+$color_gray2: #5a5a5a;
+$color_gray3: #c3c3c3;
+$color_gray4: #8c8a8a;
+$color_gray5: #717070;
+$color_gray6: #eaeaea;
+$color_red1: #f52f15;
+$color_red2: #f55315;
+$color_orange1: #f59c15;
+
+// the :export directive is the magic sauce for webpack
+:export {
+  headerBg: $headerBg;
+  bg_fff: $bg_fff;
+  bg_gray1: $bg_gray1;
+  bg_gray2: $bg_gray2;
+  bg_gray3: $bg_gray3;
+  bg_blue_light: $bg_blue_light;
+  bg_blue_light1: $bg_blue_light1;
+  border_color_gray1: $border_color_gray1;
+  border_color_gray2: $border_color_gray2;
+  border_color_gray3: $border_color_gray3;
+  border_color_gray4: $border_color_gray4;
+  color_blue1: $color_blue1;
+  color_blue2: $color_blue2;
+  color_white: $color_white;
+  color_gray1: $color_gray1;
+  color_gray2: $color_gray2;
+  color_gray3: $color_gray3;
+  color_gray4: $color_gray4;
+  color_gray5: $color_gray5;
+  color_gray6: $color_gray6;
+  color_red1: $color_red1;
+  color_red2: $color_red2;
+  color_orange1: $color_orange1;
+}

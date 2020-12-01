@@ -1,0 +1,3 @@
+<template>
+  <portal-widget />
+</template>

@@ -1,0 +1,630 @@
+@import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './variables.scss';
+@import './sidebar.scss';
+
+$bg_fff: #ffffff;
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+    Microsoft YaHei, Arial, sans-serif;
+  background: #f2f3f8;
+  font-size: 14px;
+}
+
+label {
+  font-weight: normal;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  outline: none;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: ' ';
+    clear: both;
+    height: 0;
+  }
+}
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+p {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style-type: none;
+}
+
+//main-container全局样式
+.app-main {
+  margin: 20px;
+  background: $bg_fff;
+  min-height: calc(100vh - 133px);
+  position: relative;
+  overflow: hidden;
+}
+
+
+.navbar {
+  background: $bg_fff;
+}
+
+.app-container {
+  position: relative;
+  padding: 20px;
+  .title-nav {
+    display: flex;
+    margin-top: -20px;
+    margin-bottom: 30px;
+    color: #666666;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    .title {
+      position: relative;
+      display: inline-block;
+      padding: 18px 10px;
+      color: #666666;
+      &::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 1px;
+        background: #ff333b;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+      }
+    }
+  }
+  .el-table thead tr th {
+    background: #fdf7f7;
+    color: #ac9699;
+    font-weight: normal;
+  }
+  .is-right .cell {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .el-form {
+    width: 95%;
+  }
+  .action-btn {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    .btn {
+      display: inline-block;
+      margin-right: 12px;
+      padding: 8px 22px;
+      border-radius: 20px;
+      color: #999;
+      background: #fff;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      &:hover {
+        background: rgb(236, 236, 236);
+        border-color: #ddd;
+        color: #999;
+      }
+      &.create-btn {
+        background: #f56868;
+        border-color: #f56868;
+        color: #fff;
+        &:hover {
+          opacity: 0.85;
+        }
+      }
+      &.is-disabled, &.is-disabled:hover {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+    .right-btn {
+      flex: 1;
+      text-align: right;
+      .show-by {
+        float: right;
+        margin-top: 8px;
+        margin-left: 10px;
+        span {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          margin-left: 8px;
+          background: url('../../assets/images/icon-sprice.png') no-repeat;
+          cursor: pointer;
+          &.table {
+            background-position: 0 -50px;
+          }
+          &.card {
+            background-position: -26px -50px;
+          }
+          &.table.active,
+          &.card.active {
+            background-position-y: -73px;
+          }
+          &.list {
+            background-position: 0 0;
+          }
+          &.tree {
+            background-position: -26px 0;
+          }
+          &.list.active,
+          &.tree.active {
+            background-position-y: -24px;
+          }
+        }
+      }
+    }
+    .search-input {
+      // float: right;
+      display: inline-block;
+      width: 25%;
+      .el-input__inner {
+        height: 35px;
+        line-height: 35px;
+      }
+    }
+  }
+
+  .el-dialog__body .el-form {
+    width: 90%;
+  }
+  .assignments-btn, .cell-btn {
+    margin-left: 6px;
+    padding: 0px 10px;
+    font-size: 12px;
+    color: #409eff;
+    cursor: pointer;
+    background: #ecf5ff;
+    border: 1px solid #d9ecff;
+    border-radius: 5px;
+  }
+  .tips {
+    padding-top: 4px;
+    font-size: 13px;
+    color: #999;
+    line-height: 1.5;
+  }
+}
+
+.enfo-header-tips {
+  display: flex;
+  align-items: center;
+  background: #f2f3f8;
+  padding-bottom: 20px;
+  .goback {
+    color: #797979;
+    cursor: pointer;
+  }
+  .current-state {
+    display: flex;
+    margin-left: 15px;
+    color: #666;
+    align-items: center;
+    &:before {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 18px;
+      margin-right: 15px;
+      background: #c7b0b0;
+    }
+  }
+}
+
+.confont {
+  font-family: "iconfont";
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// tabs 标签页 样式
+.el-tabs__header {
+  .el-tabs__nav-wrap::after {
+    height: 1px;
+  }
+  .el-tabs__item,
+  .el-tabs__item.is-active {
+    color: #666666;
+  }
+  .el-tabs__active-bar {
+    background: #ff333b;
+  }
+}
+
+// form 表单
+$color_f56868: #f56868;
+.el-form {
+  .el-form-item__label {
+    padding-right: 15px;
+    color: #666;
+  }
+  .el-textarea__inner:hover,
+  .el-textarea__inner:focus,
+  .el-select .el-input.is-focus .el-input__inner,
+  .el-input__inner:focus {
+    border-color: $color_f56868;
+  }
+  .el-button.is-plain:hover,
+  .el-button.is-plain:focus {
+    border-color: $color_f56868;
+    color: $color_f56868;
+  }
+  .el-form-item .el-select {
+    width: 100%;
+  }
+}
+.el-radio-group {
+  .el-radio__input.is-checked + .el-radio__label {
+    color: $color_f56868;
+  }
+  .el-radio__input.is-checked .el-radio__inner {
+    border-color: $color_f56868;
+    background: $color_f56868;
+  }
+  .el-radio__inner:hover {
+    border-color: $color_f56868;
+  }
+}
+
+// 分页
+.el-pagination {
+  margin-top: 20px;
+  text-align: right;
+  .el-pager li {
+    color: #666;
+    font-weight: normal;
+    &.active,
+    &:hover {
+      color: #e85e5e;
+    }
+  }
+  button:hover {
+    color: #e85e5e;
+  }
+}
+
+//操作按钮
+.cell [class*=' el-icon-'],
+.cell [class^='el-icon-'],
+.tree-list [class*=' el-icon-'],
+.tree-list [class^='el-icon-'] {
+  margin: 0 3px;
+  font-size: 18px;
+  cursor: pointer;
+  color: #c5c5c5;
+  &:hover {
+    color: #f84c5d;
+  }
+}
+.cell .el-icon-delete, .tree-list .el-icon-delete {
+  color: #f84c5d;
+}
+
+// 图标
+.icon-list {
+  display: flex;
+  flex-wrap: wrap;
+  height: 400px;
+  // overflow: auto;
+  cursor: pointer;
+  li {
+    width: 16.66%;
+    height: 100px;
+    padding: 15px;
+    text-align: center;
+    color: #797979;
+    i {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 32px;
+      color: #aeafb1;
+    }
+    &:hover, &:hover i {
+      color: #78b8fb;
+    }
+    &.on, &.on i {
+      color: #409eff;
+    }
+  }
+}
+
+.cell .menu-icon {
+  font-size: 20px;
+  color: #409eff;
+  font-family: "iconfont";
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  &:hover {
+    color: #409eff;
+    cursor: text;
+  }
+}
+.menu-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  color: #409eff;
+  font-family: "iconfont";
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.choose-icon, .delete-icon {
+  margin-right: 8px;
+  padding: 5px 10px;
+  border: 1px solid #b3d8ff;
+  background: #ecf5ff;
+  color: #409eff;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.delete-icon {
+  color: #909399;
+  background: #f4f4f5;
+  border-color: #d3d4d6;
+}
+
+
+// 对象查看与编辑
+.object-view, .object-update {
+  $color: #dd6161;
+  .link-btn {
+    margin-bottom: 20px;
+    font-size: 0;
+    border-bottom: 1px solid #e4e7ed;
+    div {
+      display: inline-block;
+      border-radius: 5px 5px 0 0;
+      border: 1px solid #ddd;
+      border-bottom-width: 0;
+      background: #fff;
+      span {
+        display: inline-block;
+        padding: 10px 25px;
+        font-size: 14px;
+        color: #666;
+        cursor: pointer;
+        border-right: 1px solid #ddd;
+        position: relative;
+        top: 1px;
+        &:last-of-type {
+          border-right: none;
+        }
+        &:hover {
+          color: $color;
+        }
+        &.active {
+          color: $color;
+          border-bottom: 1px solid #fff;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1248px) {
+  .app-container {
+    .action-btn {
+      .search-input {
+        width: 45%;
+      }
+    }
+  }
+}
+
+// login forget_passwor
+
+/* reset element-ui css */
+.login-container {
+  .el-input {
+    display: inline-block;
+    height: 40px;
+    width: 85%;
+    input {
+      background: transparent;
+      border: 0px;
+      -webkit-appearance: none;
+      border-radius: 0px;
+      padding: 0px 15px 0px 10px;
+      color: #666;
+      height: 40px;
+      &:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+        -webkit-text-fill-color: #666 !important;
+      }
+    }
+  }
+  .el-form-item {
+    margin-bottom: 30px;
+    border: 1px solid #bbbbbb;
+    background: #fff;
+    border-radius: 3px;
+    color: #454545;
+    &.is-error {
+      border-color: #f56868;
+    }
+    &:focus-within .svg-container {
+      color: #fb6969;
+    }
+  }
+}
+$bg: #f7f8fa;
+$dark_gray: #bababa;
+$light_gray: #7e6b6b;
+.login-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background: url('~@/assets/images/loing_bg.svg') center center no-repeat #f7f8fa;
+  .login-form {
+    width: 500px;
+    max-width: 100%;
+    margin: 180px auto 50px;
+  }
+
+  .svg-container {
+    padding: 0 0 0 12px;
+    color: $dark_gray;
+    vertical-align: middle;
+    display: inline-block;
+    .svg-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  .title {
+    font-size: 30px;
+    color: $light_gray;
+    margin: 0px auto 80px auto;
+    text-align: center;
+    font-weight: normal;
+  }
+  .show-pwd {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    font-size: 16px;
+    color: $dark_gray;
+    cursor: pointer;
+    user-select: none;
+  }
+  .ver-code {
+    width: 370px;
+    position: relative;
+    .el-form-item__content {
+      .svg-container .svg-icon {
+        vertical-align: -4px;
+      }
+      .verificationCode {
+        position: absolute;
+        right: -130px;
+        height: 40px;
+      }
+      .code-msg {
+        position: absolute;
+        top: 100%;
+        color: #F56C6C;
+        font-size: 12px;
+        line-height: 1;
+        padding-top: 4px;
+      }
+    }
+  }
+  .login-button {
+    border: none;
+    .el-button {
+      height: 40px;
+      padding: 0;
+      background: #f56868;
+      border-color: #f56868;
+      border-radius: 3px;
+      font-size: 16px;
+    }
+    .cell [class*=" el-icon-"], [class^=el-icon-] {
+      color: #fff;
+    }
+  }
+  .remember {
+    margin: -20px 0 10px;
+    border: none;
+    background: transparent;
+    .forget-pass {
+      float: right;
+      color: #f85151;
+    }
+  }
+  .other-login {
+    width: 500px;
+    margin: 0 auto;
+    .el-divider__text {
+      background: #f7f8fa;
+      color: #929292;
+    }
+    .list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      .icon-box {
+        width: 35px;
+        height: 35px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.85;
+        }
+        & + .icon-box {
+          margin-left: 20px;
+        }
+        .svg-icon {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+}
+
+/* reset el-table__fixed-right height */
+.el-table__fixed-right {
+  height: 100% !important;
+}

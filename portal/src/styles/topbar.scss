@@ -1,0 +1,106 @@
+$topbarHeight: 42px;
+
+
+//@at-root
+.master-main-container {
+  padding-top: $topbarHeight;
+}
+
+// 顶部菜单栏 topbar container
+.master-topbar-container {
+  width: 100%;
+  height: $topbarHeight;
+  padding: 0 30px;
+  position: fixed;
+  font-size: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
+  overflow: hidden;
+  display: flex;
+  background: #252a2e;
+  align-items: center;
+
+  .logo {
+    display: flex;
+    width: 150px;
+    font-size: 14px;
+    color: #fff;
+    font-weight: bold;
+    align-items: center;
+    .logo-svg {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+    }
+  }
+
+  .el-menu-top {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+    background: #252a2e;
+    .el-menu-item {
+      height: $topbarHeight; 
+      line-height: $topbarHeight;
+      color: #e6e6e6;
+      &:hover {
+        background: rgba(255,255,255,.25);
+        color: #fff !important;
+        border-bottom: 2px solid #e4440a !important;
+      }
+    }
+    .el-menu-item.active, .router-link-active .el-menu-item, .active .el-menu-item {
+      border-bottom: 2px solid #e4440a !important;
+      background: rgba(255,255,255,.1);
+      color: #fff !important;
+    }
+    .el-submenu__icon-arrow {
+      position: static;
+      margin-top: 0;
+      margin-left: 8px;
+    }
+  }
+
+  // menu hover
+  .submenu-title-noDropdown,
+  .el-submenu__title {
+    &:hover {
+      background-color: rgba(0, 0, 0, .25) !important;
+    }
+  }
+
+  .is-active>.el-submenu__title {
+    color: $subMenuActiveText !important;
+  }
+
+  & .nest-menu .el-submenu>.el-submenu__title,
+  & .el-submenu .el-menu-item {
+    min-width: $sideBarWidth !important;
+    background-color: $subMenuBg !important;
+
+    &:hover {
+      background-color: $subMenuHover !important;
+    }
+  }
+}
+
+.el-menu--collapse .el-menu .el-submenu {
+  min-width: $sideBarWidth !important;
+}
+
+// when menu horizontal
+.el-menu--horizontal {
+  .nest-menu .el-submenu>.el-submenu__title,
+  .el-menu-item {
+    &:hover {
+      background-color: rgba(0, 0, 0, .25) !important;
+    }
+  }
+}
+.el-menu.el-menu--horizontal {
+  border-bottom: none !important;
+}
+

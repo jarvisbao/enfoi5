@@ -1,0 +1,202 @@
+<template>
+  <div class="generateform-box" v-if="show">
+    <fm-generate-form ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
+    <div :style="styleObject" class="handle-btn el-form">
+      <el-button v-if="edit" id="submit" :loading="$store.state.app.loading" type="danger" @click="handleSubmit">
+        立即修改
+      </el-button>
+      <el-button id="cancel" plain @click="handleReset">
+        返回
+      </el-button>
+    </div>
+  </div>
+</template>
+<script>
+import Vue from 'vue'
+const request = Vue.prototype.$Utils.request
+export default {
+  props: {
+    edit: {
+      type: Boolean,
+      default: true
+    }
+  },
+  data() {
+    return {
+      jsonData: {},
+      editData: {},
+      design_form: null,
+      headersAll: [],
+      remoteFuncs: {
+        remote_http_get(uri, body) {
+          if (uri) {
+            return request({
+              url: uri,
+              method: 'get',
+              params: body
+            })
+          } else {
+            return new Promise((resolve, reject) => {
+              resolve()
+            })
+          }
+        },
+        remote_http_post(uri, body) {
+          if (uri) {
+            return request({
+              url: uri,
+              method: 'get',
+              params: body
+            })
+          } else {
+            return new Promise((resolve, reject) => {
+              resolve()
+            })
+          }
+        }
+      },
+      object_id: null,
+      mtd_id: null,
+      styleObject: null,
+      show: false,
+      fmshow: false,
+      designFields: [],
+      objid: null,
+      inIframe: false
+    }
+  },
+  computed: {
+    design() {
+      const { design_form, headersAll } = this
+      return {
+        design_form,
+        headersAll
+      }
+    }
+  },
+  watch: {
+    design: {
+      handler(val) {
+        if (val.headersAll.length > 0 && val.design_form) {
+          const design_form = JSON.parse(val.design_form)
+          this.designFields = val.headersAll
+          this.jsonData = design_form
+          this.show = true
+          this.styleObject = {
+            paddingLeft: design_form.config.labelWidth + 'px'
+          }
+        }
+      }
+    }
+  },
+  created() {
+    if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
+      this.inIframe = true
+    }
+    this.get_object_id()
+    this.get_method_id()
+    this.fetchDate()
+  },
+  methods: {
+    get_object_id() {
+      if ('object_id' in this.$route.query) {
+        this.object_id = this.$route.query.object_id
+        return this.object_id
+      } else {
+        return null
+      }
+    },
+    get_method_id() {
+      if ('mtd_id' in this.$route.query) {
+        this.mtd_id = this.$route.query.mtd_id
+        return this.mtd_id
+      } else {
+        return null
+      }
+    },
+    fetchDate() {
+      this.objid = this.$route.query.objid ? this.$route.query.objid : null
+      this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.editData = response.payload
+          this.fmshow = true
+        } else {
+          this.$alert(response.message, '提示', {
+            confirmButtonText: '确定'
+          })
+        }
+      })
+      this.$Apis.object.get_headers(this.object_id, true).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.headersAll = response.payload
+        }
+      })
+      if (this.mtd_id) {
+        this.get_method_design()
+      } else {
+        this.get_object_design()
+      }
+    },
+    get_method_design() {
+      this.$Apis.object.get_method_design_by_id(this.mtd_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          if (response.payload) {
+            this.design_form = response.payload
+          } else {
+            this.get_object_design()
+          }
+        } else {
+          this.$alert(response.message, '提示', {
+            confirmButtonText: '确定'
+          })
+        }
+      })
+    },
+    get_object_design() {
+      this.$Apis.object.get_object_design_by_id(this.object_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.design_form = response.payload
+        } else {
+          this.$alert(response.message, '提示', {
+            confirmButtonText: '确定'
+          })
+        }
+      })
+    },
+    handleSubmit() {
+      this.$refs.generateForm.getData().then(data => {
+       this.$store.commit('SET_LOADING', true)
+       this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
+         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+           this.$alert(response.message, '提示', {
+             confirmButtonText: '确定',
+             callback: action => {
+               this.handleReset()
+             }
+           })
+         } else {
+           this.$alert(response.message, '提示', {
+             confirmButtonText: '确定'
+           })
+         }
+         this.$store.commit('SET_LOADING', false)
+       })
+      }).catch(e => {
+        // 数据校验失败
+        this.$alert(e, '提示', {
+          confirmButtonText: '确定'
+        })
+      })
+    },
+    handleReset() {
+      // this.$refs.generateForm.reset()
+      if (this.inIframe) {
+        parent.postMessage({ msg: 'closeDialog' }, '*')
+      } else {
+        this.$router.go(-1)
+      }
+    }
+  }
+}
+</script>
+
