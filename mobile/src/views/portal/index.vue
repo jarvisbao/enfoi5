@@ -11,8 +11,7 @@
           <van-grid :border="false" :column-num="5">
             <van-grid-item v-for="(item, index) in permission_menus" :key="index" @click="routeGo(item)">
               <template #icon>
-                <i v-if="item.icon" :class="[item.icon, 'color_' + parseInt(Math.random(0, 1) * 3)]" />
-                <i v-else class="el-icon-menu" />
+                <i :class="[item.icon || 'el-icon-menu', 'color_' + parseInt(Math.random(0, 1) * 3)]" />
               </template>
               <template #text>
                 <div class="text">
@@ -47,12 +46,12 @@ export default {
   },
   methods: {
     routeGo(item) {
-      // if (item.url === '/grid') {
-      //   this.$router.push({ path: item.url, query: { code: item.code }})
-      // } else {
-      //   this.$router.push({ path: item.url })
-      // }
-      this.$router.push({ path: item.uri })
+      if (item.uri === '/grid') {
+        this.$router.push({ path: item.uri, query: { code: item.menu_code, label: item.label }})
+      } else {
+        this.$router.push({ path: item.uri })
+      }
+      // this.$router.push({ path: item.uri })
     }
   }
 }

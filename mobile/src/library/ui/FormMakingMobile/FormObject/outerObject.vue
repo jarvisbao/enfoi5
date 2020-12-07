@@ -87,12 +87,12 @@
               <div class="btn-list">
                 <div v-show="can_view&&!is_view" class="button" @click="info(item)">查看</div>
                 <div v-show="can_update&&!is_view" class="button" @click="update(item)">修改</div>
-                <div v-display="[delete_applycondition, item]" v-show="can_delete&&!is_view" class="button" @click="remove(item)">删除</div>
+                <div v-display="[delete_applycondition, item]" v-show="can_delete&&!is_view" class="button" @click="remove(item, index)">删除</div>
                 <div
                   v-for="(method, methodIndex) in newSingleMethods"
                   :key="methodIndex">
                   <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===3" id="rowEdit" @click="clickType3(method, item)">{{ method.operate_name }}</span>
-                  <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===4" id="rowPost" @click="clickType4(method, item)">{{ method.operate_name }}</span>
+                  <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===4" id="rowPost" @click="clickType4(method, item, index)">{{ method.operate_name }}</span>
                   <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===5" id="rowGet" @click="clickType5(method, item)">{{ method.operate_name }}</span>
                 </div>
               </div>
@@ -150,6 +150,14 @@
       />
       <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
     </van-popup>
+    <van-overlay :show="showOverlay" z-index="10000" style="background: rgba(255, 255, 255, 0);">
+      <div class="van-toast">
+        <van-loading color="#fff" />
+        <div class="van-toast__text">
+          处理中...
+        </div>
+      </div>
+    </van-overlay>
   </div>
 </template>
 <script>
@@ -246,7 +254,8 @@ export default {
       mtdTitle: '',
       mtd_get_url: null,
       showForm: false,
-      showTopBtn: false
+      showTopBtn: false,
+      showOverlay: false
     }
   },
   watch: {
@@ -276,6 +285,47 @@ export default {
     }
   },
   methods: {
+    resetItems(items, indexes) {
+      const ids = []
+      let primary_key = null
+      items.forEach((item, index) => {
+        this.headers_all.some(element => {
+          element['value'] = item[element['prop']]
+          if (element['is_primary']) {
+            if (element['value']) {
+              if (!primary_key) {
+                primary_key = element['prop']
+              }
+              ids.push(element['value'])
+              return true
+            }
+          }
+        })
+      })
+      const filter = primary_key + '.in_([' + ids.join() + '])'
+      if (ids.length > 0 && primary_key) {
+        this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, filter, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            const new_items = response.payload.items
+            const new_ids = []
+            new_items.forEach(new_item => {
+              new_ids.push(new_item[primary_key])
+            })
+            ids.forEach((id, index) => {
+              const new_index = new_ids.indexOf(id)
+              if (new_index !== -1) {
+                Object.keys(new_items[new_index]).forEach(key => {
+                  this.items[indexes[index]][key] = new_items[new_index][key]
+                  // items[index][key] = new_items[new_index][key]
+                })
+              } else {
+                this.items.splice(indexes[index], 1)
+              }
+            })
+          }
+        })
+      }
+    },
     selectAll() {
       if (this.selectionData.length === this.items.length) {
         this.$refs.checkboxGroup.toggleAll(false)
@@ -287,12 +337,6 @@ export default {
       if (this.isMultiple) {
         this.$refs.selectMutil[index].toggle()
       }
-    },
-    fnCall(fun, row) {
-      this[fun](row)
-    },
-    mtdCall(fun, item, row) {
-      this[fun](item, row)
     },
 
     get_design_select() {
@@ -522,7 +566,7 @@ export default {
       this.objTitle = '查看'
       this.isEdit = false
     },
-    remove(row) {
+    remove(row, index) {
       let ids = []
       this.headers_all.some(element => {
         element['value'] = row[element['prop']]
@@ -547,7 +591,7 @@ export default {
           this.$dialog.alert({
             message: response.message
           }).then(() => {
-            this.refresh([])
+            this.resetItems([row], [index])
           })
         })
       }).catch(() => {
@@ -596,12 +640,26 @@ export default {
         this.$dialog.confirm({
           message: item.confirm_msg
         }).then(() => {
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-          this.refresh()
+          this.showOverlay = true
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.showOverlay = false
+              this.refresh()
+            } else {
+              this.showOverlay = false
+            }
+          })
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-        this.refresh()
+        this.showOverlay = true
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.refresh()
+          } else {
+            this.showOverlay = false
+          }
+        })
       }
     },
     clickType2(item) {
@@ -691,7 +749,7 @@ export default {
         this.isEdit = true
       }
     },
-    clickType4(item, row) {
+    clickType4(item, row, index) {
       // 如果有注入JavaScript代码，先注入JS代码
       if (item.append_script) {
         this.add_script(item.append_script)
@@ -726,6 +784,7 @@ export default {
         this.$dialog.confirm({
           message: item.confirm_msg
         }).then(() => {
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -736,11 +795,13 @@ export default {
             this.$dialog.alert({
               message: response.payload
             }).then(() => {
-              this.refresh()
+              this.showOverlay = false
+              this.resetItems([row], [index])
             })
           })
         }).catch(() => {})
       } else {
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -751,7 +812,8 @@ export default {
           this.$dialog.alert({
             message: response.payload
           }).then(() => {
-            this.refresh()
+            this.showOverlay = false
+            this.resetItems([row], [index])
           })
         })
       }
@@ -882,6 +944,7 @@ export default {
         this.$dialog.confirm({
           message: item.confirm_msg
         }).then(() => {
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -892,11 +955,13 @@ export default {
             this.$dialog.alert({
               message: response.payload
             }).then(() => {
+              this.showOverlay = false
               this.refresh()
             })
           })
         }).catch(() => {})
       } else {
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -907,6 +972,7 @@ export default {
           this.$dialog.alert({
             message: response.payload
           }).then(() => {
+            this.showOverlay = false
             this.refresh()
           })
         })

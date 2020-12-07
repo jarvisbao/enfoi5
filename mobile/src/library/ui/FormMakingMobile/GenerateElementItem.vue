@@ -342,6 +342,7 @@
         :emit-path="widget.options.emitPath"
         :columns="widget.options.remoteOptions"
         :props="cascaderProp"
+        :check-data="checkData"
       />
     </template>
 
@@ -913,12 +914,19 @@ export default {
           }
           if (_that.widget.type === 'cascader') {
             const _result = []
-            _that.getTreePath(_that.widget.options.remoteOptions, data => data.value === _that.dataModel, _result)
-            const _labels = _result.map(item => {
-              return item.label
-            })
-            _that.showDataModel = _labels.join('/')
-            _that.checkData = _result
+            if (Array.isArray(_that.dataModel)) {
+              _that.dataModel.forEach(item => {
+                _that.getTreePath(_that.widget.options.remoteOptions, data => data.value === item, _result)
+              })
+              const obj = {}
+              _that.checkData = _result.reduce(function(item, next) {
+                obj[next.value] ? '' : obj[next.value] = true && item.push(next);
+                return item;
+              }, [])
+            } else {
+              _that.getTreePath(_that.widget.options.remoteOptions, data => data.value === _that.dataModel, _result)
+              _that.checkData = _result
+            }
           }
           if (_that.widget.type === 'radio') {
             _that.widget.options.remoteOptions.forEach(item => {
@@ -1102,7 +1110,8 @@ export default {
         // 这里按照你的需求来存放最后返回的内容
         path.push({
           label: data.label,
-          value: data.value
+          value: data.value,
+          children: data.children
         })
         if (func(data)) return path
         if (data.children) {
@@ -1112,7 +1121,7 @@ export default {
         path.pop()
       }
       return []
-    },
+    }
   }
 }
 </script>

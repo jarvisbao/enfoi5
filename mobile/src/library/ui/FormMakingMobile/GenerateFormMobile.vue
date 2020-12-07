@@ -101,6 +101,7 @@ import GenerateFormItem from './GenerateFormItem'
 import GenerateColItem from './GenerateColItem'
 import GenerateTabItem from './GenerateTabItem'
 import GenerateReport from './GenerateReport'
+import _ from 'lodash'
 
 export default {
   name: 'GenerateFormMobile',

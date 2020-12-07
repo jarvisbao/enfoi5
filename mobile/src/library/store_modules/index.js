@@ -1,8 +1,7 @@
 import app from './app'
 import user from './user'
 import permission from './permission'
-import flow from './flow'
 
-const _exports = { app, user, permission, flow }
+const _exports = { app, user, permission }
 
 export default _exports

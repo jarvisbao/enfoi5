@@ -20,7 +20,7 @@ import '@/iconfont/iconfont.css'
 import '@/icons' // icon
 
 // 注册公共组件
-// import '@/components/moduleForm/install'
+import '@/components/moduleForm/install'
 
 // 全局过滤器，时间戳转换
 Vue.filter('formatData', function(value) {

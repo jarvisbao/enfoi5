@@ -1,7 +1,11 @@
 <template>
   <section>
-    <page-header />
-    <div class="portal">
+    <van-sticky>
+      <header class="main-header">
+        {{ title }}
+      </header>
+    </van-sticky>
+    <div class="main-portal">
       <div class="container">
         <div class="grid">
           <van-grid :border="false" :column-num="5">
@@ -26,11 +30,13 @@ export default {
   data() {
     return {
       menus: [],
-      code: null
+      code: null,
+      title: null
     }
   },
   created() {
     this.code = this.$route.query.code || null
+    this.title = this.$route.query.label || null
     this.fetchData()
   },
   methods: {
@@ -43,10 +49,13 @@ export default {
     },
     routeGo(menu) {
       if (menu.uri === '/grid') {
-        this.$router.push({ path: menu.uri, query: { code: menu.menu_code }})
+        this.$router.push({ path: menu.uri, query: { code: menu.menu_code, label: menu.label }})
       } else {
         this.$router.push({ path: menu.uri })
       }
+    },
+    onClickLeft() {
+      this.$router.go(-1)
     }
   }
 }

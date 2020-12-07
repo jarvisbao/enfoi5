@@ -46,10 +46,10 @@
           <i class="el-icon-circle-plus-outline" style="color: #2a89ea" />
           新建
         </div>
-        <div v-show="can_export" :disabled="items.length===0" @click="export_data">
+        <!-- <div v-show="can_export" :disabled="items.length===0" @click="export_data">
           <i class="el-icon-download" style="color: #02a447" />
           导出
-        </div>
+        </div> -->
         <div
           v-for="(method, methodIndex) in newOtherMethods"
           :key="methodIndex"
@@ -126,6 +126,28 @@
         </van-checkbox-group>
       </van-list>
     </van-pull-refresh>
+    <van-popup v-model="dialogVisible" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <method-batch-edit
+        :batch-data="batchData"
+        :ids="ids"
+        :is-all="isAll"
+        :object_id="object_id"
+        :mtd_id="mtd_id"
+        @show="isShow"
+        @refresh="refresh"
+      />
+    </van-popup>
+    <van-popup v-model="dialogMtd" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <iframe :src="mtd_get_url" width="100%" height="100%" frameborder="0" />
+    </van-popup>
+    <van-overlay :show="showOverlay" z-index="10000" style="background: rgba(255, 255, 255, 0);">
+      <div class="van-toast">
+        <van-loading color="#fff" />
+        <div class="van-toast__text">
+          处理中...
+        </div>
+      </div>
+    </van-overlay>
   </div>
 </template>
 <script>
@@ -199,17 +221,10 @@ export default {
       items: [],
       headers: [],
       loading: true,
-      // showColumn: false,
-      // mtd_id: null,
-      // dialogVisible: false,
-      // dialogTitle: '',
-      // dialogShow: false,
-      // create_headers: [],
+      mtd_id: null,
+      dialogVisible: false,
       update_headers: [],
-      // delete_headers: [],
       headers_all: [],
-      // cls_name: null,
-      // currentPage: 1,
       text: null,
       pagination: {
         total: 10,
@@ -217,8 +232,6 @@ export default {
         pages: 1
       },
       page_size: 10,
-      // layout: 'sizes, prev, pager, next',
-      // showPage: false,
       can_create: false,
       can_update: false,
       can_delete: false,
@@ -227,7 +240,6 @@ export default {
       // edit_data: {},
       // currentName: null,
       delete_applycondition: '',
-      // batchVisible: false,
       batchData: [],
       single_methods: [],
       other_methods: [],
@@ -256,48 +268,18 @@ export default {
       refreshing: false,
       finished: false,
       topRight: false,
-      showTopBtn: false
+      showTopBtn: false,
+      dialogMtd: false,
+      mtd_get_url: null,
+      showOverlay: false
     }
   },
   computed: {
-    // allBtns() {
-    //   const { items, cellBtn, newSingleMethods, delete_applycondition } = this
-    //   items.forEach(item => {
-    //     this.$set(item, 'buttons', [])
-    //     item.buttons.push(...cellBtn, ...newSingleMethods)
-    //     item.buttons.forEach((i, index) => {
-    //       if (i.isMtd && eval(i.apply_condition) === false) {
-    //         item.buttons.splice(index, 1)
-    //       }
-    //     })
-    //     if (delete_applycondition && !eval(delete_applycondition)) {
-    //       item.buttons = item.buttons.filter(i => {
-    //         return i.action !== 'remove'
-    //       })
-    //     }
-    //   })
-    //   return items
-    // }
     title() {
       return this.name ? this.name : ''
     }
   },
-  watch: {
-    // 'pagination.total': function(val) {
-    //   if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-    //     this.pagination.page -= 1
-    //     this.getData()
-    //   }
-    // },
-    // allBtns: {
-    //   handler(val) {}
-    // }
-  },
   created() {
-    // this.get_page_params()
-    // this.get_object_id()
-    // this.get_page_id()
-    // this.get_filters()
     this.get_object_info()
     if (this.convert) {
       this.get_design_select()
@@ -356,17 +338,7 @@ export default {
       this.$refs.topBtnList.style.opacity = '1'
       this.$refs.topBtnList.style.height = 'auto'
       this.$refs.topBtnList.style.padding = '14px 16px'
-      // window.removeEventListener('scroll', this.handleScroll, false)
-      // this.$nextTick(() => {
-      //   window.addEventListener('scroll', this.getScollTop, false)
-      // })
     },
-    // getScollTop() {
-    //   const scorllTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
-    //   if (scorllTop === 0) {
-    //     window.addEventListener('scroll', this.handleScroll, false)
-    //   }
-    // },
     handleScroll() {
       if ((this.can_create && !this.is_view) || this.can_export || this.newOtherMethods.length > 0) {
         const scorllTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
@@ -414,6 +386,7 @@ export default {
       this.loading = true
       // this.getData()
       this.operateData()
+      this.selectionData = []
     },
     get_design_select() {
       this.$Apis.object.get_design_select(this.object_id, this.page_id).then(response => {
@@ -440,30 +413,6 @@ export default {
             this.can_update = response.payload.can_update
             this.can_delete = response.payload.can_delete
             this.can_export = response.payload.can_export
-            // if (this.can_view && !this.is_view) {
-            //   this.cellBtn.push({
-            //     name: '查看',
-            //     action: 'view',
-            //     icon: 'el-icon-view',
-            //     fun: 'info'
-            //   })
-            // }
-            // if (this.can_update && !this.is_view) {
-            //   this.cellBtn.push({
-            //     name: '更新',
-            //     action: 'update',
-            //     icon: 'el-icon-edit',
-            //     fun: 'update'
-            //   })
-            // }
-            // if (this.can_delete && !this.is_view) {
-            //   this.cellBtn.push({
-            //     name: '删除',
-            //     action: 'remove',
-            //     icon: 'el-icon-delete',
-            //     fun: 'remove'
-            //   })
-            // }
             this.get_method()
             this.fetchData()
           } else {
@@ -564,10 +513,6 @@ export default {
         this.getData()
       }, 1000)
     },
-    // schfilter() {
-    //   this.pagination.page = 1
-    //   this.operateData()
-    // },
     create() {
       this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid }})
     },
@@ -588,7 +533,6 @@ export default {
           }
         }
       })
-      // this.set_session()
       ids = ids.join(',')
       this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record }})
     },
@@ -609,7 +553,6 @@ export default {
           }
         }
       })
-      // this.set_session()
       ids = ids.join(',')
       this.$router.push({ name: 'data_info', query: { object_id: this.object_id, page_id: this.page_id, objid: ids, record: this.enable_record }})
     },
@@ -637,20 +580,15 @@ export default {
       }).catch(() => {
       })
     },
-    // handleSizeChange(val) {
-    //   this.page_size = val
-    //   this.operateData()
-    // },
-    // handleCurrentChange(val) {
-    //   this.pagination.page = val
-    //   this.operateData()
-    // },
-    // isShow() {
-    //   this.dialogVisible = !this.dialogVisible
-    // },
+    isShow() {
+      this.dialogVisible = !this.dialogVisible
+    },
     refresh(val) {
       // this.filters = val
-      // this.operateData()
+      this.refreshing = false
+      this.loading = true
+      this.operateData()
+      this.selectionData = []
     },
     goBack() {
       this.$router.go(-1)
@@ -671,9 +609,9 @@ export default {
         this.single_methods.forEach(element => {
           this.methodsItems.forEach(item => {
             if (element === item.mtd_id) {
-              this.$set(item, 'name', item.operate_name)
-              this.$set(item, 'fun', 'clickType' + item.operate_type)
-              this.$set(item, 'isMtd', true)
+              // this.$set(item, 'name', item.operate_name)
+              // this.$set(item, 'fun', 'clickType' + item.operate_type)
+              // this.$set(item, 'isMtd', true)
               this.newSingleMethods.push(item)
             }
           })
@@ -744,13 +682,27 @@ export default {
       }
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
+          this.showOverlay = true
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-          this.refresh()
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.showOverlay = false
+              this.refresh()
+            } else {
+              this.showOverlay = false
+            }
+          })
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-        this.refresh()
+        this.showOverlay = true
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.refresh()
+          } else {
+            this.showOverlay = false
+          }
+        })
       }
     },
     clickType2(item) {
@@ -784,13 +736,11 @@ export default {
       })
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          // this.dialogVisible = !this.dialogVisible
-          // this.batchVisible = true
-          // this.dialogTitle = '批量修改'
+          this.dialogVisible = !this.dialogVisible
+          this.dialogTitle = '批量修改'
         }).catch(() => {})
       } else {
         this.dialogVisible = !this.dialogVisible
-        this.batchVisible = true
         this.dialogTitle = '批量修改'
       }
     },
@@ -857,6 +807,7 @@ export default {
 
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -864,10 +815,14 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
-            this.$dialog.alert({ message: response.payload }).then(() => { this.resetItems([row], [index]) })
+            this.$dialog.alert({ message: response.payload }).then(() => {
+              this.showOverlay = false
+              this.resetItems([row], [index])
+            })
           })
         }).catch(() => {})
       } else {
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -875,7 +830,10 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
-          this.$dialog.alert({ message: response.payload }).then(() => { this.resetItems([row], [index]) })
+          this.$dialog.alert({ message: response.payload }).then(() => {
+            this.showOverlay = false
+            this.resetItems([row], [index])
+          })
         })
       }
     },
@@ -938,15 +896,23 @@ export default {
           // this.set_session()
           if (item.uriopentype === '0') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '1') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
         if (item.uriopentype === '0') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '1') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -991,7 +957,7 @@ export default {
       this.params = { object_id: this.object_id, page_id: this.page_id, ids: ids, mtd_id: item.mtd_id }
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          // this.set_session()
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -999,11 +965,14 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
-            this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
+            this.$dialog.alert({ message: response.payload }).then(() => {
+              this.showOverlay = false
+              this.refresh()
+            })
           })
         }).catch(() => {})
       } else {
-        // this.set_session()
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -1011,7 +980,10 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
-          this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
+          this.$dialog.alert({ message: response.payload }).then(() => {
+            this.showOverlay = false
+            this.refresh()
+          })
         })
       }
     },
@@ -1080,19 +1052,25 @@ export default {
 
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          // this.set_session()
           if (item.uriopentype === '0') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '1') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
-        // this.set_session()
         if (item.uriopentype === '0') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '1') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -1145,8 +1123,12 @@ export default {
             })
           } else if (item.uriopentype === '1') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '2') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
@@ -1158,10 +1140,14 @@ export default {
           }).then((response) => {
             this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
           })
-        } else if(item.uriopentype === '1') {
+        } else if (item.uriopentype === '1') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '2') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -1170,37 +1156,7 @@ export default {
       script.type = 'text/javascript'
       script.text = code
       document.head.appendChild(script)
-    },
-    export_data() {
-      // this.dialogVisible = !this.dialogVisible
-      // this.batchVisible = false
-      // this.dialogTitle = '数据导出'
-    },
-    // query() {
-    //   this.dialogSearch = !this.dialogSearch
-    // },
-    // isQueryShow() {
-    //   this.dialogSearch = !this.dialogSearch
-    // },
-    // getQueryData(params) {
-    //   const queryparam = []
-    //   params.forEach(item => {
-    //     queryparam.push(Object.values(item).join(''))
-    //   })
-    //   this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, queryparam, this.convert).then(response => {
-    //     this.loading = true
-    //     if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-    //       this.items = response.payload.items
-    //       this.pagination = response.payload.pagination
-    //       this.loading = false
-    //       this.isQueryShow()
-    //     } else {
-    //       this.$alert(response.message, '提示', {
-    //         confirmButtonText: '确定'
-    //       })
-    //     }
-    //   })
-    // }
+    }
   }
 }
 </script>

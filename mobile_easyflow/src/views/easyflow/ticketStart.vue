@@ -15,6 +15,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import formBaseData from './components/formBaseData'
+import moduleForm from '@/components/moduleForm/index'
 
 export default {
   components: {
@@ -101,7 +102,7 @@ export default {
             }
             if (this.ticketInfo.module_forms.length > 0) {
               this.ticketInfo.module_forms.forEach(item => {
-                this.$Utils.moduleForm.forEach(ii => {
+                moduleForm.forEach(ii => {
                   if (ii.name === item.name) {
                     this.module_forms.push({
                       name: item.name,

@@ -1,5 +1,12 @@
 <template>
   <div>
+    <van-sticky>
+      <van-nav-bar
+        left-text="返回"
+        left-arrow
+        @click-left="onClickLeft"
+      />
+    </van-sticky>
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
         v-model="loading"
@@ -134,6 +141,9 @@ export default {
         }
         this.getData()
       }, 1000)
+    },
+    onClickLeft() {
+      this.$router.go(-1)
     }
   }
 }

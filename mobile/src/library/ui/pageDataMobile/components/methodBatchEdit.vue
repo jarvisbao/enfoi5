@@ -35,7 +35,7 @@
       </template>
     </van-form>
     <div v-else>
-      <fm-generate-form ref="generateForm" v-if="fmshow" :data="design_form" :remote="remoteFuncs" :design-fields="batchData" />
+      <generate-form-mobile ref="generateForm" v-if="fmshow" :data="design_form" :remote="remoteFuncs" :design-fields="batchData" />
     </div>
   </div>
 </template>

@@ -7,7 +7,7 @@
         @click-left="onClickLeft"
       >
         <template #right>
-          <div v-if="edit" @click="handleSubmit">
+          <div v-if="edit && !showRecord" :class="{'disable': !flag}" @click="handleSubmit">
             提交
           </div>
         </template>
@@ -15,11 +15,11 @@
     </van-sticky>
     <div class="generateform-box" v-if="show">
       <generate-form-mobile ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
-      <!-- <div class="handle-btn el-form submit-btn" v-if="edit">
-        <van-button id="submit" :loading="$store.state.app.loading" color="#158bf1" round @click="handleSubmit">
+      <div class="handle-btn el-form submit-btn" v-if="edit && showRecord">
+        <van-button id="submit" :disabled="!flag" color="#158bf1" round @click="handleSubmit">
           立即修改
         </van-button>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -72,7 +72,9 @@ export default {
       show: false,
       fmshow: false,
       designFields: [],
-      objid: null
+      objid: null,
+      showRecord: false,
+      flag: true
     }
   },
   computed: {
@@ -97,8 +99,9 @@ export default {
     }
   },
   created() {
-    this.get_object_id()
-    this.get_method_id()
+    this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
+    this.object_id = this.$route.query.object_id ? this.$route.query.object_id : null
+    this.showRecord = this.$route.query.record ? JSON.parse(this.$route.query.record) : false
     this.fetchDate()
   },
   mounted() {
@@ -109,22 +112,6 @@ export default {
     this.$store.commit('SET_TABBAR', true)
   },
   methods: {
-    get_object_id() {
-      if ('object_id' in this.$route.query) {
-        this.object_id = this.$route.query.object_id
-        return this.object_id
-      } else {
-        return null
-      }
-    },
-    get_method_id() {
-      if ('mtd_id' in this.$route.query) {
-        this.mtd_id = this.$route.query.mtd_id
-        return this.mtd_id
-      } else {
-        return null
-      }
-    },
     fetchDate() {
       this.objid = this.$route.query.objid ? this.$route.query.objid : null
       this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_id).then(response => {
@@ -175,25 +162,34 @@ export default {
       })
     },
     handleSubmit() {
-      this.$refs.generateForm.getData().then(data => {
-        this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.onClickLeft()
-            })
-          } else {
-            this.$dialog.alert({
-              message: response.message
-            })
-          }
+      if (this.flag) {
+        this.$refs.generateForm.getData().then(data => {
+          this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.$dialog.alert({
+                message: response.message
+              }).then(() => {
+                this.onClickLeft()
+              })
+            } else {
+              this.$dialog.alert({
+                message: response.message
+              }).then(() => {
+                this.flag = true
+              })
+            }
+          })
+        }).catch(e => {
+          // 数据校验失败
+          this.$dialog.alert({
+            message: e
+          }).then(() => {
+            this.flag = true
+          })
         })
-      }).catch(e => {
-        // 数据校验失败
-        this.$dialog.alert({
-          message: e
-        })
+      }
+      this.$nextTick(() => {
+        this.flag = false
       })
     },
     onClickLeft() {
@@ -205,7 +201,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 .submit-btn {
-  margin: 20px 16px 40px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  margin: 20px 0 10px;
+  padding: 0 16px;
   .van-button {
     width: 100%;
   }

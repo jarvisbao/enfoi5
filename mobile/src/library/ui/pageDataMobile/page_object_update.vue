@@ -4,9 +4,9 @@
       {{ text }}
     </div>
 
-    <transition name="tab">
+    <keep-alive>
       <component :is="currentTab" :edit="edit" />
-    </transition>
+    </keep-alive>
   </div>
 </template>
 <script>

@@ -45,9 +45,9 @@
         <div v-show="can_create&&!is_view" id="create" class="button" @click="create">
           新建
         </div>
-        <div v-show="can_export" :disabled="items.length===0" class="button" @click="export_data">
+        <!-- <div v-show="can_export" :disabled="items.length===0" class="button" @click="export_data">
           导出
-        </div>
+        </div> -->
         <div
           v-for="(method, methodIndex) in newOtherMethods"
           :key="methodIndex">
@@ -108,6 +108,28 @@
         </van-checkbox-group>
       </van-list>
     </van-pull-refresh>
+    <van-popup v-model="dialogVisible" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <method-batch-edit
+        :batch-data="batchData"
+        :ids="ids"
+        :is-all="isAll"
+        :object_id="object_id"
+        :mtd_id="mtd_id"
+        @show="isShow"
+        @refresh="refresh"
+      />
+    </van-popup>
+    <van-popup v-model="dialogMtd" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <iframe :src="mtd_get_url" width="100%" height="100%" frameborder="0" />
+    </van-popup>
+    <van-overlay :show="showOverlay" z-index="10000" style="background: rgba(255, 255, 255, 0);">
+      <div class="van-toast">
+        <van-loading color="#fff" />
+        <div class="van-toast__text">
+          处理中...
+        </div>
+      </div>
+    </van-overlay>
   </div>
 </template>
 <script>
@@ -189,8 +211,8 @@ export default {
       // showColumn: false,
       object_id: null,
       page_id: null,
-      // mtd_id: null,
-      // dialogVisible: false,
+      mtd_id: null,
+      dialogVisible: false,
       // dialogTitle: '',
       // dialogShow: false,
       // create_headers: [],
@@ -245,49 +267,18 @@ export default {
       refreshing: false,
       finished: false,
       topRight: false,
-      showTopBtn: false
+      showTopBtn: false,
+      dialogMtd: false,
+      mtd_get_url: null,
+      showOverlay: false
     }
   },
   computed: {
-    // allBtns() {
-    //   const { items, cellBtn, newSingleMethods, delete_applycondition } = this
-    //   items.forEach(item => {
-    //     this.$set(item, 'buttons', [])
-    //     item.buttons.push(...cellBtn, ...newSingleMethods)
-    //     item.buttons.forEach((i, index) => {
-    //       if (i.isMtd && eval(i.apply_condition) === false) {
-    //         item.buttons.splice(index, 1)
-    //       }
-    //     })
-    //     if (delete_applycondition && !eval(delete_applycondition)) {
-    //       item.buttons = item.buttons.filter(i => {
-    //         return i.action !== 'remove'
-    //       })
-    //     }
-    //   })
-    //   return items
-    // }
     title() {
       return this.name ? this.name : ''
     }
   },
-  watch: {
-    // 'pagination.total': function(val) {
-    //   if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-    //     this.pagination.page -= 1
-    //     this.getData()
-    //   }
-    // },
-    // allBtns: {
-    //   handler(val) {}
-    // }
-  },
   created() {
-    // this.get_page_params()
-    // this.get_proj_code()
-    // this.get_object_code()
-    // this.get_page_code()
-    // this.get_filters()
     this.get_object_info()
     if (this.convert) {
       this.get_design_select()
@@ -405,47 +396,6 @@ export default {
       // this.getData()
       this.operateData()
     },
-    // fnCall(fun, row) {
-    //   this[fun](row)
-    // },
-    // mtdCall(fun, item, row) {
-    //   this[fun](item, row)
-    // },
-    // get_object_code() {
-    //   if ('object_code' in this.$route.query) {
-    //     this.object_code = this.$route.query.object_code
-    //     return this.object_code
-    //   }
-    // },
-    // get_proj_code() {
-    //   if ('proj_code' in this.$route.query) {
-    //     this.proj_code = this.$route.query.proj_code
-    //   }
-    // },
-    // get_page_code() {
-    //   if ('page_code' in this.$route.query) {
-    //     this.page_code = this.$route.query.page_code
-    //     return this.page_code
-    //   }
-    // },
-    // get_filters() {
-    //   if ('filters' in this.$route.query) {
-    //     this.filters = this.$route.query.filters
-    //     return this.filters
-    //   } else {
-    //     return null
-    //   }
-    // },
-    // get_page_params() {
-    //   if (sessionStorage.getItem(this.$route.name)) {
-    //     const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-    //     if (this.$route.path === pageParams.path) {
-    //       this.text = pageParams.text
-    //       this.pagination.page = pageParams.page_index
-    //       this.page_size = pageParams.page_size
-    //     }
-    //   }
-    // },
     get_design_select() {
       this.$Apis.object.get_design_select_by_code(this.proj_code, this.object_code, this.page_code).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
@@ -621,16 +571,9 @@ export default {
         this.getData()
       }, 1000)
     },
-    // schfilter() {
-    //   this.pagination.page = 1
-    //   this.operateData()
-    // },
     create() {
       this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid }})
     },
-    // set_session() {
-    //   sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    // },
     update(row) {
       let ids = []
       this.update_headers = []
@@ -648,7 +591,6 @@ export default {
           }
         }
       })
-      // this.set_session()
       ids = ids.join(',')
       this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record }})
     },
@@ -669,29 +611,9 @@ export default {
           }
         }
       })
-      // this.set_session()
       ids = ids.join(',')
       this.$router.push({ name: 'data_info', query: { object_id: this.object_id, page_id: this.page_id, objid: ids, record: this.enable_record }})
     },
-    // redirect_object(row, next_page, object_filter) {
-    //   this.filters = []
-    //   this.uselist = false
-    //   this.headers_all.forEach(element => {
-    //     element['value'] = row[element['prop']]
-    //     if (element['prop'] === object_filter) {
-    //       this.uselist = element['uselist']
-    //     }
-    //     if (element['is_primary']) {
-    //       if (element['value']) {
-    //         this.filters.push(element['prop'] + '=="' + element['value'] + '"')
-    //       }
-    //     }
-    //   })
-    //   this.set_session()
-    //   const filters = JSON.stringify(this.filters)
-    //   const redirect = { path: '/page/object', query: { proj_code: this.proj_code, page_code: next_page, filters: filters, object_filter: object_filter, prev_page: this.page_code, uselist: this.uselist }}
-    //   this.$router.push(redirect)
-    // },
     remove(row, index) {
       let ids = []
       // this.delete_headers = JSON.parse(JSON.stringify(this.headers))
@@ -706,18 +628,6 @@ export default {
       })
       ids = ids.join(',')
       this.$dialog.confirm({ message: '是否删除该信息?' }).then(() => {
-        // var can_delete = true
-        // if (this.delete_applycondition) {
-        //   if (!eval(this.delete_applycondition)) {
-        //     can_delete = false
-        //   }
-        // }
-        // if (!can_delete) {
-        //   this.$alert('不满足删除适用条件', '提示', {
-        //     confirmButtonText: '确定'
-        //   })
-        //   return false
-        // }
         if (!ids) {
           this.$dialog.alert({ message: '该业务类下字段没有设置主键，不允许删除' })
           return false
@@ -728,20 +638,12 @@ export default {
       }).catch(() => {
       })
     },
-    // handleSizeChange(val) {
-    //   this.page_size = val
-    //   this.operateData()
-    // },
-    // handleCurrentChange(val) {
-    //   this.pagination.page = val
-    //   this.operateData()
-    // },
-    // isShow() {
-    //   this.dialogVisible = !this.dialogVisible
-    // },
     refresh(val) {
       // this.filters = val
-      // this.operateData()
+      this.refreshing = false
+      this.loading = true
+      this.operateData()
+      this.selectionData = []
     },
     goBack() {
       this.$router.go(-1)
@@ -801,15 +703,6 @@ export default {
         })
       }
     },
-    // resolvePath(uri) {
-    //   if (!uri) {
-    //     uri = ''
-    //   }
-    //   if (this.$Utils.validate.isExternal(uri)) {
-    //     return uri
-    //   }
-    //   return path.resolve(uri)
-    // },
     clickType1(item) {
       // 如果有注入JavaScript代码，先注入JS代码
       if (item.append_script) {
@@ -844,13 +737,27 @@ export default {
       }
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
+          this.showOverlay = true
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-          this.refresh()
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.showOverlay = false
+              this.refresh()
+            } else {
+              this.showOverlay = false
+            }
+          })
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
-        this.refresh()
+        this.showOverlay = true
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.refresh()
+          } else {
+            this.showOverlay = false
+          }
+        })
       }
     },
     clickType2(item) {
@@ -884,9 +791,9 @@ export default {
       })
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          // this.dialogVisible = !this.dialogVisible
-          // this.batchVisible = true
-          // this.dialogTitle = '批量修改'
+          this.dialogVisible = !this.dialogVisible
+          this.batchVisible = true
+          this.dialogTitle = '批量修改'
         }).catch(() => {})
       } else {
         this.dialogVisible = !this.dialogVisible
@@ -957,6 +864,7 @@ export default {
 
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -964,10 +872,14 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
-            this.$dialog.alert({ message: response.payload }).then(() => { this.resetItems([row], [index]) })
+            this.$dialog.alert({ message: response.payload }).then(() => {
+              this.showOverlay = false
+              this.resetItems([row], [index])
+            })
           })
         }).catch(() => {})
       } else {
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -975,7 +887,10 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
-          this.$dialog.alert({ message: response.payload }).then(() => { this.resetItems([row], [index]) })
+          this.$dialog.alert({ message: response.payload }).then(() => {
+            this.showOverlay = false
+            this.resetItems([row], [index])
+          })
         })
       }
     },
@@ -1038,15 +953,23 @@ export default {
           // this.set_session()
           if (item.uriopentype === '0') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '1') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
         if (item.uriopentype === '0') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '1') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -1091,7 +1014,7 @@ export default {
       this.params = { object_id: this.object_id, page_id: this.page_id, ids: ids, mtd_id: item.mtd_id }
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          // this.set_session()
+          this.showOverlay = true
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -1099,11 +1022,14 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
-            this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
+            this.$dialog.alert({ message: response.payload }).then(() => {
+              this.showOverlay = false
+              this.refresh()
+            })
           })
         }).catch(() => {})
       } else {
-        // this.set_session()
+        this.showOverlay = true
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -1111,7 +1037,10 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
-          this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
+          this.$dialog.alert({ message: response.payload }).then(() => {
+            this.showOverlay = false
+            this.refresh()
+          })
         })
       }
     },
@@ -1183,16 +1112,24 @@ export default {
           // this.set_session()
           if (item.uriopentype === '0') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '1') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
         // this.set_session()
         if (item.uriopentype === '0') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '1') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -1245,8 +1182,12 @@ export default {
             })
           } else if (item.uriopentype === '1') {
             window.open(newUrl, '_blank')
+          } else if (item.uriopentype === '2') {
+            // this.$Utils.util.routerGo(newUrl)
+            window.open(newUrl, '_self')
           } else {
-            this.$Utils.util.routerGo(newUrl)
+            this.dialogMtd = !this.dialogMtd
+            this.mtd_get_url = newUrl
           }
         }).catch(() => {})
       } else {
@@ -1258,10 +1199,14 @@ export default {
           }).then((response) => {
             this.$dialog.alert({ message: response.payload }).then(() => { this.refresh() })
           })
-        } else if(item.uriopentype === '1') {
+        } else if (item.uriopentype === '1') {
           window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '2') {
+          // this.$Utils.util.routerGo(newUrl)
+          window.open(newUrl, '_self')
         } else {
-          this.$Utils.util.routerGo(newUrl)
+          this.dialogMtd = !this.dialogMtd
+          this.mtd_get_url = newUrl
         }
       }
     },
@@ -1275,32 +1220,7 @@ export default {
       // this.dialogVisible = !this.dialogVisible
       // this.batchVisible = false
       // this.dialogTitle = '数据导出'
-    },
-    // query() {
-    //   this.dialogSearch = !this.dialogSearch
-    // },
-    // isQueryShow() {
-    //   this.dialogSearch = !this.dialogSearch
-    // },
-    // getQueryData(params) {
-    //   const queryparam = []
-    //   params.forEach(item => {
-    //     queryparam.push(Object.values(item).join(''))
-    //   })
-    //   this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, queryparam, this.convert).then(response => {
-    //     this.loading = true
-    //     if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-    //       this.items = response.payload.items
-    //       this.pagination = response.payload.pagination
-    //       this.loading = false
-    //       this.isQueryShow()
-    //     } else {
-    //       this.$alert(response.message, '提示', {
-    //         confirmButtonText: '确定'
-    //       })
-    //     }
-    //   })
-    // }
+    }
   }
 }
 </script>

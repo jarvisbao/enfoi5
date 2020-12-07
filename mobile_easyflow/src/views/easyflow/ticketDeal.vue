@@ -132,6 +132,7 @@
 import formBaseData from './components/formBaseData'
 import flowImg from './components/flowImg'
 import tasksRecord from './components/tasksRecord'
+import moduleForm from '@/components/moduleForm/index'
 
 export default {
   components: {
@@ -347,7 +348,7 @@ export default {
                   // }
                   // item.name = _name.join('')
                   // console.log('$$%%', item.name)
-                  this.$Utils.moduleForm.forEach(ii => {
+                  moduleForm.forEach(ii => {
                     if (ii.name === item.name) {
                       if (ii.show === undefined) {
                         ii.show = true
@@ -432,7 +433,7 @@ export default {
     },
     getModuleForms(Elements, formItems) {
       Elements.forEach(item => {
-        this.$Utils.moduleForm.forEach(ii => {
+        moduleForm.forEach(ii => {
           if (ii.name === item.name) {
             formItems.push({
               name: item.name,

@@ -7,7 +7,7 @@
         @click-left="onClickLeft"
       >
         <template #right>
-          <div @click="handleSubmit">
+          <div :class="{'disable': !flag}" @click="handleSubmit">
             提交
           </div>
         </template>
@@ -64,7 +64,8 @@ export default {
       designFields: [],
       pntfk: null,
       pntid: null,
-      mtd_id: null
+      mtd_id: null,
+      flag: true
     }
   },
   computed: {
@@ -125,28 +126,37 @@ export default {
       })
     },
     handleSubmit() {
-      this.pntfk = this.$route.query.pntfk ? this.$route.query.pntfk : null
-      this.pntid = this.$route.query.pntid ? this.$route.query.pntid : null
-      this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
-      this.$refs.generateForm.getData().then(data => {
-        this.$Apis.object.data_create(this.object_id, data, this.mtd_id, this.pntfk, this.pntid).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.onClickLeft()
-            })
-          } else {
-            this.$dialog.alert({
-              message: response.message
-            })
-          }
+      if (this.flag) {
+        this.pntfk = this.$route.query.pntfk ? this.$route.query.pntfk : null
+        this.pntid = this.$route.query.pntid ? this.$route.query.pntid : null
+        this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
+        this.$refs.generateForm.getData().then(data => {
+          this.$Apis.object.data_create(this.object_id, data, this.mtd_id, this.pntfk, this.pntid).then(response => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.$dialog.alert({
+                message: response.message
+              }).then(() => {
+                this.onClickLeft()
+              })
+            } else {
+              this.$dialog.alert({
+                message: response.message
+              }).then(() => {
+                this.flag = true
+              })
+            }
+          })
+        }).catch(e => {
+          // 数据校验失败
+          this.$dialog.alert({
+            message: e
+          }).then(() => {
+            this.flag = true
+          })
         })
-      }).catch(e => {
-        // 数据校验失败
-        this.$dialog.alert({
-          message: e
-        })
+      }
+      this.$nextTick(() => {
+        this.flag = false
       })
     },
     onClickLeft() {
@@ -161,5 +171,8 @@ export default {
   .van-button {
     width: 100%;
   }
+}
+.disable {
+  color: #969696;
 }
 </style>
