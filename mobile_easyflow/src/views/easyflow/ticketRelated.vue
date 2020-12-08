@@ -28,14 +28,14 @@
 </template>
 <script>
 export default {
+  components: {
+    search: () => import('@/components/search/index')
+  },
   props: {
     api_name: {
       type: String,
       default: null
     }
-  },
-  components: {
-    search: () => import('@/components/search/index')
   },
   data() {
     return {

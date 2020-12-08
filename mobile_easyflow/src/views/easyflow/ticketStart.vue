@@ -5,11 +5,12 @@
     </div>
     <van-tabbar :border="false">
       <div style="padding: 0 16px; width: 100%">
-        <van-button round type="info" style="width: 100%" @click="submit">
+        <van-button :disabled="disabled" round type="info" style="width: 100%" @click="submit">
           提交
         </van-button>
       </div>
     </van-tabbar>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -19,7 +20,8 @@ import moduleForm from '@/components/moduleForm/index'
 
 export default {
   components: {
-    formBaseData
+    formBaseData,
+    overlayLoading: () => import('@/components/overlayLoading')
   },
   data() {
     return {
@@ -38,7 +40,10 @@ export default {
         ticket_data: null,
         forms: null,
         deal_or_view: null
-      }
+      },
+      disabled: false,
+      showOverlay: false,
+      loadingText: null
     }
   },
   computed: {
@@ -138,20 +143,26 @@ export default {
     },
     getFormData(params) {
       const forms = params
-      this.loading = true
+      this.disabled = true
+      this.showOverlay = true
+      this.loadingText = '提交中...'
       this.$Apis.ticket.none_start(this.flow_id, this.openid, forms).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: '提交成功！下一个节点：' + this.nextNode
           }).then(() => {
-            this.loading = false
+            this.disabled = false
             this.back()
           })
         } else {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: response.message
           }).then(() => {
-            this.loading = false
+            this.disabled = false
           })
         }
       })

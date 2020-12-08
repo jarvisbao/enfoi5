@@ -134,8 +134,6 @@ export default {
           // 把表单数组传递给父组件
           if (this.isValidate.indexOf(false) === -1) {
             this.$emit('getFormData', this.forms)
-          } else {
-            this.$emit('hideLoading')
           }
         }, 300)
       }

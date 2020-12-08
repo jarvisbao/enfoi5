@@ -3,13 +3,17 @@ import countersignVote from './countersignVote'
 import countersignResult from './countersignResult'
 import backToNode from './backToNode'
 import userSelect from './userSelect'
+import turnToUser from './turnToUser'
+import callActivityRecord from './callActivityRecord'
 
 const components = [
   recall,
   countersignVote,
   countersignResult,
   backToNode,
-  userSelect
+  userSelect,
+  turnToUser,
+  callActivityRecord
 ]
 
 components.forEach((component) => {

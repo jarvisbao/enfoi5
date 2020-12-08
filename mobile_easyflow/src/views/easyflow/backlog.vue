@@ -36,6 +36,9 @@
 </template>
 <script>
 export default {
+  components: {
+    search: () => import('@/components/search/index')
+  },
   data() {
     return {
       items: [],
@@ -50,9 +53,6 @@ export default {
       refreshing: false,
       sText: '搜索我的待办事务'
     }
-  },
-  components: {
-    search: () => import('@/components/search/index')
   },
   created() {
   },

@@ -21,18 +21,24 @@
         <div v-if="tasksInfo.length > 0" class="tips-msg">
           <div class="item">
             <i class="iconfont icon-dangdi" />
-            <div>
-              <span v-for="(item, index) in nodeItems" :key="index">
+            <div @click="moreNode">
+              <span v-for="(item, index) in nodeItems.slice(0, 3)" :key="index">
                 {{ item }}
               </span>
+              <div v-if="nodeItems.length > 3" class="more">
+                <i class="el-icon-d-arrow-right" style="font-size: 14px;" />
+              </div>
             </div>
           </div>
           <div class="item">
             <i class="iconfont icon-geren" />
-            <div>
-              <span v-for="(item, index) in nodeOwners" :key="index">
+            <div @click="moreNodeOwners">
+              <span v-for="(item, index) in nodeOwners.slice(0, 5)" :key="index">
                 {{ item }}
               </span>
+              <div v-if="nodeOwners.length > 5" class="more">
+                <i class="el-icon-d-arrow-right" style="font-size: 14px;" />
+              </div>
             </div>
           </div>
           <div class="item">
@@ -50,7 +56,6 @@
         :url_forms="url_forms"
         :edit="isView ? false : true"
         @getFormData="getFormData"
-        @hideLoading="hideLoading"
       />
       <!-- 处理记录 -->
       <div v-if="tasksRecord.length > 0" class="ticket-deal-record">
@@ -113,6 +118,7 @@
               keep-alive
               @get_data="get_module_data"
               @close="closeDialog"
+              @close_overlay="closeOverlay"
             />
           </template>
           <template v-if="button_url_form">
@@ -120,12 +126,23 @@
           </template>
         </div>
         <div style="padding: 20px 16px 0; width: 100%">
-          <van-button id="confirm" round type="info" style="width: 100%" @click="btnSubmit">
+          <van-button id="confirm" :disabled="disabled" round type="info" style="width: 100%" @click="btnSubmit">
             提交
           </van-button>
         </div>
       </div>
     </van-popup>
+    <van-overlay :show="showALL" @click="showALL = false">
+      <div class="overlay-wrapper" @click="showALL = false">
+        <div v-if="showOwners" class="block">
+          <span v-for="(item, index) in nodeOwners" :key="index">{{ item }}</span>
+        </div>
+        <div v-else class="block">
+          <span v-for="(item, index) in nodeItems" :key="index">{{ item }}</span>
+        </div>
+      </div>
+    </van-overlay>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -138,7 +155,8 @@ export default {
   components: {
     formBaseData,
     flowImg,
-    tasksRecord
+    tasksRecord,
+    overlayLoading: () => import('@/components/overlayLoading')
   },
   props: {
     isView: {
@@ -232,8 +250,13 @@ export default {
       moduleData: null,
       moduleSubmit: false,
       backToNode: [],
-      loadingAction: false,
-      popupShow: false
+      popupShow: false,
+      showALL: false,
+      showOwners: false,
+      showOverlay: false,
+      loadingText: null,
+      disabled: false
+
     }
   },
   created() {
@@ -450,45 +473,35 @@ export default {
       // 调用子组件 getdata() 方法
       this.$refs.formBaseData.getData()
     },
-    hideLoading() {
-      this.ticket_buttons.forEach(item => {
-        item.loading = false
-      })
-    },
     getFormData(params) {
       const forms = params
-      this.$Apis.ticket.ticket_deal(this.ticket_id, this.task_id, forms, this.late_id).then(response => {
+      this.showOverlay = true
+      this.loadingText = '处理中...'
+      this.$Apis.ticket.ticket_deal(this.task_id, forms, this.late_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.$dialog.alert({
             message: '提交成功！'
           }).then(() => {
-            this.ticket_buttons.forEach(item => {
-              if (item.loading) {
-                item.loading = false
-              }
-            })
+            this.showOverlay = false
+            this.loadingText = null
             this.back()
           })
         } else {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: response.message
-          }).then(() => {
-            this.hideLoading()
           })
         }
       })
     },
     viewFlowimg() {
-      // this.dialogVisible = !this.dialogVisible
       this.dialogTitle = '流程图'
-      // this.dialogWidth = '95%'
       this.popupShow = !this.popupShow
       this.isFlowImg = true
     },
     btnEvents(item) {
-      // this.dialogVisible = !this.dialogVisible
       this.dialogTitle = item.name
-      // this.dialogWidth = '50%'
       this.popupShow = !this.popupShow
       this.isFlowImg = false
       if (item) {
@@ -549,10 +562,8 @@ export default {
       this.belong = item.belong
       this.action = item.action
       this.owner_id = item.owner_id
-      item.loading = true
       this.moduleInit.deal_or_view = true
       if (this.execuFn(item)) {
-        this.hideLoading()
         // return
         this.$dialog.confirm({
           message: '是否执行' + item.name + '操作'
@@ -572,17 +583,13 @@ export default {
               this.button_url_form = item.url_forms[0].name
               this.button_all_form.push('url')
             }
-            // this.dialogVisible = !this.dialogVisible
             this.dialogTitle = item.name
-            // this.dialogWidth = '50%'
             this.popupShow = !this.popupShow
             this.isFlowImg = false
           } else {
             this.btnSubmit()
           }
         }).catch(() => {})
-      } else {
-        this.hideLoading()
       }
     },
     btnSubmit() {
@@ -595,6 +602,9 @@ export default {
             if (data) {
               if (this.$refs[item.name][0].submit) {
                 this.moduleSubmit = true
+                this.showOverlay = true
+                this.loadingText = '处理中...'
+                this.disabled = true
                 this.$refs[item.name][0].submit(this.action, this.owner_id)
                 return false
               }
@@ -602,16 +612,6 @@ export default {
               this.$set(this.button_forms, item.name, this.moduleData)
             }
           })
-
-          // if (this.moduleValid) {
-          //   if (this.$refs[item.name][0].submit) {
-          //     this.moduleSubmit = true
-          //     this.$refs[item.name][0].submit(this.action, this.owner_id)
-          //     return false
-          //   }
-          //   this.$refs[item.name][0].get_data()
-          //   this.$set(this.button_forms, item.name, this.moduleData)
-          // }
         })
       }
 
@@ -631,8 +631,10 @@ export default {
       }
       setTimeout(() => {
         if (this.isValidate.indexOf(false) === -1 && !this.moduleSubmit) {
+          this.showOverlay = true
+          this.loadingText = '处理中...'
+          this.disabled = true
           // 提交数据
-          this.loadingAction = true
           const data = {
             ticket_id: this.ticket_id,
             action: this.action,
@@ -643,18 +645,17 @@ export default {
           }
           this.$Apis.ticket.action_do(data).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.closeOverlay()
               this.$dialog.alert({
                 message: '提交成功！'
               }).then(() => {
-                this.loadingAction = false
-                this.popupShow = false
-                this.$router.go(0)
+                this.closeDialog()
+                this.$router.push({ name: 'ticket-participate' })
               })
             } else {
+              this.closeOverlay()
               this.$dialog.alert({
                 message: response.message
-              }).then(() => {
-                this.loadingAction = false
               })
             }
           })
@@ -669,8 +670,26 @@ export default {
       this.moduleData = data
     },
     closeDialog() {
-      // this.dialogVisible = false
       this.popupShow = false
+    },
+    closeOverlay() {
+      this.showOverlay = false
+      this.loadingText = null
+      this.disabled = false
+    },
+    moreNodeOwners() {
+      if (this.nodeOwners.length < 6) {
+        return
+      }
+      this.showALL = true
+      this.showOwners = true
+    },
+    moreNode() {
+      if (this.nodeOwners.length < 4) {
+        return
+      }
+      this.showALL = true
+      this.showOwners = false
     }
   }
 }
@@ -721,7 +740,6 @@ export default {
         line-height: 20px;
         div {
           margin-left: 8px;
-          margin-left: 8px;
           display: flex;
           /* flex: 1; */
           flex-wrap: wrap;
@@ -730,8 +748,14 @@ export default {
           i {
             font-size: 18px;
           }
-          span {
-            margin-right: 8px;
+          span + span {
+            margin-left: 8px;
+          }
+          span:empty {
+            margin: 0;
+          }
+          .more {
+            margin-left: 0;
           }
         }
       }
@@ -745,6 +769,24 @@ export default {
       font-size: 15px;
       font-weight: bold;
       color: #333;
+    }
+  }
+}
+.overlay-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  .block {
+    max-width: 70%;
+    max-height: 60%;
+    padding: 15px;
+    background: #fff;
+    line-height: 24px;
+    overflow-y: auto;
+    span {
+      margin: 0 8px;
+      white-space: nowrap;
     }
   }
 }
