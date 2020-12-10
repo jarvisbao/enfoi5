@@ -264,26 +264,5 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
-    path: '/mobile_menu',
-    name: 'mobile',
-    component: Layout,
-    redirect: '/mobile_menu/list',
-    children: [
-      {
-        path: 'list',
-        name: 'mobile_menu_list',
-        component: () => import('@/views/mobileMenu'),
-        meta: { title: '移动端菜单' }
-      },
-      {
-        path: 'sublist',
-        name: 'mobile_submenu_list',
-        component: () => import('@/views/mobileMenu'),
-        props: { isSub: true },
-        meta: { title: '子菜单', isBack: true }
-      }
-    ]
-  },
   { path: '*', redirect: '/404', hidden: true }
 ]

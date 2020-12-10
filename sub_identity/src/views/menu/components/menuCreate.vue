@@ -192,7 +192,10 @@ export default {
           var icon = this.menu.icon
           var number = this.menu.number
           this.loading = true
-          const selected_menu_id = this.$refs.cascader.getCheckedNodes().length > 0 ? this.$refs.cascader.getCheckedNodes()[0].data.menu_id : null // 获取级联选择器选择值的menu_id
+          let selected_menu_id = null
+          if (this.$refs.cascader) {
+            selected_menu_id = this.$refs.cascader.getCheckedNodes().length > 0 ? this.$refs.cascader.getCheckedNodes()[0].data.menu_id : null // 获取级联选择器选择值的menu_id
+          }
 
           this.$Apis.menu.menu_create(label, menu_code, uri, icon, number, parent, this.device).then(response => {
             this.loading = false
