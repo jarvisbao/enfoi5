@@ -38,6 +38,12 @@
       <el-form-item v-else label="父菜单" prop="parent">
         <el-input v-model="parent" :disabled="true" />
       </el-form-item>
+      <el-form-item v-if="device === 'mobile'" label="底部标签栏">
+        <el-switch v-model="menu.tabbar" />
+        <div class="tips">
+          开启则显示在移动端底部标签栏中
+        </div>
+      </el-form-item>
       <el-form-item>
         <el-button id="submit" :loading="loading" type="danger" @click="submitForm('form')">
           立即添加
@@ -105,7 +111,8 @@ export default {
         uri: '',
         number: '',
         icon: null,
-        addon: null
+        addon: null,
+        tabbar: false
       },
       parent: this.parentMenu,
       // prop: { value: 'namespace', label: 'title', children: 'children' },
@@ -191,13 +198,14 @@ export default {
           var uri = this.menu.uri
           var icon = this.menu.icon
           var number = this.menu.number
+          const tabbar = this.menu.tabbar
           this.loading = true
           let selected_menu_id = null
           if (this.$refs.cascader) {
             selected_menu_id = this.$refs.cascader.getCheckedNodes().length > 0 ? this.$refs.cascader.getCheckedNodes()[0].data.menu_id : null // 获取级联选择器选择值的menu_id
           }
 
-          this.$Apis.menu.menu_create(label, menu_code, uri, icon, number, parent, this.device).then(response => {
+          this.$Apis.menu.menu_create(label, menu_code, uri, icon, number, parent, this.device, tabbar).then(response => {
             this.loading = false
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert('新建成功!', '提示', {

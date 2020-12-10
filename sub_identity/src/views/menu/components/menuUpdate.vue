@@ -25,6 +25,12 @@
         <span class="choose-icon" @click="chooseIcon">选择</span>
         <span v-if="showIcon" class="delete-icon" @click="deleteIcon">删除</span>
       </el-form-item>
+      <el-form-item v-if="device === 'mobile'" label="底部标签栏">
+        <el-switch v-model="menu.tabbar" />
+        <div class="tips">
+          开启则显示在移动端底部标签栏中
+        </div>
+      </el-form-item>
       <el-form-item>
         <el-button id="submit" :loading="loading" type="danger" @click="submitForm('form')">
           立即修改
@@ -126,8 +132,9 @@ export default {
           var url = this.menu.uri
           var icon = this.menu.icon
           var number = this.menu.number
+          const tabbar = this.menu.tabbar
           this.loading = true
-          this.$Apis.menu.menu_updata(menu_id, text, url, number, icon).then(response => {
+          this.$Apis.menu.menu_updata(menu_id, text, url, number, icon, tabbar).then(response => {
             this.loading = false
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert('更新成功!', '提示', {

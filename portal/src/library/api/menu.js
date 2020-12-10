@@ -4,7 +4,7 @@
  */
 import request from '@/library/js/request'
 
-export function menu_create(label, menu_code, uri, icon, number, parent_code, device) {
+export function menu_create(label, menu_code, uri, icon, number, parent_code, device, tabbar) {
   /**
    * @method menu_create
    * @param label:菜单显示名称
@@ -13,6 +13,7 @@ export function menu_create(label, menu_code, uri, icon, number, parent_code, de
    * @param icon:菜单图标
    * @param number:菜单同级序号
    * @param parent_code:父菜单编码
+   * @param tabbar: 是否显示在底部标签栏，用于移动端
    */
   return request({
     url: '/rpcgateway/MenuService/menu_create',
@@ -24,7 +25,8 @@ export function menu_create(label, menu_code, uri, icon, number, parent_code, de
       icon: icon,
       number: number,
       parent_code: parent_code,
-      device: device
+      device: device,
+      tabbar: tabbar
     },
     headers: { signature: true }
   })
@@ -109,7 +111,7 @@ export function menu_info(menu_code) {
   })
 }
 
-export function menu_updata(menu_id, label, uri, number, icon) {
+export function menu_updata(menu_id, label, uri, number, icon, tabbar) {
   /**
    * @method menu_updata
    * @param res_id: 菜单ID
@@ -117,6 +119,7 @@ export function menu_updata(menu_id, label, uri, number, icon) {
    * @param url:菜单指向地址
    * @param icon:菜单图标
    * @param number:菜单同级序号
+   * @param tabbar: 是否显示在底部标签栏，用于移动端
    */
   return request({
     url: '/rpcgateway/MenuService/update_menu_by_id',
@@ -126,7 +129,8 @@ export function menu_updata(menu_id, label, uri, number, icon) {
       uri: uri,
       icon: icon,
       number: number,
-      menu_id: menu_id
+      menu_id: menu_id,
+      tabbar: tabbar
     },
     headers: { signature: true }
   })
