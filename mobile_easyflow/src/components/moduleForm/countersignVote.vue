@@ -1,17 +1,5 @@
 <template>
   <div class="countersign-vote">
-    <!-- <el-form ref="form" :model="form" :rules="rules" :disabled="isDisabled" label-width="100px">
-      <el-form-item label="会签意见" prop="sign_value">
-        <el-select v-model="form.sign_value">
-          <el-option label="同意" value="agree" />
-          <el-option label="反对" value="against" />
-          <el-option label="弃权" value="waiver" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="评论">
-        <el-input v-model="form.summary" :autosize="{ minRows: 3, maxRows: 6 }" type="textarea" placeholder="请输入内容" />
-      </el-form-item>
-    </el-form> -->
     <van-form ref="form" :model="form">
       <van-field
         v-model="sign_name"

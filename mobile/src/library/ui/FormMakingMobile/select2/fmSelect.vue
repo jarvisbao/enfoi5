@@ -21,7 +21,6 @@
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <!-- <template v-if="selectMultiple"> -->
         <van-checkbox-group ref="checkboxGroup" v-model="mutilSelect">
           <div v-for="(item, index) in items" :key="index" class="list-item" @click="choose(item, index)">
             <div style="display: flex; padding: 10px 12px; align-items: center;">
@@ -40,7 +39,10 @@
     </div>
     <div v-if="selectMultiple" style="height: 50px;">
       <div class="check-all-box">
-        <div class="check-btn" @click="selectAll" />
+        <div :class="{'check-all': isCheckAll}" class="check-btn" @click="selectAll" />
+        <div class="right-btn">
+          <van-button type="primary" size="small" round @click="submit">确定</van-button>
+        </div>
       </div>
     </div>
   </div>
@@ -99,11 +101,11 @@ export default {
       filters: [],
       text: null,
       page_size: 10,
-      pageCount: this.pagination.pages,
-      pageIndex: 1,
+      pageIndex: 2,
       chooseItems: this.select2Items,
       singleSelect: null,
-      mutilSelect: this.select2Items
+      mutilSelect: this.select2Items,
+      isCheckAll: false
     }
   },
   watch: {
@@ -128,16 +130,24 @@ export default {
   },
   methods: {
     onLoad() {
-      if (this.pagination.page < this.pageCount) {
-        this.pageIndex++
+      if (this.pagination.page < this.pagination.pages) {
+        this.loading = true
         this.$Apis.object.data_list_by_code(this.proj_code, this.object_code, this.page_code, this.text, this.pageIndex, this.page_size, true, this.filters, true).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            if (response.payload.items.length === 0) {
+              this.finished = true
+            }
             this.items = [...this.items, ...response.payload.items]
+            if (this.pageIndex < this.pagination.pages) {
+              this.pageIndex += 1
+            }
+            this.loading = false
+          } else {
+            this.finished = true
           }
         })
-        this.loading = false
       }
-      if (this.pageIndex === this.pageCount) {
+      if (this.pageIndex >= this.pagination.pages) {
         this.finished = true
       }
     },
@@ -147,8 +157,10 @@ export default {
     selectAll() {
       if (this.mutilSelect.length === this.items.length) {
         this.$refs.checkboxGroup.toggleAll(false)
+        this.isCheckAll = false
       } else {
         this.$refs.checkboxGroup.toggleAll(true)
+        this.isCheckAll = true
       }
     },
     choose(item, index) {
@@ -172,7 +184,16 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #fff;
+}
 .list-box {
+  padding-top: 46px;
   max-height: calc(100vh - 46px);
   overflow-y: auto;
 }

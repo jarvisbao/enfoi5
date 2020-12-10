@@ -20,8 +20,7 @@ import moduleForm from '@/components/moduleForm/index'
 
 export default {
   components: {
-    formBaseData,
-    overlayLoading: () => import('@/components/overlayLoading')
+    formBaseData
   },
   data() {
     return {

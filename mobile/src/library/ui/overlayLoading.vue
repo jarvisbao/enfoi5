@@ -4,7 +4,6 @@
       <div class="van-toast">
         <van-loading color="#fff" />
         <div class="van-toast__text">
-          <!-- 处理中... -->
           {{ text }}
         </div>
       </div>
@@ -13,6 +12,7 @@
 </template>
 <script>
 export default {
+  name: 'OverlayLoading',
   props: {
     show: {
       type: Boolean,

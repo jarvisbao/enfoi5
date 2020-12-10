@@ -305,18 +305,16 @@ export default {
       }
       this.$Apis.ticket.action_do(ticket_id, action, owner_id, task_id, forms, active_id, late_id, null).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.$alert('提交成功！', '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.$emit('close')
-            }
+          this.$emit('close_overlay')
+          this.$dialog.alert({
+            message: '提交成功！'
+          }).then(() => {
+            this.$emit('close')
           })
         } else {
-          this.$alert(response.message, '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              // this.loadingAction = false
-            }
+          this.$emit('close_overlay')
+          this.$dialog.alert({
+            message: response.message
           })
         }
       })

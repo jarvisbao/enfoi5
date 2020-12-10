@@ -155,8 +155,7 @@ export default {
   components: {
     formBaseData,
     flowImg,
-    tasksRecord,
-    overlayLoading: () => import('@/components/overlayLoading')
+    tasksRecord
   },
   props: {
     isView: {
@@ -477,13 +476,13 @@ export default {
       const forms = params
       this.showOverlay = true
       this.loadingText = '处理中...'
-      this.$Apis.ticket.ticket_deal(this.task_id, forms, this.late_id).then(response => {
+      this.$Apis.ticket.ticket_deal(this.ticket_id, this.task_id, forms, this.late_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: '提交成功！'
           }).then(() => {
-            this.showOverlay = false
-            this.loadingText = null
             this.back()
           })
         } else {

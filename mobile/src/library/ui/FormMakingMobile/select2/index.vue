@@ -1,27 +1,19 @@
 <template>
   <div>
-    <van-field
-      :id="id"
-      :ref="widget.model"
-      v-model="dataModel"
-      :border="false"
-      clickable
-      readonly
-      is-link
-      @click="handleSelect2()"
-    >
-      <template #input>
+    <div style="display: flex;" @click="handleSelect2()">
+      <div style="flex: 1;">
         <span v-if="select2Items.length < 1" style="color: #cbc9cf">请选择</span>
         <div v-else class="select2-box">
           <ul>
-            <li v-for="(item, index) in select2Items" :key="item.value">
+            <li v-for="(item, index) in select2Items" :key="item.value" :class="{'isdisabe': disabled}">
               {{ item[option.label] }}
-              <van-icon name="clear" class="remove-btn" @click="removeSelect2(item, index)" />
+              <van-icon v-if="!disabled" name="clear" class="remove-btn" @click.stop="removeSelect2(item, index)" />
             </li>
           </ul>
         </div>
-      </template>
-    </van-field>
+      </div>
+      <van-icon name="arrow" class="van-cell__right-icon" />
+    </div>
     <van-popup v-model="dialogVisible" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }" get-container="body">
       <fm-select
         :select-multiple="multiple"
@@ -146,6 +138,9 @@ export default {
   },
   methods: {
     handleSelect2() {
+      if (this.disabled) {
+        return
+      }
       this.dialogVisible = !this.dialogVisible
       this.dialogTitle = '选择：' + this.widget.name
     },
@@ -206,9 +201,9 @@ export default {
         top: 0;
         padding: 0;
         color: rgb(38, 126, 241);
-        &.is-disabled:hover {
-          color: #C0C4CC;
-        }
+      }
+      &.isdisabe {
+        color: #c8c9cc;
       }
     }
   }

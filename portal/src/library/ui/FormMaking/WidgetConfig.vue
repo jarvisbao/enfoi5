@@ -491,6 +491,31 @@
           >
           </el-date-picker>
         </el-form-item>
+        <el-form-item v-if="data.type == 'date'" label="最小值-最大值">
+          <div style="position: absolute; left: 92px; top: -40px">
+            <el-tooltip :content="DateMsg" placement="bottom" effect="light">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <el-date-picker
+              v-model="data.options.minDate"
+              :type="data.options.type"
+              :clearable="true"
+              value-format="yyyy-MM-dd"
+              placeholder="最小值"
+              style="width: 45%"
+            />
+            <el-date-picker
+              v-model="data.options.maxDate"
+              :type="data.options.type"
+              :clearable="true"
+              value-format="yyyy-MM-dd"
+              placeholder="最大值"
+              style="width: 45%"
+            />
+          </div>
+        </el-form-item>
       </template>
 
       <template v-if="data.type=='imgupload'">
@@ -996,7 +1021,8 @@ export default {
       object_options: [],
       select2_option: [],
       page_options: [],
-      component_options: templates
+      component_options: templates,
+      DateMsg: '用于移动端，若不设置则移动端默认的最小时间为十年前，最大时间为十年后'
     }
   },
   computed: {

@@ -12,6 +12,7 @@
     <div class="generateform-box" v-if="show">
       <generate-form-mobile ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
     </div>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -71,7 +72,9 @@ export default {
       },
       show: false,
       fmshow: false,
-      designFields: []
+      designFields: [],
+      showOverlay: false,
+      loadingText: null
     }
   },
   computed: {
@@ -155,8 +158,12 @@ export default {
     },
     handleSubmit() {
       this.$refs.generateForm.getData().then(data => {
+        this.showOverlay = true
+        this.loadingText = '提交中...'
         this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.message
             }).then(() => {
@@ -164,6 +171,8 @@ export default {
               this.handleReset()
             })
           } else {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.message
             })

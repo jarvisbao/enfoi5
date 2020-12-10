@@ -103,7 +103,7 @@
     </div>
     <div v-show="pntid && isMultiple" style="height: 50px;">
       <div class="check-all-box">
-        <div class="check-btn" @click="selectAll" />
+        <div :class="{'check-all': isCheckAll}" class="check-btn" @click="selectAll" />
         <div class="right-btn">
           <van-button type="primary" size="small" round @click="refresh">刷新</van-button>
         </div>
@@ -150,14 +150,7 @@
       />
       <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
     </van-popup>
-    <van-overlay :show="showOverlay" z-index="10000" style="background: rgba(255, 255, 255, 0);">
-      <div class="van-toast">
-        <van-loading color="#fff" />
-        <div class="van-toast__text">
-          处理中...
-        </div>
-      </div>
-    </van-overlay>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -255,7 +248,9 @@ export default {
       mtd_get_url: null,
       showForm: false,
       showTopBtn: false,
-      showOverlay: false
+      showOverlay: false,
+      loadingText: null,
+      isCheckAll: false
     }
   },
   watch: {
@@ -329,8 +324,10 @@ export default {
     selectAll() {
       if (this.selectionData.length === this.items.length) {
         this.$refs.checkboxGroup.toggleAll(false)
+        this.isCheckAll = false
       } else {
         this.$refs.checkboxGroup.toggleAll(true)
+        this.isCheckAll = true
       }
     },
     handleCheck(item, index) {
@@ -641,23 +638,32 @@ export default {
           message: item.confirm_msg
         }).then(() => {
           this.showOverlay = true
+          this.loadingText = '处理中...'
           this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.showOverlay = false
+              this.loadingText = null
               this.refresh()
             } else {
               this.showOverlay = false
+              this.loadingText = null
             }
           })
-        }).catch(() => {})
+        }).catch(() => {
+          this.showOverlay = false
+          this.loadingText = null
+        })
       } else {
         this.showOverlay = true
+        this.loadingText = '处理中...'
         this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
+            this.loadingText = null
             this.refresh()
           } else {
             this.showOverlay = false
+            this.loadingText = null
           }
         })
       }
@@ -785,6 +791,7 @@ export default {
           message: item.confirm_msg
         }).then(() => {
           this.showOverlay = true
+          this.loadingText = null
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -792,16 +799,18 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.payload
             }).then(() => {
-              this.showOverlay = false
               this.resetItems([row], [index])
             })
           })
         }).catch(() => {})
       } else {
         this.showOverlay = true
+        this.loadingText = '处理中...'
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -809,10 +818,11 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: response.payload
           }).then(() => {
-            this.showOverlay = false
             this.resetItems([row], [index])
           })
         })
@@ -945,6 +955,7 @@ export default {
           message: item.confirm_msg
         }).then(() => {
           this.showOverlay = true
+          this.loadingText = '处理中...'
           this.$Utils.request({
             url: url,
             method: 'post',
@@ -952,16 +963,21 @@ export default {
               param: Base64.encode(JSON.stringify(this.params))
             }
           }).then((response) => {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.payload
             }).then(() => {
-              this.showOverlay = false
               this.refresh()
             })
           })
-        }).catch(() => {})
+        }).catch(() => {
+          this.showOverlay = false
+          this.loadingText = null
+        })
       } else {
         this.showOverlay = true
+        this.loadingText = '处理中...'
         this.$Utils.request({
           url: url,
           method: 'post',
@@ -969,10 +985,11 @@ export default {
             param: Base64.encode(JSON.stringify(this.params))
           }
         }).then((response) => {
+          this.showOverlay = false
+          this.loadingText = null
           this.$dialog.alert({
             message: response.payload
           }).then(() => {
-            this.showOverlay = false
             this.refresh()
           })
         })

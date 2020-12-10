@@ -392,3 +392,36 @@ li {
     height: 20px;
   }
 }
+
+.view-record {
+  display: flex;
+  align-items: center;
+  &__box {
+    flex: 1;
+    .item {
+      display: flex;
+      align-items: flex-start;
+      color: #606266;
+      & + .item {
+        margin-top: 15px;
+      }
+      label {
+        display: block;
+        width: 100px;
+        margin-right: 12px;
+        color: #757575;
+        text-align: right;
+      }
+    }
+    pre {
+      margin: 0;
+      font-style: normal;
+      font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+      Microsoft YaHei, Arial, sans-serif;
+      line-height: 1.3;
+    }
+  }
+  .view-sub-process {
+    margin-right: 20px;
+  }
+}

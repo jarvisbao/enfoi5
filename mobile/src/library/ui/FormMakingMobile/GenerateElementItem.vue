@@ -210,6 +210,8 @@
           <van-datetime-picker
             v-model="currentDate"
             :type="widget.options.type"
+            :min-date="minDate"
+            :max-date="maxDate"
             @change="events['change']"
             @confirm="onConfirm"
             @cancel="showPicker = false"
@@ -336,6 +338,7 @@
         :ref="widget.model"
         v-model="dataModel"
         :placeholder="widget.options.placeholder ? widget.options.placeholder : '请选择'"
+        :disabled="!edit || isDisable"
         clickable
         :border="false"
         is-link
@@ -461,7 +464,7 @@ import FmFormOuterobject from './FormObject/outerObject'
 import fecha from '../../js/date'
 
 export default {
-  name: 'generate-element-item',
+  name: 'GenerateElementItem',
   components: {
     FmUpload,
     FmFormTable,
@@ -589,10 +592,12 @@ export default {
       fetchOptions: [], // 初始值
       cascaderProp: {
         lazy: this.widget.options.lazy,
-        lazyLoad (node, resolve) {
+        lazyLoad(node, resolve) {
           that.loadChild(node, resolve)
         }
       },
+      minDate: new Date(new Date().getFullYear() - 10, 0, 1),
+      maxDate: new Date(new Date().getFullYear() + 10, 0, 1)
     }
   },
   computed: {
@@ -606,9 +611,8 @@ export default {
           total *= this.moneyUnit
           return total
         }
-          total *= 1
-          return total
-
+        total *= 1
+        return total
       }
     }
   },
@@ -816,6 +820,8 @@ export default {
 
     if (this.widget.type === 'date' && this.widget.options.defaultValue && this.widget.options.type !== 'dates') {
       this.dataModel = fecha.format(new Date(this.dataModel), this.widget.options.format)
+      this.minDate = this.widget.options.minDate ? new Date(this.widget.options.minDate) : new Date(new Date().getFullYear() - 10, 0, 1)
+      this.maxDate = this.widget.options.maxDate ? new Date(this.widget.options.maxDate) : new Date(new Date().getFullYear() + 10, 0, 1)
     }
   },
   mounted() {
@@ -920,8 +926,8 @@ export default {
               })
               const obj = {}
               _that.checkData = _result.reduce(function(item, next) {
-                obj[next.value] ? '' : obj[next.value] = true && item.push(next);
-                return item;
+                obj[next.value] ? '' : obj[next.value] = true && item.push(next)
+                return item
               }, [])
             } else {
               _that.getTreePath(_that.widget.options.remoteOptions, data => data.value === _that.dataModel, _result)

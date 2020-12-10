@@ -696,8 +696,8 @@ li {
   display: flex;
   align-items: center;
   .check-btn {
-    width: 25px;
-    height: 25px;
+    width: 23px;
+    height: 23px;
     margin-left: 12px;
     overflow: hidden;
     border-radius: 50%;
@@ -707,6 +707,16 @@ li {
     flex: 1;
     margin-right: 12px;
     text-align: right;
+  }
+  .check-all {
+    background: #1989fa;
+    border-color: #1989fa;
+    font: normal normal normal 17px/23px vant-icon;
+    color: #fff;
+    text-align: center;
+    &::before {
+      content: '\F0C8';
+    }
   }
 }
 

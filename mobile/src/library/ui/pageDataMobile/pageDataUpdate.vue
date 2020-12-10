@@ -7,7 +7,7 @@
         @click-left="onClickLeft"
       >
         <template #right>
-          <div v-if="edit && !showRecord" :class="{'disable': !flag}" @click="handleSubmit">
+          <div v-if="edit && !showRecord" @click="handleSubmit">
             提交
           </div>
         </template>
@@ -16,11 +16,12 @@
     <div class="generateform-box" v-if="show">
       <generate-form-mobile ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
       <div class="handle-btn el-form submit-btn" v-if="edit && showRecord">
-        <van-button id="submit" :disabled="!flag" color="#158bf1" round @click="handleSubmit">
+        <van-button id="submit" color="#158bf1" round @click="handleSubmit">
           立即修改
         </van-button>
       </div>
     </div>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -74,7 +75,8 @@ export default {
       designFields: [],
       objid: null,
       showRecord: false,
-      flag: true
+      showOverlay: false,
+      loadingText: null
     }
   },
   computed: {
@@ -162,34 +164,28 @@ export default {
       })
     },
     handleSubmit() {
-      if (this.flag) {
-        this.$refs.generateForm.getData().then(data => {
-          this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.$dialog.alert({
-                message: response.message
-              }).then(() => {
-                this.onClickLeft()
-              })
-            } else {
-              this.$dialog.alert({
-                message: response.message
-              }).then(() => {
-                this.flag = true
-              })
-            }
-          })
-        }).catch(e => {
-          // 数据校验失败
-          this.$dialog.alert({
-            message: e
-          }).then(() => {
-            this.flag = true
-          })
+      this.$refs.generateForm.getData().then(data => {
+        this.showOverlay = true
+        this.loadingText = '提交中...'
+        this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.loadingText = null
+            this.$dialog.alert({
+              message: response.message
+            }).then(() => {
+              this.onClickLeft()
+            })
+          } else {
+            this.showOverlay = false
+            this.loadingText = null
+            this.$dialog.alert({
+              message: response.message
+            })
+          }
         })
-      }
-      this.$nextTick(() => {
-        this.flag = false
+      }).catch(e => {
+        // 数据校验失败
       })
     },
     onClickLeft() {

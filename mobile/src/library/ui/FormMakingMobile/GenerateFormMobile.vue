@@ -391,7 +391,7 @@ export default {
           genList[i].tabs.forEach(item => {
             this._setDisabled(item.list, fields, disabled)
           })
-        } else if (genList[i].type == 'report') {
+        } else if (genList[i].type === 'report') {
           genList[i].rows.forEach(row => {
             row.columns.forEach(column => {
               this._setDisabled(column.list, fields, disabled)

@@ -1,6 +1,6 @@
 <template>
-  <div class="call-activity-record">
-    <div class="call-activity-record__box">
+  <div class="view-record">
+    <div class="view-record__box">
       <div class="item">
         <label>流程标题:</label>
         <div class="msg">
@@ -35,7 +35,9 @@
       </div>
     </div>
     <div class="view-sub-process">
-      <el-button type="primary" plain size="mini" @click="view_process">查看工单</el-button>
+      <el-button type="primary" plain size="mini" @click="view_process">
+        查看工单
+      </el-button>
     </div>
   </div>
 </template>
@@ -72,30 +74,3 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-.call-activity-record {
-  display: flex;
-  align-items: center;
-  &__box {
-    flex: 1;
-    .item {
-      display: flex;
-      align-items: flex-start;
-      color: #606266;
-      & + .item {
-        margin-top: 15px;
-      }
-      label {
-        display: block;
-        width: 100px;
-        margin-right: 12px;
-        color: #757575;
-        text-align: right;
-      }
-    }
-  }
-  .view-sub-process {
-    margin-right: 20px;
-  }
-}
-</style>

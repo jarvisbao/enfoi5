@@ -2,11 +2,11 @@
   <div>
     <div class="select2-box">
       <ul>
-        <li v-for="(item, index) in select2Items" :key="item.value">
-          {{ item.label }} <el-button type="text" icon="el-icon-error" @click="removeSelect2(item, index)" />
+        <li v-for="(item, index) in select2Items" :key="item.value" :class="{'isdisabe': disabled}">
+          {{ item.label }} <el-button v-if="!disabled" type="text" icon="el-icon-error" @click="removeSelect2(item, index)" />
         </li>
       </ul>
-      <el-button type="primary" @click="handleSelect2()">
+      <el-button :disabled="disabled" type="primary" @click="handleSelect2()">
         选择
       </el-button>
     </div>
@@ -198,6 +198,9 @@ export default {
         &.is-disabled:hover {
           color: #C0C4CC;
         }
+      }
+      &.isdisabe {
+        color: #C0C4CC;
       }
     }
   }

@@ -300,7 +300,9 @@ export const basicComponents = [
           func_body: '',
           func_name: ''
         }
-      }
+      },
+      maxDate: null,
+      minDate: null
     },
     name_model: { 'label': name, 'prop': null }
   },

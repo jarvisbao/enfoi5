@@ -12,6 +12,7 @@
     <div class="generateform-box" v-if="show">
       <generate-form-mobile ref="generateForm" :data="jsonData" :remote="remoteFuncs" :design-fields="designFields" />
     </div>
+    <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
 <script>
@@ -67,7 +68,9 @@ export default {
       headersAll: [],
       show: false,
       designFields: [],
-      mtd_id: null
+      mtd_id: null,
+      showOverlay: false,
+      loadingText: null
     }
   },
   computed: {
@@ -120,8 +123,12 @@ export default {
     handleSubmit() {
       this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
       this.$refs.generateForm.getData().then(data => {
+        this.showOverlay = true
+        this.loadingText = '提交中...'
         this.$Apis.object.data_create(this.object_id, data, this.mtd_id, this.pntfk, this.pntid).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.message
             }).then(() => {
@@ -129,6 +136,8 @@ export default {
               this.handleReset()
             })
           } else {
+            this.showOverlay = false
+            this.loadingText = null
             this.$dialog.alert({
               message: response.message
             })

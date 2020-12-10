@@ -6,6 +6,7 @@ import pageDataMobileByCode from './pageDataMobile/pageDataByCode'
 import methodBatchEdit from './pageDataMobile/components/methodBatchEdit'
 // import setQuery from './pageData/components/setQuery'
 import portalWidget from './portalWidget/index'
+import overlayLoading from './overlayLoading'
 
 import '@/library/styles/form-making-cover.scss'
 import '@/library/styles/form-making-index.scss'
@@ -19,7 +20,8 @@ const components = [
   portalWidget,
   GenerateFormMobile,
   pageDataMobile,
-  pageDataMobileByCode
+  pageDataMobileByCode,
+  overlayLoading
 ]
 
 components.forEach((component) => {
