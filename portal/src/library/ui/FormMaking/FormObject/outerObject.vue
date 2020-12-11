@@ -14,6 +14,16 @@
           <span v-if="item.operate_type===6" id="plPost" @click="clickType6(item)">{{ item.operate_name }}</span>
           <span v-if="item.operate_type===7" id="plGet" @click="clickType7(item)">{{ item.operate_name }}</span>
           <span v-if="item.operate_type===8" id="clsCreate" @click="clickType8(item)">{{ item.operate_name }}</span>
+          <span v-if="item.operate_type===9">
+            <el-upload
+              :show-file-list="false"
+              :auto-upload="false"
+              :on-change="changeUpload"
+              action=""
+            >
+              {{ item.operate_name }}
+            </el-upload>
+          </span>
         </el-button>
       </template>
       <div class="right-btn">
@@ -1242,6 +1252,48 @@ export default {
       script.type = 'text/javascript'
       script.text = code
       document.head.appendChild(script)
+    changeUpload(file, fileList) {
+      const isXls = file.raw.type === 'application/vnd.ms-excel'
+      const isXlsx = file.raw.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      const action = this.newOtherMethods.find(item => {
+        return item.operate_type === 9
+      })
+      const uri = action.uri || '/rpcgateway/LegoObjectService/import_excel'
+
+      if (!isXls && !isXlsx) {
+        this.$alert('请上传.xls 或 .xlsx 或 .csv格式的文件', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            return false
+          }
+        })
+      } else {
+        const reader = new FileReader()
+        reader.readAsBinaryString(file.raw)
+        reader.onload = (evt) =>{
+          const content = evt.target.result
+          this.params = {
+            object_id: action.object_id,
+            mtd_id: action.mtd_id,
+            content: content,
+            filename: file.name,
+            start_rows_input: action.start_rows_input || 1,
+            cols_name_input: action.cols_name_input ? action.cols_name_input.split('|') : []
+          }
+          this.$Utils.request({
+            url: uri,
+            method: 'post',
+            data: {
+              param: Base64.encode(JSON.stringify(this.params))
+            }
+          }).then((response) => {
+            this.$alert(response.payload, '提示', {
+              confirmButtonText: '确定'
+            })
+          })
+        }
+      }
+      fileList = []
     }
   }
 }

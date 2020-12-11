@@ -32,6 +32,7 @@
               6.定制批量操作POST：自定义一个uri，向该uri发送post请求，传入参数param=base64(data)，data格式{"object_id":object_id,"page_id":page_id,"ids":ids,"mtd_id":mtd_id}；<br>
               7.定制批量操作GET：自定义一个uri，向该uri发送get请求（默认在新窗口中打开），传入参数param=base64(data)，data格式{"object_id":object_id,"page_id":page_id,"ids":ids,"mtd_id":mtd_id}；<br>
               8.类“新建”操作：自定义一个URL，点击跳转到该URL，若打开页面方式为无则传入参数 {"r_objectid": object_id, "r_pntfk":pntfk,"r_pntid":pntid,"r_pnt_clsname":pnt_clsname}；<br>
+              9.文件导入操作：自定义一个uri，向该uri发送post请求，传入参数param=base64(data)，data格式{"object_id":object_id,"mtd_id":mtd_id,"content":content,"filename":filename}；<br>
             </div>
           </el-form-item>
           <template v-if="operate.operate_type===1">
@@ -66,7 +67,7 @@
               </div>
             </el-form-item>
           </template>
-          <template v-if="operate.operate_type===4||operate.operate_type===5||operate.operate_type===6||operate.operate_type===7||operate.operate_type===8">
+          <template v-if="operate.operate_type===4||operate.operate_type===5||operate.operate_type===6||operate.operate_type===7||operate.operate_type===8||operate.operate_type===9">
             <el-form-item label="URL地址" prop="url">
               <el-input id="operateUrl" v-model="operate.uri" />
               <div class="tips">
@@ -92,6 +93,19 @@
               如果是用于发送接口修改数据的请选择 无
             </div>
           </el-form-item>
+          <template v-if="operate.operate_type===9">
+            <el-form-item label="文件导入起始行">
+              <el-input v-model="operate.start_rows_input" type="number" min="0" @input="operate.start_rows_input=operate.start_rows_input.replace(/[^\d]/g, '')" />
+            </el-form-item>
+            <el-form-item label="文件导入列名">
+              <el-input v-model="operate.cols_name_input"/>
+              <div class="tips">多个列名用管道符“|”隔开</div>
+            </el-form-item>
+            <!-- <el-form-item label="文件导入脚本操作">
+              <python-codemirror :prop_code="operate.import_py" :placeholder="code_placeholder" :code-mode="mode" param-code="appendscript" @get_code="get_code($event)"/>
+              <div class="tips">可用变量：clsDefine,param,dbFrame,dbbusi,ctx,result(导入结果返回的json数据)。retval返回错误提示。</div>
+            </el-form-item> -->
+          </template>
           <template v-if="operate.operate_type!==8">
             <el-form-item label="本操作适用条件">
               <el-input id="application" v-model="operate.apply_condition" placeholder="row." />
@@ -235,11 +249,11 @@ export default {
         {
           value: 8,
           label: '类“新建”操作'
+        },
+        {
+          value: 9,
+          label: '文件导入操作'
         }
-        // {
-        //   value: '9',
-        //   label: '文件导入操作'
-        // },
         // {
         //   value: '10',
         //   label: '固定过滤策略'

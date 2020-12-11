@@ -56,8 +56,8 @@
           <template v-if="scope.row.operate_type===8">
             类“新建”操作
           </template>
-        <!-- <template v-if="scope.row.operate_type==='9'">文件导入操作</template>
-        <template v-if="scope.row.operate_type==='10'">固定过滤策略</template> -->
+        <template v-if="scope.row.operate_type===9">文件导入操作</template>
+        <!-- <template v-if="scope.row.operate_type==='10'">固定过滤策略</template> -->
         </template>
       </el-table-column>
       <el-table-column
