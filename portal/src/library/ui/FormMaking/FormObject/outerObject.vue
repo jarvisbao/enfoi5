@@ -1252,6 +1252,7 @@ export default {
       script.type = 'text/javascript'
       script.text = code
       document.head.appendChild(script)
+    },
     changeUpload(file, fileList) {
       const isXls = file.raw.type === 'application/vnd.ms-excel'
       const isXlsx = file.raw.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
