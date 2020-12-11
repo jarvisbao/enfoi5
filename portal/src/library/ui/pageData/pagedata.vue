@@ -1421,7 +1421,7 @@ export default {
             content: content,
             filename: file.name,
             start_rows_input: action.start_rows_input || 1,
-            cols_name_input: action.cols_name_input ? action.cols_name_input.split('|') : []
+            cols_name_input: action.cols_name_input
           }
           this.$Utils.request({
             url: uri,

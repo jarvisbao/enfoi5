@@ -228,7 +228,7 @@ export default {
         uriopentype: '0', // 页面打开方式
         summary: '', // 描述
         start_rows_input: null, // 文件导入起始行
-        cols_name_input: null, // 文件导入列名
+        cols_name_input: '', // 文件导入列名
         import_py: '', // 文件导入脚本操作
         // queryparam: '', // 数据过滤 自定义查询条件 暂时先隐藏
         append_script: '', // 注入JavaScript代码
