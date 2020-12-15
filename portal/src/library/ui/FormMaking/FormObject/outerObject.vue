@@ -14,18 +14,17 @@
           <span v-if="item.operate_type===6" id="plPost" @click="clickType6(item)">{{ item.operate_name }}</span>
           <span v-if="item.operate_type===7" id="plGet" @click="clickType7(item)">{{ item.operate_name }}</span>
           <span v-if="item.operate_type===8" id="clsCreate" @click="clickType8(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===9">
-            <el-upload
-              :show-file-list="false"
-              :auto-upload="false"
-              :on-change="changeUpload"
-              action=""
-            >
-              {{ item.operate_name }}
-            </el-upload>
-          </span>
+          <span v-if="item.operate_type===9" id="fileUpload" @click="clickType9(item)">{{ item.operate_name }}</span>
         </el-button>
       </template>
+      <el-upload
+        ref="fileUpload"
+        :show-file-list="false"
+        :auto-upload="false"
+        :on-change="changeUpload"
+        action=""
+        style="display: none"
+      />
       <div class="right-btn">
         <el-button v-if="widget.options.query" type="text" @click="query" style="margin-right: 10px">
           查询
@@ -230,7 +229,8 @@ export default {
       params: {},
       dialogMtd: false,
       mtdTitle: '',
-      mtd_get_url: null
+      mtd_get_url: null,
+      fileAction: null
     }
   },
   computed: {
@@ -1247,6 +1247,10 @@ export default {
         }
       }
     },
+    clickType9(item) {
+      this.fileAction = item
+      this.$refs.fileUpload.$children[0].$refs.input.click()
+    },
     add_script(code) {
       var script = document.createElement('script')
       script.type = 'text/javascript'
@@ -1256,10 +1260,7 @@ export default {
     changeUpload(file, fileList) {
       const isXls = file.raw.type === 'application/vnd.ms-excel'
       const isXlsx = file.raw.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      const action = this.newOtherMethods.find(item => {
-        return item.operate_type === 9
-      })
-      const uri = action.uri || '/rpcgateway/LegoObjectService/import_excel'
+      const uri = this.fileAction.uri || '/rpcgateway/LegoObjectService/import_excel'
 
       if (!isXls && !isXlsx) {
         this.$alert('请上传.xls 或 .xlsx 或 .csv格式的文件', '提示', {
@@ -1269,30 +1270,23 @@ export default {
           }
         })
       } else {
-        const reader = new FileReader()
-        reader.readAsBinaryString(file.raw)
-        reader.onload = (evt) =>{
-          const content = evt.target.result
-          this.params = {
-            object_id: action.object_id,
-            mtd_id: action.mtd_id,
-            content: content,
-            filename: file.name,
-            start_rows_input: action.start_rows_input || 1,
-            cols_name_input: action.cols_name_input
-          }
-          this.$Utils.request({
-            url: uri,
-            method: 'post',
-            data: {
-              param: Base64.encode(JSON.stringify(this.params))
-            }
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定'
-            })
+        const form = new FormData()
+        form.append('content', file.raw)
+        form.append('object_id', this.fileAction.object_id)
+        form.append('mtd_id', this.fileAction.mtd_id)
+        form.append('filename', file.name)
+        form.append('start_rows_input', this.fileAction.start_rows_input || 1)
+        form.append('cols_name_input', this.fileAction.cols_name_input || '')
+        this.$Utils.request({
+          url: uri,
+          method: 'post',
+          data: form
+        }).then((response) => {
+          this.$alert(response.payload, '提示', {
+            confirmButtonText: '确定'
           })
-        }
+          this.refresh()
+        })
       }
       fileList = []
     }
