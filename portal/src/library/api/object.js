@@ -366,7 +366,7 @@ export function get_object_design_by_id(object_id) {
 
 export function method_create(object_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval, apply_condition, confirm_msg, uri, uriopentype, summary,
   start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2,
-  pyafteredit, pyafteredit2, design_form, icon) {
+  pyafteredit, pyafteredit2, design_form, icon, btn_color) {
   /**
    * @method method_create
    * @param page_id // 当前界面id
@@ -415,14 +415,15 @@ export function method_create(object_id, operate_name, operate_type, operate_cod
       pyafteredit: pyafteredit,
       pyafteredit2: pyafteredit2,
       design_form: design_form,
-      icon: icon
+      icon: icon,
+      btn_color: btn_color
     },
     headers: { signature: true }
   })
 }
 
 export function method_edit(mtd_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval, apply_condition, confirm_msg, uri, uriopentype, summary,
-  start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon) {
+  start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon, btn_color) {
   /**
    * @method method_edit
    * @param mtd_id // 当前操作id
@@ -471,7 +472,8 @@ export function method_edit(mtd_id, operate_name, operate_type, operate_code, ed
       pyafteredit: pyafteredit,
       pyafteredit2: pyafteredit2,
       design_form: design_form,
-      icon: icon
+      icon: icon,
+      btn_color: btn_color
     },
     headers: { signature: true }
   })

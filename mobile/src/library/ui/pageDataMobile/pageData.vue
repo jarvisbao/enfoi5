@@ -12,7 +12,7 @@
             </div>
           </div>
           <div v-else-if="isBack">
-            <div class="van-nav-bar__left" style="width: 80px" @click="goBack">
+            <div class="van-nav-bar__left" style="width: 90px" @click="goBack">
               <van-icon name="arrow-left" class="van-nav-bar__arrow" />
               <span class="van-nav-bar__text">返回</span>
             </div>
@@ -55,23 +55,23 @@
           :key="methodIndex"
         >
           <span v-if="method.operate_type===1" id="plcl" @click="clickType1(method)">
-            <i :class="[method.icon ? method.icon : 'icon-vehicles', 'color_' + parseInt(Math.random(0, 1) * 2)]" />
+            <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
             {{ method.operate_name }}
           </span>
           <span v-if="method.operate_type===2" id="plxg" @click="clickType2(method)">
-            <i :class="[method.icon ? method.icon : 'icon-vehicles', 'color_' + parseInt(Math.random(0, 1) * 2)]" />
+            <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
             {{ method.operate_name }}
           </span>
           <span v-if="method.operate_type===6" id="plPost" @click="clickType6(method)">
-            <i :class="[method.icon ? method.icon : 'icon-vehicles', 'color_' + parseInt(Math.random(0, 1) * 2)]" />
+            <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
             {{ method.operate_name }}
           </span>
           <span v-if="method.operate_type===7" id="plGet" @click="clickType7(method)">
-            <i :class="[method.icon ? method.icon : 'icon-vehicles', 'color_' + parseInt(Math.random(0, 1) * 2)]" />
+            <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
             {{ method.operate_name }}
           </span>
           <span v-if="method.operate_type===8" id="clsCreate" @click="clickType8(method)">
-            <i :class="[method.icon ? method.icon : 'icon-vehicles', 'color_' + parseInt(Math.random(0, 1) * 2)]" />
+            <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
             {{ method.operate_name }}
           </span>
         </div>
@@ -87,41 +87,51 @@
       >
         <van-checkbox-group ref="checkboxGroup" v-model="selectionData" class="list-box" @change="handleSelectionChange">
           <div v-for="(item, index) in items" :key="index" class="list-item">
-            <div class="list padding" @click="handleCheck(item, index)">
-              <div ref="listFlex" class="list_flex">
-                <div v-show="isMultiple" class="mutil-btn">
-                  <van-checkbox ref="selectMutil" :name="item" />
-                </div>
-                <div>
-                  <div v-for="(header, headerIndex) in headers" :key="headerIndex" class="item">
-                    <label>{{ header.label }}:</label>
-                    <div>
-                      <div v-if="header.data_format && ['image','file', 'html'].indexOf(header.data_format) != -1">
-                        <span class="dlink" v-html="item[header.prop]" />
-                      </div>
-                      <div v-else-if="convert && header.prop in design_select">
-                        {{ item[header.prop] | formatterFun(design_select[header.prop].values, design_select[header.prop].labels) }}
-                      </div>
-                      <div v-else>
-                        {{ item[header.prop] }}
+            <van-swipe-cell>
+              <div class="list padding" @click="handleCheck(item, index)">
+                <div ref="listFlex" class="list_flex">
+                  <div v-show="isMultiple" class="mutil-btn">
+                    <van-checkbox ref="selectMutil" :name="item" />
+                  </div>
+                  <div style="flex: 1">
+                    <div v-longtap="{handler:long, item: item}" v-for="(header, headerIndex) in headers.slice(0, 2)" :key="headerIndex" class="item">
+                      <label>{{ header.label }}:</label>
+                      <div>
+                        <div v-if="header.data_format && ['image','file', 'html'].indexOf(header.data_format) != -1">
+                          <span class="dlink" v-html="item[header.prop]" />
+                        </div>
+                        <div v-else-if="convert && header.prop in design_select">
+                          {{ item[header.prop] | formatterFun(design_select[header.prop].values, design_select[header.prop].labels) }}
+                        </div>
+                        <div v-else>
+                          {{ item[header.prop] }}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="btn-list">
-              <div v-show="can_view&&!is_view" class="button" @click="info(item)">查看</div>
-              <div v-show="can_update&&!is_view" class="button" @click="update(item)">修改</div>
-              <div v-display="[delete_applycondition, item]" v-show="can_delete&&!is_view" class="button" @click="remove(item, index)">删除</div>
-              <div
-                v-for="(method, methodIndex) in newSingleMethods"
-                :key="methodIndex">
-                <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===3" id="rowEdit" @click="clickType3(method, item)">{{ method.operate_name }}</span>
-                <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===4" id="rowPost" @click="clickType4(method, item, index)">{{ method.operate_name }}</span>
-                <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===5" id="rowGet" @click="clickType5(method, item)">{{ method.operate_name }}</span>
-              </div>
-            </div>
+              <!-- <div class="btn-list">
+                <div v-show="can_view&&!is_view" class="button" @click="info(item)">查看</div>
+                <div v-show="can_update&&!is_view" class="button" @click="update(item)">修改</div>
+                <div v-display="[delete_applycondition, item]" v-show="can_delete&&!is_view" class="button" @click="remove(item, index)">删除</div>
+                <div
+                  v-for="(method, methodIndex) in newSingleMethods"
+                  :key="methodIndex">
+                  <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===3" id="rowEdit" @click="clickType3(method, item)">{{ method.operate_name }}</span>
+                  <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===4" id="rowPost" @click="clickType4(method, item, index)">{{ method.operate_name }}</span>
+                  <span class="button" v-display="[method.apply_condition, item]" v-if="method.operate_type===5" id="rowGet" @click="clickType5(method, item)">{{ method.operate_name }}</span>
+                </div>
+              </div> -->
+              <template #right>
+                <div v-for="(btn, btnIndex) in item.buttons.slice(0, 2)" :key="btn.action" style="height: 100%; display:inline-block;">
+                  <van-button :color="btnIndex == 1 ? '#e3a436' : '#1480fa'" square type="info" @click="btn.isMtd ? mtdCall(btn.fun, btn, item) : fnCall(btn.fun, item)">
+                    {{ btn.name }}
+                  </van-button>
+                </div>
+                <van-button v-if="item.buttons.length > 2" square color="#969594" text="更多" @click="handleMoreBtn(item)" />
+              </template>
+            </van-swipe-cell>
           </div>
         </van-checkbox-group>
       </van-list>
@@ -141,6 +151,21 @@
       <iframe :src="mtd_get_url" width="100%" height="100%" frameborder="0" />
     </van-popup>
     <overlay-loading :show="showOverlay" :text="loadingText" />
+    <cell-buttons
+      :show-all-btn="showAllBtn"
+      :cell-all-btns="cellAllBtns"
+      @cellMtdCall="cellMtdCall"
+      @cellFnCall="cellFnCall"
+      @close_dialog_cell="closeDialogCell"
+    />
+    <cell-list
+      :dialog-cell="dialogCell"
+      :items="cellItem"
+      :headers="headers"
+      :convert="convert"
+      :design_select="design_select"
+      @close_dialog_cell="closeDialogCell"
+    />
   </div>
 </template>
 <script>
@@ -149,6 +174,33 @@ const Base64 = require('js-base64').Base64
 export default {
   name: 'PageData',
   components: {
+    cellList: () => import('./components/cellList'),
+    cellButtons: () => import('./components/cellButtons')
+  },
+  filters: {
+    formatterFun: function(value, values, labels) {
+      // if (!value) return value
+      let result = value
+      const isArray = Array.isArray(value)
+      if (value) {
+        if (isArray) {
+          result = []
+          value.forEach(element => {
+            const index = values.indexOf(element)
+            if (index !== -1) {
+              result.push(labels[index])
+            }
+          })
+          result = result.join(',')
+        } else {
+          const index = values.indexOf(value)
+          if (index !== -1) {
+            result = labels[index]
+          }
+        }
+      }
+      return result
+    }
   },
   props: {
     object_id: {
@@ -177,36 +229,11 @@ export default {
     },
     isBack: {
       type: Boolean,
-      default: false
+      default: true
     },
     name: {
       type: String,
       default: ''
-    }
-  },
-  filters: {
-    formatterFun: function(value, values, labels) {
-      // if (!value) return value
-      let result = value
-      const isArray = Array.isArray(value)
-      if (value) {
-        if (isArray) {
-          result = []
-          value.forEach(element => {
-            const index = values.indexOf(element)
-            if (index !== -1) {
-              result.push(labels[index])
-            }
-          })
-          result = result.join(',')
-        } else {
-          const index = values.indexOf(value)
-          if (index !== -1) {
-            result = labels[index]
-          }
-        }
-      }
-      return result
     }
   },
   data() {
@@ -251,7 +278,7 @@ export default {
       // uselist: false,
       // dialogSearch: false,
       mtdFilters: [],
-      // cellBtn: [],
+      cellBtn: [],
       convert: true,
       design_select: {},
       ids: [],
@@ -265,12 +292,43 @@ export default {
       dialogMtd: false,
       mtd_get_url: null,
       showOverlay: false,
-      loadingText: null
+      loadingText: null,
+      showAllBtn: false,
+      cellAllBtns: [],
+      dialogCell: false,
+      cellItem: {}
     }
   },
   computed: {
     title() {
       return this.name ? this.name : ''
+    },
+    allBtns() {
+      const { items, cellBtn, newSingleMethods, delete_applycondition } = this
+      items.forEach(row => {
+        this.$set(row, 'buttons', [...cellBtn, ...newSingleMethods])
+        row.buttons.forEach((i, index) => {
+          if (i.isMtd && eval(i.apply_condition) === false) {
+            this.$set(i, 'disabled', true)
+          } else {
+            this.$set(i, 'disabled', false)
+          }
+        })
+        row.buttons = row.buttons.filter(i => {
+          return !i.disabled
+        })
+        if (delete_applycondition && !eval(delete_applycondition)) {
+          row.buttons = row.buttons.filter(i => {
+            return i.action !== 'remove'
+          })
+        }
+      })
+      return items
+    }
+  },
+  watch: {
+    allBtns: {
+      handler(val) {}
     }
   },
   created() {
@@ -286,6 +344,37 @@ export default {
     window.removeEventListener('scroll', this.handleScroll, false)
   },
   methods: {
+    long(event, data, vNode) {
+      this.dialogCell = true
+      this.cellItem = data
+    },
+    closeDialogCell(arg) {
+      if (arg) {
+        this.dialogCell = false
+      } else {
+        this.showAllBtn = false
+        this.cellAllBtns = []
+      }
+    },
+    fnCall(fun, row) {
+      this[fun](row)
+    },
+    mtdCall(fun, item, row) {
+      this[fun](item, row)
+    },
+    cellMtdCall(arg) {
+      const fun = arg.fun
+      const item = arg.item
+      const row = arg.row
+      this[fun](item, row)
+      this.showAllBtn = false
+    },
+    cellFnCall(arg) {
+      const fun = arg.fun
+      const row = arg.row
+      this[fun](row)
+      this.showAllBtn = false
+    },
     resetItems(items, indexes) {
       const ids = []
       let primary_key = null
@@ -331,7 +420,6 @@ export default {
       this.showTopBtn = false
       this.$refs.topBtnList.style.opacity = '1'
       this.$refs.topBtnList.style.height = 'auto'
-      this.$refs.topBtnList.style.padding = '14px 16px'
     },
     handleScroll() {
       if ((this.can_create && !this.is_view) || this.can_export || this.newOtherMethods.length > 0) {
@@ -339,10 +427,8 @@ export default {
         if (scorllTop > 46) {
           this.showTopBtn = true
           this.$refs.topBtnList.style.height = '0px'
-          this.$refs.topBtnList.style.padding = '0px'
         } else {
           this.$refs.topBtnList.style.height = 'auto'
-          this.$refs.topBtnList.style.padding = '14px 16px'
           this.showTopBtn = false
         }
       }
@@ -369,6 +455,10 @@ export default {
     },
     RightCancelSelectAll() {
       this.$refs.checkboxGroup.toggleAll(false)
+    },
+    handleMoreBtn(item) {
+      this.showAllBtn = true
+      this.cellAllBtns = [item]
     },
     onRefresh() {
       // 清空列表数据
@@ -407,6 +497,30 @@ export default {
             this.can_update = response.payload.can_update
             this.can_delete = response.payload.can_delete
             this.can_export = response.payload.can_export
+            if (this.can_view && !this.is_view) {
+              this.cellBtn.push({
+                name: '查看',
+                action: 'view',
+                icon: 'el-icon-view',
+                fun: 'info'
+              })
+            }
+            if (this.can_update && !this.is_view) {
+              this.cellBtn.push({
+                name: '更新',
+                action: 'update',
+                icon: 'el-icon-edit',
+                fun: 'update'
+              })
+            }
+            if (this.can_delete && !this.is_view) {
+              this.cellBtn.push({
+                name: '删除',
+                action: 'remove',
+                icon: 'el-icon-delete',
+                fun: 'remove'
+              })
+            }
             this.get_method()
             this.fetchData()
           } else {
@@ -429,6 +543,30 @@ export default {
           this.can_export = response.payload.can_export
           this.single_methods = response.payload.single_methods
           this.other_methods = response.payload.other_methods
+          if (this.can_view) {
+            this.cellBtn.push({
+              name: '查看',
+              action: 'view',
+              icon: 'el-icon-view',
+              fun: 'info'
+            })
+          }
+          if (this.can_update) {
+            this.cellBtn.push({
+              name: '更新',
+              action: 'update',
+              icon: 'el-icon-edit',
+              fun: 'update'
+            })
+          }
+          if (this.can_delete) {
+            this.cellBtn.push({
+              name: '删除',
+              action: 'remove',
+              icon: 'el-icon-delete',
+              fun: 'remove'
+            })
+          }
           this.get_method()
           this.fetchData()
         } else {
@@ -489,11 +627,11 @@ export default {
           this.methodsItems = response.payload.items
           this.get_new_other()
           this.get_new_single()
-          if (JSON.stringify(this.newOtherMethods) !== '[]') {
-            this.isMultiple = true
-          } else {
-            this.isMultiple = false
-          }
+          // if (JSON.stringify(this.newOtherMethods) !== '[]') {
+          //   this.isMultiple = true
+          // } else {
+          //   this.isMultiple = false
+          // }
         }
       })
     },
@@ -603,9 +741,9 @@ export default {
         this.single_methods.forEach(element => {
           this.methodsItems.forEach(item => {
             if (element === item.mtd_id) {
-              // this.$set(item, 'name', item.operate_name)
-              // this.$set(item, 'fun', 'clickType' + item.operate_type)
-              // this.$set(item, 'isMtd', true)
+              this.$set(item, 'name', item.operate_name)
+              this.$set(item, 'fun', 'clickType' + item.operate_type)
+              this.$set(item, 'isMtd', true)
               this.newSingleMethods.push(item)
             }
           })

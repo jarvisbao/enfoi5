@@ -148,6 +148,7 @@ export default {
         })
       }).catch(e => {
         // 数据校验失败
+        this.$toast(e)
       })
     },
     onClickLeft() {

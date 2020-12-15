@@ -1423,30 +1423,23 @@ export default {
           }
         })
       } else {
-        const reader = new FileReader()
-        reader.readAsBinaryString(file.raw)
-        reader.onload = (evt) =>{
-          const content = evt.target.result
-          this.params = {
-            object_id: action.object_id,
-            mtd_id: action.mtd_id,
-            content: content,
-            filename: file.name,
-            start_rows_input: action.start_rows_input || 1,
-            cols_name_input: action.cols_name_input
-          }
-          this.$Utils.request({
-            url: uri,
-            method: 'post',
-            data: {
-              param: Base64.encode(JSON.stringify(this.params))
-            }
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定'
-            })
+        const form = new FormData()
+        form.append('content', file.raw)
+        form.append('object_id', action.object_id)
+        form.append('mtd_id', action.mtd_id)
+        form.append('filename', file.name)
+        form.append('start_rows_input', action.start_rows_input || 1)
+        form.append('cols_name_input', action.cols_name_input || '')
+        this.$Utils.request({
+          url: uri,
+          method: 'post',
+          data: form
+        }).then((response) => {
+          this.$alert(response.payload, '提示', {
+            confirmButtonText: '确定'
           })
-        }
+          this.refresh()
+        })
       }
       fileList = []
     }

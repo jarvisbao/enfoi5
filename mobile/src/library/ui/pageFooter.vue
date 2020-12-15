@@ -5,14 +5,12 @@
         首页
       </van-tabbar-item>
       <template v-for="(menu, index) in permission_menus">
-        <template v-if="index < 3">
-          <van-tabbar-item :key="index" replace :to="{ path: menu.uri, query: { code: menu.menu_code } }">
-            {{ menu.meta.title }}
-            <template #icon>
-              <i :class="menu.meta.icon || 'el-icon-menu'" />
-            </template>
-          </van-tabbar-item>
-        </template>
+        <van-tabbar-item :key="index" replace :to="{ path: menu.uri, query: { code: menu.menu_code, label: menu.label } }">
+          {{ menu.meta.title }}
+          <template #icon>
+            <i :class="menu.meta.icon || 'el-icon-menu'" />
+          </template>
+        </van-tabbar-item>
       </template>
       <van-tabbar-item replace :to="{ name: 'user-center' }" icon="contact">
         我的

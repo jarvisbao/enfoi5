@@ -10,9 +10,14 @@
             <el-input id="operateCode" v-model="operate.operate_code" />
           </el-form-item>
           <el-form-item label="图标">
-            <i v-if="operate.icon" :class="operate.icon" class="menu-icon" />
-            <span class="choose-icon" @click="chooseIcon">选择图标</span>
-            <span v-if="operate.icon" class="delete-icon" @click="deleteIcon">删除</span>
+            <div style="display: flex; align-items: center;">
+              <div>
+                <i v-if="operate.icon" :class="operate.icon" :style="{color: operate.btn_color || '#409eff'}" class="menu-icon" />
+                <span class="choose-icon" style="padding: 7px 10px" @click="chooseIcon">选择图标</span>
+                <span v-if="operate.icon" class="delete-icon" style="padding: 7px 10px" @click="deleteIcon">删除</span>
+              </div>
+              <el-color-picker v-model="operate.btn_color" size="small" />
+            </div>
           </el-form-item>
           <el-form-item label="类型" prop="operate_type">
             <el-select id="operateType" v-model="operate.operate_type" placeholder="请选择">
@@ -348,6 +353,7 @@ export default {
           const pyafteredit = this.operate.pyafteredit
           const pyafteredit2 = this.operate.pyafteredit2
           const icon = this.operate.icon
+          const btn_color = this.operate.btn_color
           let design_form = JSON.parse(this.operate.design_form)
           if (design_form) {
             design_form.config.id = this.operate.proj_code + '-' + this.operate.object_code
@@ -355,7 +361,7 @@ export default {
           design_form = JSON.stringify(design_form)
           this.$Apis.object.method_edit(mtd_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval,
             apply_condition, confirm_msg, uri, uriopentype, summary, start_rows_input, cols_name_input, import_py,
-            append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon).then(response => {
+            append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon, btn_color).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.loading = false
               this.$alert('更新成功!', '提示', {

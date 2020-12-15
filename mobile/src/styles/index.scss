@@ -160,7 +160,7 @@ li {
 // list 列表
 .list-box {
   .list-item {
-    border-bottom: 8px solid $border_color_gray2;
+    border-bottom: 5px solid $border_color_gray3;
     &:last-child {
       border-bottom: none;
     }
@@ -231,6 +231,19 @@ li {
     }
     &.isActive {
       background: #f4fbfb;
+    }
+  }
+}
+.cell-more-btn {
+  padding: 20px 15px;
+  border-top: 1px solid #eaeaea;
+  & > div {
+    display: -webkit-box;
+    overflow-x: scroll;
+    span {
+      margin-right: 22px;
+      white-space: nowrap;
+      font-size: 16px;
     }
   }
 }
@@ -674,16 +687,6 @@ li {
       }
     }
   }
-  .list-box {
-    .list-item {
-      &:last-child {
-        border-bottom: 5px solid $border_color_gray2;
-      }
-      .mutil-btn {
-        margin-left: 12px;
-      }
-    }
-  }
 }
 
 .check-all-box {
@@ -707,6 +710,34 @@ li {
     flex: 1;
     margin-right: 12px;
     text-align: right;
+    .van-button {
+      padding: 0 16px;
+    }
+    &_pagedate {
+      display: flex;
+      justify-content: flex-end;
+      position: relative;
+      max-width: 80%;
+      margin-left: 25px;
+      margin-right: 0;
+      .webkit-box {
+        display: -webkit-box;
+        overflow-x: auto;
+        & > div {
+          margin-right: 12px;
+        }
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        display: block;
+        width: 30px;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+      }
+    }
   }
   .check-all {
     background: #1989fa;
