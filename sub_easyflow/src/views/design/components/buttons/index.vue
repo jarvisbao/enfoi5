@@ -258,6 +258,10 @@ export default {
       }
       this.buttonsList = defaultBtnList.concat(this.buttonsList)
       this.buttonsList.forEach(item => {
+        item.allow_cls = item.allow_script[0] || null
+        item.allow_fun = item.allow_script[1] || null
+        item.submit_cls = item.submit_script[0] || null
+        item.submit_fun = item.submit_script[1] || null
         setButton(item, this.modeler, this.bpmnElements, this.isNode)
       })
       let btnElements = null

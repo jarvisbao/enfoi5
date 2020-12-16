@@ -7,7 +7,7 @@
             <el-input id="operateName" v-model="operate.operate_name" />
           </el-form-item>
           <el-form-item label="编码" prop="operate_code">
-            <el-input id="operateCode" v-model="operate.operate_code" />
+            <el-input id="operateCode" v-model="operate.operate_code" :disabled="true" />
           </el-form-item>
           <el-form-item label="图标">
             <div style="display: flex; align-items: center;">
@@ -332,7 +332,6 @@ export default {
           const mtd_id = this.get_mtd_id()
           const operate_name = this.operate.operate_name
           const operate_type = this.operate.operate_type
-          const operate_code = this.operate.operate_code
           if (operate_type !== 3 && operate_type !== 2) {
             this.operate.design_form = null
           }
@@ -359,7 +358,7 @@ export default {
             design_form.config.id = this.operate.proj_code + '-' + this.operate.object_code
           }
           design_form = JSON.stringify(design_form)
-          this.$Apis.object.method_edit(mtd_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval,
+          this.$Apis.object.method_edit(mtd_id, operate_name, operate_type, edit_prop, view_prop, editval,
             apply_condition, confirm_msg, uri, uriopentype, summary, start_rows_input, cols_name_input, import_py,
             append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon, btn_color).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {

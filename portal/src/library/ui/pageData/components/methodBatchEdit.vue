@@ -58,6 +58,10 @@ export default {
     mtd_id: {
       type: String,
       default: ''
+    },
+    page_id: {
+      type: String,
+      default: undefined
     }
   },
   data() {
@@ -97,7 +101,8 @@ export default {
         }
       },
       fmshow: false,
-      styleObject: null
+      styleObject: null,
+      mtd_code: undefined
     }
   },
   created() {
@@ -110,10 +115,12 @@ export default {
   },
   methods: {
     get_method_design() {
-      this.$Apis.object.get_method_design_by_id(this.mtd_id).then(response => {
+      this.$Apis.object.method_info(this.mtd_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          if (response.payload) {
-            this.design_form = JSON.parse(response.payload)
+          const method = response.payload
+          this.mtd_code = method.operate_code
+          if (method.operate_type === 3) {
+            this.design_form = method.design_form
             if (this.design_form) {
               this.fmshow = true
               this.styleObject = {
@@ -143,7 +150,7 @@ export default {
           } else {
             ids = this.ids.join(',')
           }
-          this.$Apis.object.data_update(this.object_id, ids, this.classColumn, this.mtd_id).then(response => {
+          this.$Apis.object.data_update(this.object_id, ids, this.classColumn, this.mtd_code, this.page_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert(response.message, '提示', {
                 confirmButtonText: '确定',
@@ -176,7 +183,7 @@ export default {
         } else {
           ids = this.ids.join(',')
         }
-        this.$Apis.object.data_update(this.object_id, ids, data, this.mtd_id).then(response => {
+        this.$Apis.object.data_update(this.object_id, ids, data, this.mtd_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.$alert(response.message, '提示', {
               confirmButtonText: '确定',

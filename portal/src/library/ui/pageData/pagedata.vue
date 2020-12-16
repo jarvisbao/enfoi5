@@ -140,6 +140,7 @@
           :is-all="isAll"
           :object_id="object_id"
           :mtd_id="mtd_id"
+          :page_id="page_id"
           @show="isShow"
           @refresh="refresh"
         />
@@ -152,6 +153,7 @@
           :text="text"
           :pagination="pagination"
           :page_size="page_size"
+          :page_id="page_id"
           @show="isShow"
         />
       </el-dialog>
@@ -179,7 +181,7 @@ export default {
     },
     page_id: {
       type: String,
-      default: null
+      default: undefined
     },
     pntfk: {
       type: String,
@@ -235,7 +237,7 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       dialogShow: false,
-      // filters: [],
+      pageFilters: this.filters,
       create_headers: [],
       update_headers: [],
       delete_headers: [],
@@ -326,6 +328,11 @@ export default {
     },
     allBtns: {
       handler(val) {}
+    },
+    filters: {
+      handler(val) {
+        this.pageFilters = val
+      }
     }
   },
   created() {
@@ -512,7 +519,7 @@ export default {
       this.$Apis.object.get_headers(this.object_id, false, this.page_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.headers = response.payload
-          this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, this.filters, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
+          this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, this.pageFilters, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.items = response.payload.items
               this.pagination = response.payload.pagination
@@ -554,7 +561,7 @@ export default {
     },
     operateData() {
       this.loading = true
-      this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, this.filters, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
+      this.$Apis.object.data_list(this.object_id, this.page_id, this.text, this.pagination.page, this.page_size, true, this.pageFilters, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.items = response.payload.items
           this.pagination = response.payload.pagination
@@ -578,7 +585,7 @@ export default {
       this.operateData()
     },
     create() {
-      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid }})
+      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id }})
     },
     set_session() {
       sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
@@ -602,7 +609,7 @@ export default {
       })
       this.set_session()
       ids = ids.join(',')
-      this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record }})
+      this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
     },
     info(row) {
       this.update_headers = []
@@ -682,7 +689,7 @@ export default {
           })
           return false
         }
-        this.$Apis.object.data_delete(this.object_id, ids).then(response => {
+        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定',
             callback: action => {
@@ -705,7 +712,7 @@ export default {
       this.dialogVisible = !this.dialogVisible
     },
     refresh(val) {
-      this.filters = val
+      this.pageFilters = val
       this.fetchData()
     },
     goBack() {
@@ -820,11 +827,11 @@ export default {
           cancelButtonClass: 'cancel-button'
         }).then(() => {
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
           this.refresh()
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
         this.refresh()
       }
     },
@@ -910,10 +917,10 @@ export default {
           confirmButtonClass: 'confirm-button',
           cancelButtonClass: 'cancel-button'
         }).then(() => {
-          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }).catch(() => {})
       } else {
-        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
       }
     },
     clickType4(item, row) {

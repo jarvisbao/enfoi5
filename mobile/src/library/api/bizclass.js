@@ -26,7 +26,7 @@ export function bizclass_create(proj_code, biz_code, biz_name, legoclass_id) {
 }
 
 export function bizclass_edit(
-  biz_code,
+  // biz_code,
   biz_name,
   legoclass_id,
   biz_id,
@@ -45,7 +45,7 @@ export function bizclass_edit(
     method: 'post',
     data: {
       biz_id: biz_id,
-      biz_code: biz_code,
+      // biz_code: biz_code,
       biz_name: biz_name,
       legoclass_id: legoclass_id,
       proj_code: proj_code

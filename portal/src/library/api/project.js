@@ -23,7 +23,7 @@ export function project_create(proj_code, proj_name, props) {
   })
 }
 
-export function project_edit(proj_code, new_proj_code, proj_name, props) {
+export function project_edit(proj_code, proj_name, props) {
   /**
    * @method project_edit
    * @param proj_code: 项目代码
@@ -36,7 +36,7 @@ export function project_edit(proj_code, new_proj_code, proj_name, props) {
     method: 'post',
     data: {
       'proj_code': proj_code,
-      'new_proj_code': new_proj_code,
+      // 'new_proj_code': new_proj_code,
       'proj_name': proj_name,
       'props': props
     },

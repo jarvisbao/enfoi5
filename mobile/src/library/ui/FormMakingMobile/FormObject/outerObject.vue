@@ -115,6 +115,7 @@
         :is-all="isAll"
         :object_id="object_id"
         :mtd_id="mtd_id"
+        :page_id="page_id"
         @show="isShow"
         @refresh="refresh"
       />
@@ -126,6 +127,7 @@
           :object_id="object_id"
           :pntfk="pntfk"
           :pntid="pntid"
+          :page_id="page_id"
           @show="isCreateShow"
           @refresh="refresh"
         />
@@ -135,6 +137,7 @@
           :objid="objid"
           :mtd_id="mtd_id"
           :edit="isEdit"
+          :page_id="page_id"
           @show="isCreateShow"
           @refresh="refresh"
         />
@@ -213,7 +216,7 @@ export default {
       update_headers: [],
       selectionData: [],
       object_id: null,
-      page_id: null,
+      page_id: undefined,
       proj_code: this.widget.options.proj_code,
       object_code: this.widget.options.object_code,
       page_code: this.widget.options.page_code,
@@ -711,7 +714,7 @@ export default {
           })
           return false
         }
-        this.$Apis.object.data_delete(this.object_id, ids).then(response => {
+        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
           this.$dialog.alert({
             message: response.message
           }).then(() => {
@@ -766,7 +769,7 @@ export default {
         }).then(() => {
           this.showOverlay = true
           this.loadingText = '处理中...'
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.showOverlay = false
               this.loadingText = null
@@ -783,7 +786,7 @@ export default {
       } else {
         this.showOverlay = true
         this.loadingText = '处理中...'
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null

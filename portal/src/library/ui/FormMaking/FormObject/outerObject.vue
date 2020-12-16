@@ -104,6 +104,7 @@
         :is-all="isAll"
         :object_id="object_id"
         :mtd_id="mtd_id"
+        :page_id="page_id"
         @show="isShow"
         @refresh="refresh"
       />
@@ -117,6 +118,7 @@
         :object_id="object_id"
         :pntfk="pntfk"
         :pntid="pntid"
+        :page_id="page_id"
         @show="isCreateShow"
         @refresh="refresh" />
       <object-update
@@ -125,6 +127,7 @@
         :objid="objid"
         :mtd_id="mtd_id"
         :edit="isEdit"
+        :page_id="page_id"
         @show="isCreateShow"
         @refresh="refresh" />
     </el-dialog>
@@ -179,7 +182,7 @@ export default {
       update_headers: [],
       selectionData: [],
       object_id: null,
-      page_id: null,
+      page_id: undefined,
       proj_code: this.widget.options.proj_code,
       object_code: this.widget.options.object_code,
       page_code: this.widget.options.page_code,
@@ -618,7 +621,7 @@ export default {
           })
           return false
         }
-        this.$Apis.object.data_delete(this.object_id, ids).then(response => {
+        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定',
             callback: action => {
@@ -701,11 +704,11 @@ export default {
           cancelButtonClass: 'cancel-button'
         }).then(() => {
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
           this.refresh()
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
         this.refresh()
       }
     },
@@ -796,14 +799,14 @@ export default {
           this.isCreate = false
           this.objTitle = '更新'
           this.isEdit = true
-          // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+          // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }).catch(() => {})
       } else {
         this.dialogCreate = !this.dialogCreate
         this.isCreate = false
         this.objTitle = '更新'
         this.isEdit = true
-        // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+        // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
       }
     },
     clickType4(item, row) {

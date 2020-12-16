@@ -121,7 +121,7 @@ export function object_edit(
   old_object_code,
   biz_code,
   biz_proj_code,
-  object_code,
+  // object_code,
   object_name,
   fields,
   ext_fields,
@@ -180,7 +180,7 @@ export function object_edit(
       old_object_code: old_object_code,
       biz_code: biz_code,
       biz_proj_code: biz_proj_code,
-      object_code: object_code,
+      // object_code: object_code,
       object_name: object_name,
       props: props,
       fields: fields,
@@ -366,7 +366,7 @@ export function get_object_design_by_id(object_id) {
 
 export function method_create(object_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval, apply_condition, confirm_msg, uri, uriopentype, summary,
   start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2,
-  pyafteredit, pyafteredit2, design_form, icon) {
+  pyafteredit, pyafteredit2, design_form, icon, btn_color) {
   /**
    * @method method_create
    * @param page_id // 当前界面id
@@ -415,14 +415,15 @@ export function method_create(object_id, operate_name, operate_type, operate_cod
       pyafteredit: pyafteredit,
       pyafteredit2: pyafteredit2,
       design_form: design_form,
-      icon: icon
+      icon: icon,
+      btn_color: btn_color
     },
     headers: { signature: true }
   })
 }
 
-export function method_edit(mtd_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval, apply_condition, confirm_msg, uri, uriopentype, summary,
-  start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon) {
+export function method_edit(mtd_id, operate_name, operate_type, edit_prop, view_prop, editval, apply_condition, confirm_msg, uri, uriopentype, summary,
+  start_rows_input, cols_name_input, import_py, append_script, pyafternew, pyafternew2, pyafteredit, pyafteredit2, design_form, icon, btn_color) {
   /**
    * @method method_edit
    * @param mtd_id // 当前操作id
@@ -453,7 +454,6 @@ export function method_edit(mtd_id, operate_name, operate_type, operate_code, ed
       mtd_id: mtd_id,
       operate_name: operate_name,
       operate_type: operate_type,
-      operate_code: operate_code,
       edit_prop: edit_prop,
       view_prop: view_prop,
       editval: editval,
@@ -471,7 +471,8 @@ export function method_edit(mtd_id, operate_name, operate_type, operate_code, ed
       pyafteredit: pyafteredit,
       pyafteredit2: pyafteredit2,
       design_form: design_form,
-      icon: icon
+      icon: icon,
+      btn_color: btn_color
     },
     headers: { signature: true }
   })
@@ -559,6 +560,19 @@ export function get_method_design_by_id(mtd_id) {
     method: 'get',
     params: {
       mtd_id: mtd_id
+    }
+  })
+}
+export function get_method_design_by_code(proj_code, object_code, mtd_code) {
+  /**
+   * @method get_method_design_by_code
+   * @param page_id: 页面ID
+   */
+  return request({
+    url: '/rpcgateway/LegoObjectService/get_method_design_by_code',
+    method: 'get',
+    params: {
+      proj_code, object_code, mtd_code
     }
   })
 }
@@ -657,7 +671,7 @@ export function page_create(
 
 export function page_edit(
   page_id,
-  page_code,
+  // page_code,
   page_name,
   fields,
   ext_fields,
@@ -696,7 +710,7 @@ export function page_edit(
     method: 'post',
     data: {
       page_id: page_id,
-      page_code: page_code,
+      // page_code: page_code,
       page_name: page_name,
       props: props,
       fields: fields,
@@ -762,7 +776,7 @@ export function page_info_by_code(proj_code, object_code, page_code) {
   })
 }
 
-export function data_create(object_id, fields, mtd_id, pntfk, pntid, pnt_clsname) {
+export function data_create(object_id, fields, mtd_code, pntfk, pntid, pnt_clsname, page_id) {
   /**
    * @method pagedata_create
    * @param page_id: 页面ID
@@ -773,10 +787,11 @@ export function data_create(object_id, fields, mtd_id, pntfk, pntid, pnt_clsname
     data: {
       object_id: object_id,
       fields: fields,
-      mtd_id: mtd_id,
+      mtd_code: mtd_code,
       pntfk: pntfk,
       pntid: pntid,
-      pnt_clsname: pnt_clsname
+      pnt_clsname: pnt_clsname,
+      page_id: page_id
     }
   })
 }
@@ -785,7 +800,8 @@ export function data_update(
   object_id,
   ids,
   fields,
-  mtd_id
+  mtd_code,
+  page_id
 ) {
   /**
    * @method pagedata_update
@@ -797,14 +813,15 @@ export function data_update(
     method: 'post',
     data: {
       object_id: object_id,
-      mtd_id: mtd_id,
+      mtd_code: mtd_code,
       ids: ids,
-      fields: fields
+      fields: fields,
+      page_id: page_id
     }
   })
 }
 
-export function data_delete(object_id, ids) {
+export function data_delete(object_id, ids, page_id) {
   /**
    * @method pagedata_delete
    * @param ids: 数据的主键
@@ -815,7 +832,8 @@ export function data_delete(object_id, ids) {
     method: 'post',
     data: {
       object_id: object_id,
-      ids: ids
+      ids: ids,
+      page_id: page_id
     }
   })
 }
@@ -877,7 +895,7 @@ export function data_list_by_code(proj_code, object_code, page_code, text, page_
   })
 }
 
-export function data_info(object_id, id, mtd_id) {
+export function data_info(object_id, id, mtd_code, page_id) {
   /**
    * @method pagedata_info
    * @param page_id: 页面ID
@@ -887,13 +905,14 @@ export function data_info(object_id, id, mtd_id) {
     method: 'get',
     params: {
       object_id: object_id,
-      mtd_id: mtd_id,
-      id: id
+      mtd_code: mtd_code,
+      id: id,
+      page_id: page_id
     }
   })
 }
 
-export function export_data(object_id, fields, ids, text, page_index, page_size, page) {
+export function export_data(object_id, fields, ids, text, page_index, page_size, page, page_id) {
   return request({
     url: '/rpcgateway/LegoObjectService/saveListToExcel',
     method: 'post',
@@ -904,7 +923,8 @@ export function export_data(object_id, fields, ids, text, page_index, page_size,
       text: text,
       page_index: page_index,
       page_size: page_size,
-      page: page
+      page: page,
+      page_id: page_id
     },
     responseType: 'blob'
   })

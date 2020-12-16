@@ -68,7 +68,7 @@ export default {
         if (valid) {
           this.loading = true
           const old_code = this.old_code
-          const new_proj_code = this.project.proj_code
+          // const new_proj_code = this.project.proj_code
           const proj_name = this.project.proj_name
           // const project_id = this.project.project_id
           let props = this.project.props
@@ -77,7 +77,7 @@ export default {
           } else if (props === 'null' || !props) {
             props = {}
           }
-          this.$Apis.project.project_edit(old_code, new_proj_code, proj_name, props).then(response => {
+          this.$Apis.project.project_edit(old_code, proj_name, props).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.loading = false
               this.$alert('更新成功!', '提示', {

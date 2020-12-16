@@ -29,6 +29,10 @@ export default {
     pntid: {
       type: String,
       default: null
+    },
+    page_id: {
+      type: String,
+      default: undefined
     }
   },
   data() {
@@ -63,14 +67,15 @@ export default {
           }
         }
       },
-      page_id: null,
+      page_id: undefined,
       design_form: null,
       headersAll: [],
       show: false,
       designFields: [],
       mtd_id: null,
       showOverlay: false,
-      loadingText: null
+      loadingText: null,
+      mtd_code: undefined
     }
   },
   computed: {
@@ -121,11 +126,11 @@ export default {
       })
     },
     handleSubmit() {
-      this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
+      this.mtd_code = this.$route.query.mtd_code ? this.$route.query.mtd_code : undefined
       this.$refs.generateForm.getData().then(data => {
         this.showOverlay = true
         this.loadingText = '提交中...'
-        this.$Apis.object.data_create(this.object_id, data, this.mtd_id, this.pntfk, this.pntid).then(response => {
+        this.$Apis.object.data_create(this.object_id, data, this.mtd_code, this.pntfk, this.pntid, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null

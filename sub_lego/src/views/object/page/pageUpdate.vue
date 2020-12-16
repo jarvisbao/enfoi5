@@ -7,7 +7,7 @@
             <el-input id="pageName" v-model="page.page_name" />
           </el-form-item>
           <el-form-item label="页面代码" prop="page_code">
-            <el-input id="pageCode" v-model="page.page_code" />
+            <el-input id="pageCode" v-model="page.page_code" :disabled="true" />
           </el-form-item>
           <el-form-item label="页面显示字段" prop="fields">
             <el-transfer
@@ -344,7 +344,7 @@ export default {
           this.loading = true
           const page_id = this.page_id
           const page_name = this.page.page_name
-          const page_code = this.page.page_code
+          // const page_code = this.page.page_code
           const fields = this.page.fields
           const ext_fields = this.page.ext_fields
           const can_create = this.page.can_create
@@ -368,7 +368,7 @@ export default {
           } else if (props === 'null' || !props) {
             props = {}
           }
-          this.$Apis.object.page_edit(page_id, page_code, page_name, fields, ext_fields, props, can_create, can_update, can_delete, can_view, can_export,
+          this.$Apis.object.page_edit(page_id, page_name, fields, ext_fields, props, can_create, can_update, can_delete, can_view, can_export,
             orderby, description,
             pybeforelist,
             pyafterlist,

@@ -817,7 +817,7 @@ export default {
           } else if (props === 'null' || !props) {
             props = {}
           }
-          this.$Apis.object.object_edit(proj_code, old_object_code, biz_code, biz_proj_code, object_code, object_name, fields, ext_fields, props, can_create, can_update, can_delete, can_view, can_export,
+          this.$Apis.object.object_edit(proj_code, old_object_code, biz_code, biz_proj_code, object_name, fields, ext_fields, props, can_create, can_update, can_delete, can_view, can_export,
             design_form, orderby, description, authopenrole, auth_developers, pyafternew,
             pyafternew2,
             pybefore,

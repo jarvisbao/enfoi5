@@ -70,6 +70,8 @@ export default {
       },
       object_id: null,
       mtd_id: null,
+      mtd_code: undefined,
+      page_id: undefined,
       show: false,
       fmshow: false,
       designFields: [],
@@ -102,9 +104,14 @@ export default {
   },
   created() {
     this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
+    this.page_id = this.$route.query.page_id ? this.$route.query.page_id : undefined
     this.object_id = this.$route.query.object_id ? this.$route.query.object_id : null
     this.showRecord = this.$route.query.record ? JSON.parse(this.$route.query.record) : false
-    this.fetchDate()
+    if (this.mtd_id) {
+      this.get_method_design()
+    } else {
+      this.get_object_design()
+    }
   },
   mounted() {
     // 设置底部标签栏状态为 false
@@ -116,7 +123,7 @@ export default {
   methods: {
     fetchDate() {
       this.objid = this.$route.query.objid ? this.$route.query.objid : null
-      this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_id).then(response => {
+      this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_code, this.page_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.editData = response.payload
           this.fmshow = true
@@ -131,23 +138,21 @@ export default {
           this.headersAll = response.payload
         }
       })
-      if (this.mtd_id) {
-        this.get_method_design()
-      } else {
-        this.get_object_design()
-      }
     },
     get_method_design() {
-      this.$Apis.object.get_method_design_by_id(this.mtd_id).then(response => {
+      this.$Apis.object.method_info(this.mtd_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          if (response.payload) {
-            this.design_form = response.payload
+          const method = response.payload
+          this.mtd_code = method.operate_code
+          if (method.operate_type === 3) {
+            this.design_form = method.design_form
+            this.fetchDate()
           } else {
             this.get_object_design()
           }
         } else {
-          this.$dialog.alert({
-            message: response.message
+          this.$alert(response.message, '提示', {
+            confirmButtonText: '确定'
           })
         }
       })
@@ -156,6 +161,7 @@ export default {
       this.$Apis.object.get_object_design_by_id(this.object_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.design_form = response.payload
+          this.fetchDate()
         } else {
           this.$dialog.alert({
             message: response.message
@@ -167,7 +173,7 @@ export default {
       this.$refs.generateForm.getData().then(data => {
         this.showOverlay = true
         this.loadingText = '提交中...'
-        this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
+        this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null

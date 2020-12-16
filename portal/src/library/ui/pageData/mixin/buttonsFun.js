@@ -29,7 +29,7 @@ export default {
         this.isEdit = true
       } else {
         this.set_session()
-        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record }})
+        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
       }
     },
     info(row, isOuterObj) {
@@ -86,7 +86,7 @@ export default {
           })
           return false
         }
-        this.$Apis.object.data_delete(this.object_id, ids).then(response => {
+        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定',
             callback: action => {
@@ -149,11 +149,11 @@ export default {
           cancelButtonClass: 'cancel-button'
         }).then(() => {
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
           this.refresh()
         }).catch(() => {})
       } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id)
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
         this.refresh()
       }
     },
@@ -264,13 +264,13 @@ export default {
             confirmButtonClass: 'confirm-button',
             cancelButtonClass: 'cancel-button'
           }).then(() => {
-            this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+            this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
           }).catch(() => {})
         } else {
-          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }
       }
-      
+
     },
     // 定制操作POST
     clickType4(item, row, isOuterObj) {

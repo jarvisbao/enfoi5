@@ -57,6 +57,8 @@ export default {
       },
       object_id: null,
       mtd_id: null,
+      mtd_code: undefined,
+      page_id: undefined,
       styleObject: null,
       show: false,
       fmshow: false,
@@ -93,9 +95,13 @@ export default {
     if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
       this.inIframe = true
     }
+    this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
     this.get_object_id()
-    this.get_method_id()
-    this.fetchDate()
+    if (this.mtd_id) {
+      this.get_method_design()
+    } else {
+      this.get_object_design()
+    }
   },
   methods: {
     get_object_id() {
@@ -106,17 +112,10 @@ export default {
         return null
       }
     },
-    get_method_id() {
-      if ('mtd_id' in this.$route.query) {
-        this.mtd_id = this.$route.query.mtd_id
-        return this.mtd_id
-      } else {
-        return null
-      }
-    },
     fetchDate() {
       this.objid = this.$route.query.objid ? this.$route.query.objid : null
-      this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_id).then(response => {
+      this.page_id = this.$route.query.page_id ? this.$route.query.page_id : undefined
+      this.$Apis.object.data_info(this.object_id, this.objid, this.mtd_code, this.page_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.editData = response.payload
           this.fmshow = true
@@ -131,17 +130,16 @@ export default {
           this.headersAll = response.payload
         }
       })
-      if (this.mtd_id) {
-        this.get_method_design()
-      } else {
-        this.get_object_design()
-      }
+
     },
     get_method_design() {
-      this.$Apis.object.get_method_design_by_id(this.mtd_id).then(response => {
+      this.$Apis.object.method_info(this.mtd_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          if (response.payload) {
-            this.design_form = response.payload
+          const method = response.payload
+          this.mtd_code = method.operate_code
+          if (method.operate_type === 3) {
+            this.design_form = method.design_form
+            this.fetchDate()
           } else {
             this.get_object_design()
           }
@@ -156,6 +154,7 @@ export default {
       this.$Apis.object.get_object_design_by_id(this.object_id).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.design_form = response.payload
+          this.fetchDate()
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'
@@ -166,7 +165,7 @@ export default {
     handleSubmit() {
       this.$refs.generateForm.getData().then(data => {
        this.$store.commit('SET_LOADING', true)
-       this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_id).then(response => {
+       this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_code, this.page_id).then(response => {
          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
            this.$alert(response.message, '提示', {
              confirmButtonText: '确定',

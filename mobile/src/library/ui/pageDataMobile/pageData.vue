@@ -143,6 +143,7 @@
         :is-all="isAll"
         :object_id="object_id"
         :mtd_id="mtd_id"
+        :page_id="page_id"
         @show="isShow"
         @refresh="refresh"
       />
@@ -209,7 +210,7 @@ export default {
     },
     page_id: {
       type: String,
-      default: null
+      default: undefined
     },
     pntfk: {
       type: String,
@@ -646,7 +647,7 @@ export default {
       }, 1000)
     },
     create() {
-      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid }})
+      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id }})
     },
     update(row) {
       let ids = []
@@ -666,7 +667,7 @@ export default {
         }
       })
       ids = ids.join(',')
-      this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record }})
+      this.$router.push({ name: 'data_update', query: { object_id: this.object_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
     },
     info(row) {
       this.update_headers = []
@@ -706,7 +707,7 @@ export default {
           this.$dialog.alert({ message: '该业务类下字段没有设置主键，不允许删除' })
           return false
         }
-        this.$Apis.object.data_delete(this.object_id, ids).then(response => {
+        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
           this.$dialog.alert({ message: response.message }).then(() => { this.resetItems([row], [index]) })
         })
       }).catch(() => {
@@ -817,7 +818,7 @@ export default {
           this.showOverlay = true
           this.loadingText = '处理中...'
           // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.showOverlay = false
               this.loadingText = null
@@ -834,7 +835,7 @@ export default {
       } else {
         this.showOverlay = true
         this.loadingText = '处理中...'
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.mtd_id).then(response => {
+        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null
@@ -910,10 +911,10 @@ export default {
       ids = ids.join(',')
       if (item.confirm_msg) {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
-          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+          this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }).catch(() => {})
       } else {
-        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record }})
+        this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
       }
     },
     clickType4(item, row, index) {

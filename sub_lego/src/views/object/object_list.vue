@@ -2,13 +2,13 @@
   <div>
     <!-- <common-title/> -->
     <div class="action-btn">
-      <div id="create" v-permission="['ns://create_object@lego.project.'+proj_code+'.object']" class="btn create-btn" @click="create">
+      <div id="create" v-permission="['ns://create_object@lego.project.'+proj_code]" class="btn create-btn" @click="create">
         新建
       </div>
       <div v-if="removePermission" class="btn create-btn delete" @click="object_removes">
         删除所选
       </div>
-      <div v-permission="['ns://download_object@lego.project.'+proj_code+'.object']" class="btn export-btn" @click="download">
+      <div v-permission="['ns://download_object@lego.project.'+proj_code]" class="btn export-btn" @click="download">
         导出
       </div>
       <el-upload
@@ -18,7 +18,7 @@
         action=""
         class="upload-demo"
       >
-        <el-button v-permission="['ns://upload_object@lego.project.'+proj_code+'.object']" size="small" type="primary" class="btn import-btn">
+        <el-button v-permission="['ns://upload_object@lego.project.'+proj_code]" size="small" type="primary" class="btn import-btn">
           导入
         </el-button>
       </el-upload>
@@ -184,7 +184,7 @@ export default {
     this.fetchData()
     this.get_proj_code()
     this.createMenuPermission = checkPermission(['ns://create_menu@identity.menus'])
-    this.removePermission = checkPermission(['ns://remove_object@lego.project.' + this.proj_code + '.object'])
+    this.removePermission = checkPermission(['ns://remove_object@lego.project.' + this.proj_code])
   },
   methods: {
     get_object_params() {

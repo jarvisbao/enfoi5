@@ -61,8 +61,10 @@ export default {
       pntfk: null,
       pntid: null,
       mtd_id: null,
+      page_id: undefined,
       showOverlay: false,
-      loadingText: null
+      loadingText: null,
+      mtd_code: undefined
     }
   },
   computed: {
@@ -103,7 +105,7 @@ export default {
         this.object_id = this.$route.query.object_id
         return this.object_id
       } else {
-        return null
+        return undefined
       }
     },
     fetchDate() {
@@ -125,11 +127,12 @@ export default {
     handleSubmit() {
       this.pntfk = this.$route.query.pntfk ? this.$route.query.pntfk : null
       this.pntid = this.$route.query.pntid ? this.$route.query.pntid : null
-      this.mtd_id = this.$route.query.mtd_id ? this.$route.query.mtd_id : null
+      this.mtd_code = this.$route.query.mtd_code ? this.$route.query.mtd_code : undefined
+      this.page_id = this.$route.query.page_id ? this.$route.query.page_id : undefined
       this.$refs.generateForm.getData().then(data => {
         this.showOverlay = true
         this.loadingText = '提交中...'
-        this.$Apis.object.data_create(this.object_id, data, this.mtd_id, this.pntfk, this.pntid).then(response => {
+        this.$Apis.object.data_create(this.object_id, data, this.mtd_code, this.pntfk, this.pntid, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null

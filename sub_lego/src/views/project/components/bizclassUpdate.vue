@@ -155,11 +155,11 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const biz_code = this.bizclass.biz_code
+          // const biz_code = this.bizclass.biz_code
           const biz_name = this.bizclass.biz_name
           const legoclass_id = this.bizclass.legoclass_id
           const biz_id = this.bizclass.biz_id
-          this.$Apis.bizclass.bizclass_edit(biz_code, biz_name, legoclass_id, biz_id, this.proj_code).then(response => {
+          this.$Apis.bizclass.bizclass_edit(biz_name, legoclass_id, biz_id, this.proj_code).then(response => {
             this.loading = false
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert('更新成功!', '提示', {

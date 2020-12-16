@@ -64,6 +64,10 @@ export default {
     page_size: {
       type: Number,
       default: 10
+    },
+    page_id: {
+      type: String,
+      default: undefined
     }
   },
   data() {
@@ -108,7 +112,7 @@ export default {
       } catch (e) {}
       if (this.isAll) {
         ids = {}
-        this.$Apis.object.export_data(this.object_id, this.checkboxFields, ids, this.text, this.pagination.page, this.page_size, true).then(response => {
+        this.$Apis.object.export_data(this.object_id, this.checkboxFields, ids, this.text, this.pagination.page, this.page_size, true, this.page_id).then(response => {
           if (response.code === undefined) {
             var data = response
             var fileDownload = require('js-file-download')
@@ -127,7 +131,7 @@ export default {
         })
       } else {
         ids = this.ids.join(',')
-        this.$Apis.object.export_data(this.object_id, this.checkboxFields, ids).then(response => {
+        this.$Apis.object.export_data(this.object_id, this.checkboxFields, ids, undefined, undefined, undefined, undefined, this.page_id).then(response => {
           if (response.code === undefined) {
             var data = response
             var fileDownload = require('js-file-download')
