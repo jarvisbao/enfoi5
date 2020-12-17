@@ -34,7 +34,7 @@
           v-model="item.list"
           v-bind="{group:'people', ghostClass: 'ghost',animation: 200, handle: '.drag-widget'}"
           :no-transition-on-drag="true"
-          @add="handleWidgetColAdd($event, element, index)"
+          @add="handleWidgetColAdd($event, element, i)"
           @update="handleWidgetColUpdate"
         >
           <transition-group name="fade" tag="div" class="widget-col-list">

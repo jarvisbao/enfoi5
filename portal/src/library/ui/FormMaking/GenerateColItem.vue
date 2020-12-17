@@ -14,11 +14,14 @@
     <el-col
       v-for="(item, index) in element.columns"
       :key="index"
-      :xs="element.options.responsive ? item.xs || 0 : item.span || 0"
-      :sm="element.options.responsive ? item.sm || 0 : item.span || 0"
-      :md="element.options.responsive ? item.md || 0 : item.span || 0"
-      :lg="element.options.responsive ? item.lg || 0 : item.span || 0"
-      :xl="element.options.responsive ? item.xl || 0 : item.span || 0"
+      :xs="item.options ? (element.options.responsive ? item.options.xs || 0 : item.options.span || 0) : (element.options.responsive ? item.xs || 0 : item.span || 0)"
+      :sm="item.options ? (element.options.responsive ? item.options.sm || 0 : item.options.span || 0) : (element.options.responsive ? item.sm || 0 : item.span || 0)"
+      :md="item.options ? (element.options.responsive ? item.options.md || 0 : item.options.span || 0) : (element.options.responsive ? item.md || 0 : item.span || 0)"
+      :lg="item.options ? (element.options.responsive ? item.options.lg || 0 : item.options.span || 0) : (element.options.responsive ? item.lg || 0 : item.span || 0)"
+      :xl="item.options ? (element.options.responsive ? item.options.xl || 0 : item.options.span || 0) : (element.options.responsive ? item.xl || 0 : item.span || 0)"
+      :offset="item.options ? item.options.offset : 0"
+      :push="item.options ? item.options.push : 0"
+      :pull="item.options ? item.options.pull : 0"
     >
       <template v-for="col in item.list">
         <generate-col-item
