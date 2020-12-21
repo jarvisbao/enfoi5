@@ -58,7 +58,7 @@
           <i class="el-icon-edit" @click="page_update(scope.row.page_id)" />
           <i class="el-icon-view" @click="page_info(scope.row.page_id)" />
           <i class="el-icon-delete" @click="page_remove(scope.row.page_id)" />
-          <el-dropdown>
+          <el-dropdown trigger="click">
             <span class="el-dropdown-link">
               <i class="el-icon-more" />
             </span>

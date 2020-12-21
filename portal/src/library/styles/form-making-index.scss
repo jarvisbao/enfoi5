@@ -188,11 +188,10 @@ $primary-background-color: #ecf5ff;
   .form-empty{
     position: absolute;
     text-align: center;
-    width: 300px;
+    width: auto;
     height: 20px;
     font-size: 20px;
     top: 50%;
-    width: 100%;
     margin-top: -10px;
     color: #ccc;
   }

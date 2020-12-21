@@ -1,7 +1,17 @@
 <template>
   <div class="generateform-box" v-if="show">
-    <fm-generate-form ref="generateForm" v-if="fmshow" :data="jsonData" :remote="remoteFuncs" :value="editData" :edit="edit" :design-fields="designFields" />
-    <div :style="styleObject" class="handle-btn el-form">
+    <fm-generate-form
+      ref="generateForm"
+      v-if="fmshow"
+      :data="jsonData"
+      :remote="remoteFuncs"
+      :value="editData"
+      :edit="edit"
+      :design-fields="designFields"
+      @handle-submit="handleSubmit"
+      @handle-back="handleReset"
+    />
+    <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
       <el-button v-if="edit" id="submit" :loading="$store.state.app.loading" type="danger" @click="handleSubmit">
         立即修改
       </el-button>
@@ -64,7 +74,8 @@ export default {
       fmshow: false,
       designFields: [],
       objid: null,
-      inIframe: false
+      inIframe: false,
+      custom_btn: false
     }
   },
   computed: {
@@ -86,6 +97,9 @@ export default {
           this.show = true
           this.styleObject = {
             paddingLeft: design_form.config.labelWidth + 'px'
+          }
+          if (design_form.config.button === undefined) {
+            this.custom_btn = true
           }
         }
       }

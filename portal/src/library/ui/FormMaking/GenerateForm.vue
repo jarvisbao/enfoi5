@@ -101,6 +101,14 @@
           </template>
         </generate-form-item>
       </template>
+      <el-form-item v-if="showBtn && data.config.button">
+        <el-button id="submit" v-if="data.config.button.onsubmit.show && edit" :loading="$store.state.app.loading" type="danger" @click="onSubmit">
+          {{ data.config.button.onsubmit.label }}
+        </el-button>
+        <el-button id="cancel" v-if="data.config.button.back.show" :loading="$store.state.app.loading" plain @click="onBack">
+          {{ data.config.button.back.label }}
+        </el-button>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -151,6 +159,16 @@ export default {
               'tips': 'models: 初始化数据',
               'func_body': '',
               'func_name': ''
+            },
+            'button': {
+              'onsubmit': {
+                'label': '提交',
+                'show': true
+              },
+              'back': {
+                'label': '返回',
+                'show': true
+              }
             }
           }
         }
@@ -177,6 +195,10 @@ export default {
     moduleInit: {
       type: Object,
       default: () => ({})
+    },
+    showBtn: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -497,6 +519,12 @@ export default {
     refresh() {},
     setData(value) {
       this.models = { ...this.models, ...value }
+    },
+    onSubmit() {
+      this.$emit('handle-submit')
+    },
+    onBack() {
+      this.$emit('handle-back')
     }
   }
 }

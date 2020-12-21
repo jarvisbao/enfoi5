@@ -7,86 +7,50 @@
       <el-button id="refresh" type="primary" plain @click="refresh">
         刷新
       </el-button>
-      <template v-for="(item, index) in newOtherMethods">
-        <el-button :key="index">
-          <span v-if="item.operate_type===1" id="plcl" @click="clickType1(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===2" id="plxg" @click="clickType2(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===6" id="plPost" @click="clickType6(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===7" id="plGet" @click="clickType7(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===8" id="clsCreate" @click="clickType8(item)">{{ item.operate_name }}</span>
-          <span v-if="item.operate_type===9" id="fileUpload" @click="clickType9(item)">{{ item.operate_name }}</span>
-        </el-button>
-      </template>
-      <el-upload
-        ref="fileUpload"
-        :show-file-list="false"
-        :auto-upload="false"
-        :on-change="changeUpload"
-        action=""
-        style="display: none"
+      <el-button id="open_blank" type="primary" plain @click="openBlank">
+        跳取当前页面
+      </el-button>
+      <top-other-methods
+        :object_id="object_id"
+        :page_id="page_id"
+        :ids="ids"
+        :is-all="isAll"
+        :new-other-methods="newOtherMethods"
+        :selection-data="selectionData"
+        :headers_all="headers_all"
+        :set_session="set_session"
+        :add_script="add_script"
+        class="method-btn"
+        @showMtdEdit="showMtdEdit"
+        @openDialog="openDialog"
+        @refresh="refresh"
       />
-      <div class="right-btn">
-        <el-button v-if="widget.options.query" type="text" @click="query" style="margin-right: 10px">
-          查询
-        </el-button>
+      <div class="right-btn" style="display: flex; justify-content: flex-end;">
+        <!-- 查询 -->
+        <set-query ref="setQuery" v-if="widget.options.query" :proj_code="proj_code" :object_code="object_code" :page_code="page_code" :is-bycode="true" @getQueryData="getQueryData" />
         <el-input id="search" v-if="widget.options.search" v-model="text" prefix-icon="el-icon-search" placeholder="请输入内容" class="search-input" @keyup.enter.native="schfilter" />
       </div>
     </div>
-    <el-table v-loading="loading" :data="items" tooltip-effect="dark" border style="width: 100%" @selection-change="handleSelectionChange">
-      <el-table-column
-        v-if="isMultiple"
-        type="selection"
-        width="55"
-      />
-      <el-table-column
-        v-for="(item, index) in headers"
-        :key="index"
-        :prop="item.prop"
-        :label="item.label"
-        show-overflow-tooltip
-      >
-        <template slot-scope="scope">
-          <div v-if="item.data_format && ['image','file', 'html'].indexOf(item.data_format) != -1">
-            <span class="dlink" v-html="scope.row[scope.column.property]" />
-          </div>
-          <div v-else-if="convert && scope.column.property in design_select">
-            {{ scope.row[scope.column.property] | formatterFun(design_select[scope.column.property].values, design_select[scope.column.property].labels) }}
-          </div>
-          <div v-else>
-            {{ scope.row[scope.column.property] }}
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        fixed="right"
-        align="right"
-        width="150"
-      >
-        <template slot-scope="scope" v-if="!disabled">
-            <div v-for="(item, index) in scope.row.buttons" :key="item.action">
-              <template v-if="index < 3">
-                <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)">
-                  <i v-if="item.icon" :class="item.icon" :title="item.name" />
-                  <span v-else>{{ item.name }}</span>
-                </span>
-              </template>
-            </div>
-            <el-dropdown v-if="scope.row.buttons.length > 3">
-              <span class="el-dropdown-link">
-                <i class="el-icon-more" />
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="(item, index) in scope.row.buttons.slice(3)" :key="index">
-                  <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)">
-                    <span v-if="item.icon"><i :class="item.icon" :title="item.name" /> {{ item.name }}</span>
-                    <span v-else>{{ item.name }}</span>
-                  </span>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-      </el-table-column>
-    </el-table>
+    <table-list
+      :loading="loading"
+      :is-multiple="isMultiple"
+      :can_export="can_export"
+      :show-column="showColumn"
+      :headers="headers"
+      :headers_all="headers_all"
+      :items="items"
+      :design_select="design_select"
+      :object_id="object_id"
+      :page_id="page_id"
+      :enable_record="enable_record"
+      :is-outer-obj="true"
+      :set_session="set_session"
+      :add_script="add_script"
+      @openDialog="openDialog"
+      @checkDate="checkDate"
+      @update="update"
+      @showMtdEdit="showMtdEdit"
+    />
     <el-pagination
       v-if="showPage"
       :page-size="page_size"
@@ -98,20 +62,18 @@
     />
     <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
       <method-batch-edit
-        v-if="batchVisible"
         :batch-data="batchData"
         :ids="ids"
         :is-all="isAll"
         :object_id="object_id"
         :mtd_id="mtd_id"
         :page_id="page_id"
+        :reload-uri="reloadUri"
         @show="isShow"
         @refresh="refresh"
       />
     </el-dialog>
-    <el-dialog v-if="dialogSearch" :visible.sync="dialogSearch" title="查询" :close-on-click-modal="false">
-      <set-query :proj_code="proj_code" :object_code="object_code" :page_code="page_code" :is-bycode="true" @show="isQueryShow" @getQueryData="getQueryData" />
-    </el-dialog>
+
     <el-dialog v-if="dialogCreate" :visible.sync="dialogCreate" :title="objTitle" :close-on-click-modal="false" append-to-body>
       <object-create
         v-if="isCreate"
@@ -119,6 +81,7 @@
         :pntfk="pntfk"
         :pntid="pntid"
         :page_id="page_id"
+        :reload-uri="reloadUri"
         @show="isCreateShow"
         @refresh="refresh" />
       <object-update
@@ -128,6 +91,7 @@
         :mtd_id="mtd_id"
         :edit="isEdit"
         :page_id="page_id"
+        :reload-uri="reloadUri"
         @show="isCreateShow"
         @refresh="refresh" />
     </el-dialog>
@@ -141,38 +105,15 @@ import path from 'path'
 import objectCreate from './objCreate'
 import objectUpdate from './objUpdate'
 const Base64 = require('js-base64').Base64
+import commonFun from '@/library/ui/pageData/mixin/commonFun'
 
 export default {
   components: {
     objectCreate,
     objectUpdate
   },
+  mixins: [commonFun],
   props: ['value', 'models', 'remote', 'blanks', 'disabled', 'widget', 'helpers', 'designFields', 'formValue'],
-  filters: {
-    formatterFun: function(value, values, labels) {
-      // if (!value) return value
-      let result = value
-      const isArray = Array.isArray(value)
-      if (value) {
-        if (isArray) {
-          result = []
-          value.forEach(element => {
-            const index = values.indexOf(element)
-            if (index !== -1) {
-              result.push(labels[index])
-            }
-          })
-          result = result.join(',')
-        } else {
-          const index = values.indexOf(value)
-          if (index !== -1) {
-            result = labels[index]
-          }
-        }
-      }
-      return result
-    }
-  },
   data() {
     return {
       loading: false,
@@ -197,6 +138,7 @@ export default {
       page_size: 10,
       layout: 'sizes, prev, pager, next',
       showPage: false,
+      showColumn: false,
       filters: [],
       convert: true,
       design_select: {},
@@ -205,6 +147,7 @@ export default {
       other_methods: [],
       newOtherMethods: [],
       newSingleMethods: [],
+      can_export: false,
       is_view: false,
       can_create: false,
       can_view: false,
@@ -221,7 +164,6 @@ export default {
       batchData: [],
       isAll: false,
       ids: [],
-      mtdFilters: [],
       enable_record: false,
       dialogCreate: false,
       objTitle: '',
@@ -233,36 +175,8 @@ export default {
       dialogMtd: false,
       mtdTitle: '',
       mtd_get_url: null,
-      fileAction: null
-    }
-  },
-  computed: {
-    allBtns() {
-      const { items, cellBtn, newSingleMethods, delete_applycondition } = this
-      items.forEach(row => {
-        this.$set(row, 'buttons', [...cellBtn, ...newSingleMethods])
-        row.buttons.forEach((i, index) => {
-          if (i.isMtd && eval(i.apply_condition) === false) {
-            this.$set(i, 'disabled', true)
-          } else {
-            this.$set(i, 'disabled', false)
-          }
-        })
-        row.buttons = row.buttons.filter(i => {
-          return !i.disabled
-        })
-        if (delete_applycondition && !eval(delete_applycondition)) {
-          row.buttons = row.buttons.filter(i => {
-            return i.action !== 'remove'
-          })
-        }
-      })
-      return items
-    }
-  },
-  watch: {
-    allBtns: {
-      handler(val) {}
+      fileAction: null,
+      reloadUri: null
     }
   },
   created() {
@@ -295,12 +209,7 @@ export default {
     closeDialog() {
       this.dialogMtd = false
     },
-    fnCall(fun, row) {
-      this[fun](row)
-    },
-    mtdCall(fun, item, row) {
-      this[fun](item, row)
-    },
+
     fetchData() {
       this.loading = true
       this.$Apis.object.get_headers_by_code(this.proj_code, this.object_code, this.page_code, false).then(response => {
@@ -316,8 +225,10 @@ export default {
               this.pagination = response.payload.pagination
               if (this.pagination.total > 0) {
                 this.showPage = true
+                this.showColumn = true
               } else {
                 this.showPage = false
+                this.showColumn = false
               }
               this.loading = false
             } else {
@@ -439,46 +350,7 @@ export default {
         }
       })
     },
-    get_method() {
-      this.$Apis.object.method_list_by_id(this.object_id).then(response => {
-        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.loading = false
-          this.methodsItems = response.payload.items
-          this.get_new_other()
-          this.get_new_single()
-          if (JSON.stringify(this.newOtherMethods) !== '[]') {
-            this.isMultiple = true
-          } else {
-            this.isMultiple = false
-          }
-        }
-      })
-    },
-    get_new_other() {
-      if (this.other_methods !== null) {
-        this.other_methods.forEach(element => {
-          this.methodsItems.forEach(item => {
-            if (element === item.mtd_id) {
-              this.newOtherMethods.push(item)
-            }
-          })
-        })
-      }
-    },
-    get_new_single() {
-      if (this.single_methods !== null) {
-        this.single_methods.forEach(element => {
-          this.methodsItems.forEach(item => {
-            if (element === item.mtd_id) {
-              this.$set(item, 'name', item.operate_name)
-              this.$set(item, 'fun', 'clickType' + item.operate_type)
-              this.$set(item, 'isMtd', true)
-              this.newSingleMethods.push(item)
-            }
-          })
-        })
-      }
-    },
+
     create() {
       // this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid }})
       this.dialogCreate = !this.dialogCreate
@@ -496,8 +368,10 @@ export default {
           this.pagination = response.payload.pagination
           if (this.pagination.total > 0) {
             this.showPage = true
+            this.showColumn = true
           } else {
             this.showPage = false
+            this.showColumn = false
           }
           this.loading = false
         } else {
@@ -507,136 +381,8 @@ export default {
         }
       })
     },
-    schfilter() {
-      this.pagination.page = 1
-      this.operateData()
-    },
-    handleSizeChange(val) {
-      this.page_size = val
-      this.operateData()
-    },
-    handleCurrentChange(val) {
-      this.pagination.page = val
-      this.operateData()
-    },
-    handleSelectionChange(val) {
-      this.selectionData = val
-      this.mtdFilters = []
-      this.ids = []
-      const selectionLength = val.length
-      // 判断是否选中当前页所有行
-      if (selectionLength === this.page_size || selectionLength === this.pagination.total) {
-        this.isAll = true
-      } else {
-        this.isAll = false
-        val.forEach((item, index) => {
-          var filter = []
-          this.headers_all.some(element => {
-            element['value'] = item[element['prop']]
-            if (element['is_primary']) {
-              if (element['value']) {
-                filter.push(element['prop'] + '=="' + element['value'] + '"')
-                this.mtdFilters.push(element['prop'] + '=="' + element['value'] + '"')
-                this.ids.push(element['value'])
-                return true
-              }
-            }
-          })
-        })
-      }
-    },
     refresh() {
       this.fetchData()
-    },
-    update(row) {
-      let ids = []
-      this.update_headers = []
-      this.headers_all.forEach(element => {
-        if (!element['is_property'] && !element['is_object']) {
-          this.update_headers.push(element)
-        }
-      })
-      this.update_headers.some(element => {
-        element['value'] = row[element['prop']]
-        if (element['is_primary']) {
-          if (element['value']) {
-            ids.push(element['value'])
-            return true
-          }
-        }
-      })
-      ids = ids.join(',')
-      this.objid = ids
-      this.dialogCreate = !this.dialogCreate
-      this.isCreate = false
-      this.objTitle = '更新'
-      this.isEdit = true
-    },
-    info(row) {
-      this.update_headers = []
-      let ids = []
-      this.headers_all.forEach(element => {
-        if (!element['is_property'] && !element['is_object']) {
-          this.update_headers.push(element)
-        }
-      })
-      this.update_headers.some(element => {
-        element['value'] = row[element['prop']]
-        if (element['is_primary']) {
-          if (element['value']) {
-            ids.push(element['value'])
-            return true
-          }
-        }
-      })
-      ids = ids.join(',')
-      this.objid = ids
-      this.dialogCreate = !this.dialogCreate
-      this.isCreate = false
-      this.objTitle = '查看'
-      this.isEdit = false
-    },
-    remove(row) {
-      let ids = []
-      this.headers_all.some(element => {
-        element['value'] = row[element['prop']]
-        if (element['is_primary']) {
-          if (element['value']) {
-            ids.push(element['value'])
-            return true
-          }
-        }
-      })
-      ids = ids.join(',')
-      this.$confirm('是否删除该信息?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        if (!ids) {
-          this.$alert('该业务类下字段没有设置主键，不允许删除', '提示', {
-            confirmButtonText: '确定'
-          })
-          return false
-        }
-        this.$Apis.object.data_delete(this.object_id, ids, this.page_id).then(response => {
-          this.$alert(response.message, '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.refresh([])
-            }
-          })
-        })
-      }).catch(() => {
-      })
-    },
-    query() {
-      this.dialogSearch = !this.dialogSearch
-    },
-    isQueryShow() {
-      this.dialogSearch = !this.dialogSearch
     },
     getQueryData(params) {
       const queryparam = []
@@ -648,7 +394,7 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.items = response.payload.items
           this.loading = false
-          this.isQueryShow()
+          this.$refs.setQuery.handleReset()
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'
@@ -656,642 +402,30 @@ export default {
         }
       })
     },
-    isShow() {
-      this.dialogVisible = !this.dialogVisible
+    update(args) {
+      this.objid = args.objid
+      this.mtd_id = args.mtd_id
+      this.dialogCreate = !this.dialogCreate
+      this.isCreate = false
+      this.objTitle = args.objTitle
+      this.isEdit = args.isEdit
+      this.reloadUri = args.reloadUri
     },
-    clickType1(item) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      if (JSON.stringify(this.selectionData) === '[]') {
-        this.$alert('请选择要操作的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      // 满足适用条件时执行
-      if (item.apply_condition) {
-        const arr = this.selectionData.filter(row => {
-          return eval(item.apply_condition)
-        })
-        if (arr.length !== this.selectionData.length) {
-          this.$alert('选择的条目中有不能执行的，请去掉再操作！', '提示', {
-            confirmButtonText: '确定'
-          })
-          return false
-        }
-      }
-
-      const classColumn = {}
-      let ids = null
-      this.headers_all.forEach(element => {
-        if (item.edit_prop.includes(element.prop)) {
-          classColumn[element['prop']] = item.editval
+    openBlank() {
+      const route = this.$router.resolve({
+        name: 'dataByCode',
+        query: {
+          proj_code: this.proj_code,
+          object_code: this.object_code,
+          page_code: this.page_code,
+          pntfk: this.pntfk,
+          pntid: this.pntid,
+          pnt_clsname: this.pnt_clsname,
+          filters: this.filters,
+          name: this.widget.name
         }
       })
-      if (this.isAll) {
-        ids = {}
-      } else {
-        ids = this.ids.join(',')
-      }
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          // 修改批量设置的值
-          this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
-          this.refresh()
-        }).catch(() => {})
-      } else {
-        this.$Apis.object.data_update(this.object_id, ids, classColumn, item.operate_code, this.page_id)
-        this.refresh()
-      }
-    },
-    clickType2(item) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      if (JSON.stringify(this.selectionData) === '[]') {
-        this.$alert('请选择要操作的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      // 满足适用条件时执行
-      if (item.apply_condition) {
-        const arr = this.selectionData.filter(row => {
-          return eval(item.apply_condition)
-        })
-        if (arr.length !== this.selectionData.length) {
-          this.$alert('选择的条目中有不能执行的，请去掉再操作！', '提示', {
-            confirmButtonText: '确定'
-          })
-          return false
-        }
-      }
-      this.mtd_id = item.mtd_id
-      this.batchData = JSON.parse(JSON.stringify(this.headers_all))
-      this.batchData.forEach(element => {
-        if (item.view_prop.includes(element.prop)) {
-          element['isview'] = true
-        }
-        if (item.edit_prop.includes(element.prop)) {
-          element['isedit'] = true
-        }
-      })
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          this.dialogVisible = !this.dialogVisible
-          this.batchVisible = true
-          this.dialogTitle = '批量修改'
-        }).catch(() => {})
-      } else {
-        this.dialogVisible = !this.dialogVisible
-        this.batchVisible = true
-        this.dialogTitle = '批量修改'
-      }
-    },
-    clickType3(item, row) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      this.update_headers = []
-      let ids = []
-      this.headers_all.forEach(element => {
-        if (!element['is_property'] && !element['is_object']) {
-          this.update_headers.push(element)
-        }
-      })
-      this.update_headers.some(element => {
-        element['value'] = row[element['prop']]
-        if (element['is_primary']) {
-          if (element['value']) {
-            ids.push(element['value'])
-            return true
-          }
-        }
-      })
-      ids = ids.join(',')
-      this.objid = ids
-      this.mtd_id = item.mtd_id
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          this.dialogCreate = !this.dialogCreate
-          this.isCreate = false
-          this.objTitle = '更新'
-          this.isEdit = true
-          // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
-        }).catch(() => {})
-      } else {
-        this.dialogCreate = !this.dialogCreate
-        this.isCreate = false
-        this.objTitle = '更新'
-        this.isEdit = true
-        // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
-      }
-    },
-    clickType4(item, row) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      const url = item.uri
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      const update_headers = []
-      let ids = []
-      this.headers_all.forEach(element => {
-        if (!element['is_property'] && !element['is_object']) {
-          update_headers.push(element)
-        }
-      })
-      update_headers.some(element => {
-        element['value'] = row[element['prop']]
-        if (element['is_primary']) {
-          if (element['value']) {
-            ids.push(element['value'])
-            return true
-          }
-        }
-      })
-      ids = ids.join(',')
-      this.params = { object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, id: ids }
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          this.$Utils.request({
-            url: url,
-            method: 'post',
-            data: {
-              param: Base64.encode(JSON.stringify(this.params))
-            }
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                this.refresh()
-              }
-            })
-          })
-        }).catch(() => {})
-      } else {
-        this.$Utils.request({
-          url: url,
-          method: 'post',
-          data: {
-            param: Base64.encode(JSON.stringify(this.params))
-          }
-        }).then((response) => {
-          this.$alert(response.payload, '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.refresh()
-            }
-          })
-        })
-      }
-    },
-    clickType5(item, row) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      const url = item.uri
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      let newUrl = null
-      if (this.$Utils.validate.isExternal(url)) {
-        newUrl = url
-      } else {
-        const update_headers = []
-        let ids = []
-        this.headers_all.forEach(element => {
-          if (!element['is_property'] && !element['is_object']) {
-            update_headers.push(element)
-          }
-        })
-        update_headers.some(element => {
-          element['value'] = row[element['prop']]
-          if (element['is_primary']) {
-            if (element['value']) {
-              ids.push(element['value'])
-              return true
-            }
-          }
-        })
-        ids = ids.join(',')
-        this.params = { object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, id: ids }
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
-
-        const params = url.split('?')[1] || ''
-        if (params) {
-          newUrl = url + '&param=' + Base64.encode(JSON.stringify(this.params))
-        } else {
-          newUrl = url + '?param=' + Base64.encode(JSON.stringify(this.params))
-        }
-      }
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          if (item.uriopentype === '0') {
-            window.open(newUrl, '_blank')
-          } else if (item.uriopentype === '1') {
-            this.$Utils.util.routerGo(newUrl)
-          } else {
-            this.dialogMtd = !this.dialogMtd
-            this.mtdTitle = item.operate_name
-            this.mtd_get_url = newUrl
-          }
-        }).catch(() => {})
-      } else {
-        if (item.uriopentype === '0') {
-          window.open(newUrl, '_blank')
-        } else if (item.uriopentype === '1') {
-          this.$Utils.util.routerGo(newUrl)
-        } else {
-          this.dialogMtd = !this.dialogMtd
-          this.mtdTitle = item.operate_name
-          this.mtd_get_url = newUrl
-        }
-      }
-    },
-    clickType6(item) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      const url = item.uri
-      if (JSON.stringify(this.selectionData) === '[]') {
-        this.$alert('请选择要操作的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      // 满足适用条件时执行
-      if (item.apply_condition) {
-        const arr = this.selectionData.filter(row => {
-          return eval(item.apply_condition)
-        })
-        if (arr.length !== this.selectionData.length) {
-          this.$alert('选择的条目中有不能执行的，请去掉再操作！', '提示', {
-            confirmButtonText: '确定'
-          })
-          return false
-        }
-      }
-
-      let ids = []
-      this.selectionData.forEach((item, index) => {
-        this.headers_all.some(element => {
-          element['value'] = item[element['prop']]
-          if (element['is_primary']) {
-            if (element['value']) {
-              ids.push(element['value'])
-              return true
-            }
-          }
-        })
-      })
-      ids = ids.join(',')
-      this.params = { object_id: this.object_id, page_id: this.page_id, ids: ids, mtd_id: item.mtd_id }
-
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          this.$Utils.request({
-            url: url,
-            method: 'post',
-            data: {
-              param: Base64.encode(JSON.stringify(this.params))
-            }
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                this.refresh()
-              }
-            })
-          })
-        }).catch(() => {})
-      } else {
-        this.$Utils.request({
-          url: url,
-          method: 'post',
-          data: {
-            param: Base64.encode(JSON.stringify(this.params))
-          }
-        }).then((response) => {
-          this.$alert(response.payload, '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.refresh()
-            }
-          })
-        })
-      }
-    },
-    clickType7(item) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      const url = item.uri
-      if (JSON.stringify(this.selectionData) === '[]') {
-        this.$alert('请选择要操作的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      // 满足适用条件时执行
-      if (item.apply_condition) {
-        const arr = this.selectionData.filter(row => {
-          return eval(item.apply_condition)
-        })
-        if (arr.length !== this.selectionData.length) {
-          this.$alert('选择的条目中有不能执行的，请去掉再操作！', '提示', {
-            confirmButtonText: '确定'
-          })
-          return false
-        }
-      }
-      let newUrl = null
-      if (this.$Utils.validate.isExternal(url)) {
-        newUrl = url
-      } else {
-        const ids = []
-        this.selectionData.forEach((item, index) => {
-          this.headers_all.some(element => {
-            element['value'] = item[element['prop']]
-            if (element['is_primary']) {
-              if (element['value']) {
-                ids.push(element['value'])
-                return true
-              }
-            }
-          })
-        })
-        this.params = { object_id: this.object_id, page_id: this.page_id, ids: ids, mtd_id: item.mtd_id }
-
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
-
-        const params = url.split('?')[1] || ''
-        if (params) {
-          newUrl = url + '&param=' + Base64.encode(JSON.stringify(this.params))
-        } else {
-          newUrl = url + '?param=' + Base64.encode(JSON.stringify(this.params))
-        }
-      }
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          if (item.uriopentype === '0') {
-            window.open(newUrl, '_blank')
-          } else if (item.uriopentype === '1') {
-            this.$Utils.util.routerGo(newUrl)
-          } else {
-            this.dialogMtd = !this.dialogMtd
-            this.mtdTitle = item.operate_name
-            this.mtd_get_url = newUrl
-          }
-        }).catch(() => {})
-      } else {
-        if (item.uriopentype === '0') {
-          window.open(newUrl, '_blank')
-        } else if (item.uriopentype === '1') {
-          this.$Utils.util.routerGo(newUrl)
-        } else {
-          // this.$Utils.util.routerGo(newUrl)
-          this.dialogMtd = !this.dialogMtd
-          this.mtdTitle = item.operate_name
-          this.mtd_get_url = newUrl
-        }
-      }
-    },
-    clickType8(item) {
-      // 如果有注入JavaScript代码，先注入JS代码
-      if (item.append_script) {
-        this.add_script(item.append_script)
-      }
-      const url = item.uri
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      let newUrl = null
-      this.params = { r_objectid: this.object_id, r_pntfk: this.pntfk, r_pntid: this.pntid, r_pnt_clsname: this.pnt_clsname }
-
-      if (this.$Utils.validate.isExternal(url)) {
-        newUrl = url
-      } else {
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
-
-        const params = url.split('?')[1] || ''
-        if (params) {
-          newUrl = url + '&' + _result.join('&')
-        } else {
-          newUrl = url + '?' + _result.join('&')
-        }
-      }
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          if (item.uriopentype === '0') {
-            this.$Utils.request({
-              url: url,
-              method: 'post',
-              data: this.params
-            }).then((response) => {
-              this.$alert(response.payload, '提示', {
-                confirmButtonText: '确定',
-                callback: action => {
-                  this.refresh()
-                }
-              })
-            })
-          } else if(item.uriopentype === '1') {
-            window.open(newUrl, '_blank')
-          } else if (item.uriopentype === '2') {
-            this.$Utils.util.routerGo(newUrl)
-          } else {
-            this.dialogMtd = !this.dialogMtd
-            this.mtdTitle = item.operate_name
-            this.mtd_get_url = newUrl
-          }
-        }).catch(() => {})
-      } else {
-        if (item.uriopentype === '0') {
-          this.$Utils.request({
-            url: url,
-            method: 'post',
-            data: this.params
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                this.refresh()
-              }
-            })
-          })
-        } else if(item.uriopentype === '1') {
-          window.open(newUrl, '_blank')
-        } else if (item.uriopentype === '2') {
-          this.$Utils.util.routerGo(newUrl)
-        } else {
-          this.dialogMtd = !this.dialogMtd
-          this.mtdTitle = item.operate_name
-          this.mtd_get_url = newUrl
-        }
-      }
-    },
-    clickType9(item) {
-      this.fileAction = item
-      this.$refs.fileUpload.$children[0].$refs.input.click()
-    },
-    add_script(code) {
-      var script = document.createElement('script')
-      script.type = 'text/javascript'
-      script.text = code
-      document.head.appendChild(script)
-    },
-    changeUpload(file, fileList) {
-      const isXls = file.raw.type === 'application/vnd.ms-excel'
-      const isXlsx = file.raw.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      const uri = this.fileAction.uri || '/rpcgateway/LegoObjectService/import_excel'
-
-      if (!isXls && !isXlsx) {
-        this.$alert('请上传.xls 或 .xlsx 或 .csv格式的文件', '提示', {
-          confirmButtonText: '确定',
-          callback: action => {
-            return false
-          }
-        })
-      } else {
-        const form = new FormData()
-        form.append('content', file.raw)
-        form.append('object_id', this.fileAction.object_id)
-        form.append('mtd_id', this.fileAction.mtd_id)
-        form.append('filename', file.name)
-        form.append('start_rows_input', this.fileAction.start_rows_input || 1)
-        form.append('cols_name_input', this.fileAction.cols_name_input || '')
-        this.$Utils.request({
-          url: uri,
-          method: 'post',
-          data: form
-        }).then((response) => {
-          this.$alert(response.payload, '提示', {
-            confirmButtonText: '确定'
-          })
-          this.refresh()
-        })
-      }
-      fileList = []
+      window.open(route.href, '_blank')
     }
   }
 }
@@ -1323,6 +457,23 @@ export default {
   & ::v-deep.el-table thead tr th {
     background: #f5f7fa;
     color: #909399;
+  }
+  .action-btn {
+    .method-btn {
+      ::v-deep.btn {
+        margin-left: 10px;
+        margin-right: 0;
+        padding: 9px 15px;
+        border-radius: 3px;
+        line-height: 1;
+        font-size: 12px;
+        &:hover, &:focus {
+          color: #409EFF;
+          border-color: #c6e2ff;
+          background-color: #ecf5ff;
+        }
+      }
+    }
   }
 }
 </style>

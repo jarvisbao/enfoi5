@@ -35,6 +35,7 @@
                     :remote="remoteFuncs"
                     :edit="false"
                     :module-init="moduleInit"
+                    :show-btn="false"
                   />
                 </div>
               </el-tab-pane>

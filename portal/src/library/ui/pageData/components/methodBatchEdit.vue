@@ -22,8 +22,8 @@
       </el-form-item>
     </el-form>
     <div v-else>
-      <fm-generate-form ref="generateForm" v-if="fmshow" :data="design_form" :remote="remoteFuncs" :design-fields="batchData" />
-      <div :style="styleObject" class="handle-btn el-form">
+      <fm-generate-form ref="generateForm" v-if="fmshow" :data="design_form" :remote="remoteFuncs" :design-fields="batchData" @handle-submit="handleSubmit" @handle-back="handleReset" />
+      <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
         <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
           立即修改
         </el-button>
@@ -62,6 +62,10 @@ export default {
     page_id: {
       type: String,
       default: undefined
+    },
+    reloadUri: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -102,7 +106,8 @@ export default {
       },
       fmshow: false,
       styleObject: null,
-      mtd_code: undefined
+      mtd_code: undefined,
+      custom_btn: false
     }
   },
   created() {
@@ -119,12 +124,15 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           const method = response.payload
           this.mtd_code = method.operate_code
-          if (method.operate_type === 3) {
-            this.design_form = method.design_form
+          if (method.operate_type === 3 || method.operate_type === 2) {
+            this.design_form = JSON.parse(method.design_form)
             if (this.design_form) {
               this.fmshow = true
               this.styleObject = {
                 paddingLeft: this.design_form.config.labelWidth + 'px'
+              }
+              if (this.design_form.config.button === undefined) {
+                this.custom_btn = true
               }
             }
           }
@@ -149,6 +157,28 @@ export default {
             ids = {}
           } else {
             ids = this.ids.join(',')
+          }
+          if (this.reloadUri) {
+            this.$Utils.request({
+              url: this.reloadUri,
+              methods: 'post',
+              data: {
+                object_id: this.object_id,
+                ids: ids,
+                fields: this.classColumn,
+                mtd_code: this.mtd_code,
+                page_id: this.page_id
+              }
+            }).then(response => {
+              this.$alert(response.message, '提示', {
+                confirmButtonText: '确定',
+                callback: action => {
+                  this.resetForm('form')
+                  this.$emit('refresh')
+                }
+              })
+            })
+            return
           }
           this.$Apis.object.data_update(this.object_id, ids, this.classColumn, this.mtd_code, this.page_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
@@ -182,6 +212,28 @@ export default {
           ids = {}
         } else {
           ids = this.ids.join(',')
+        }
+        if (this.reloadUri) {
+          this.$Utils.request({
+            url: this.reloadUri,
+            method: 'post',
+            data: {
+              object_id: this.object_id,
+              ids: ids,
+              fields: data,
+              mtd_code: this.mtd_code,
+              page_id: this.page_id
+            }
+          }).then(response => {
+            this.$alert(response.message, '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.resetForm('form')
+                this.$emit('refresh')
+              }
+            })
+          })
+          return
         }
         this.$Apis.object.data_update(this.object_id, ids, data, this.mtd_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {

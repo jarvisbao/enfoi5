@@ -1,8 +1,15 @@
 <template>
   <div class="app-container">
     <div class="generateform-box" v-if="show">
-      <fm-generate-form ref="generateForm" :data="jsonData" :remote="remoteFuncs" :design-fields="designFields" />
-      <div :style="styleObject" class="handle-btn el-form">
+      <fm-generate-form
+        ref="generateForm"
+        :data="jsonData"
+        :remote="remoteFuncs"
+        :design-fields="designFields"
+        @handle-submit="handleSubmit"
+        @handle-back="handleReset"
+      />
+      <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
         <el-button id="submit" :loading="$store.state.app.loading" type="danger" @click="handleSubmit">
           立即添加
         </el-button>
@@ -31,6 +38,10 @@ export default {
     page_id: {
       type: String,
       default: undefined
+    },
+    reloadUri: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -72,7 +83,8 @@ export default {
       show: false,
       designFields: [],
       mtd_id: null,
-      mtd_code: undefined
+      mtd_code: undefined,
+      custom_btn: false
     }
   },
   computed: {
@@ -100,6 +112,9 @@ export default {
           this.show = true
           this.styleObject = {
             paddingLeft: design_form.config.labelWidth + 'px'
+          }
+          if (design_form.config.button === undefined) {
+            this.custom_btn = true
           }
         }
       }

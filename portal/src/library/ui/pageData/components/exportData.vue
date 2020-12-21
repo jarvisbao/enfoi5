@@ -1,34 +1,39 @@
 <template>
   <div class="export-box">
-    <el-table
-      :data="items"
-      style="width: 100%"
-    >
-      <el-table-column
-        v-for="(item, index) in headers"
-        :key="index"
-        :label="item.label"
-      />
-    </el-table>
-    <el-checkbox-group v-model="checkboxFields" size="small" @change="hanldChange">
-      <el-checkbox-button v-for="item in exportFields" :key="item.prop" :label="item.prop">
-        {{ item.label }}
-      </el-checkbox-button>
-    </el-checkbox-group>
-    <div class="btn-box">
-      <el-button plain size="medium" @click="checkAll">
-        全选
-      </el-button>
-      <el-button plain size="medium" @click="reset">
-        重置
-      </el-button>
-      <el-button type="danger" size="medium" @click="exportData">
-        导出
-      </el-button>
-      <el-button plain size="medium" @click="cancel">
-        取消
-      </el-button>
-    </div>
+    <el-button :disabled="items.length===0" class="btn create-btn export-btn" @click="export_data">
+      导出
+    </el-button>
+    <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
+      <el-table
+        :data="[]"
+        style="width: 100%"
+      >
+        <el-table-column
+          v-for="(item, index) in headers"
+          :key="index"
+          :label="item.label"
+        />
+      </el-table>
+      <el-checkbox-group v-model="checkboxFields" size="small" @change="hanldChange">
+        <el-checkbox-button v-for="item in exportFields" :key="item.prop" :label="item.prop">
+          {{ item.label }}
+        </el-checkbox-button>
+      </el-checkbox-group>
+      <div class="btn-box">
+        <el-button plain size="medium" @click="checkAll">
+          全选
+        </el-button>
+        <el-button plain size="medium" @click="reset">
+          重置
+        </el-button>
+        <el-button type="danger" size="medium" @click="exportData">
+          导出
+        </el-button>
+        <el-button plain size="medium" @click="cancel">
+          取消
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -68,21 +73,41 @@ export default {
     page_id: {
       type: String,
       default: undefined
+    },
+    items: {
+      type: Array,
+      default: () => ([])
     }
   },
   data() {
     return {
-      items: [],
+      // items: [],
       headers: this.exportFields,
-      checkboxFields: []
+      checkboxFields: [],
+      dialogVisible: false,
+      dialogTitle: '数据导出'
+    }
+  },
+  watch: {
+    exportFields: {
+      handler(val) {
+        this.headers = val
+        this.exportFields.forEach(item => {
+          this.checkboxFields.push(item.prop)
+        })
+      },
+      immediate: true
     }
   },
   created() {
-    this.exportFields.forEach(item => {
-      this.checkboxFields.push(item.prop)
-    })
+    // this.exportFields.forEach(item => {
+    //   this.checkboxFields.push(item.prop)
+    // })
   },
   methods: {
+    export_data() {
+      this.dialogVisible = !this.dialogVisible
+    },
     hanldChange(val) {
       this.headers = []
       val.forEach(element => {
@@ -143,7 +168,7 @@ export default {
             } else {
               fileDownload(blob, 'export.xls')
             }
-            this.$emit('show')
+            this.cancel()
           } else {
             this.$alert(response.message, '提示', {
               confirmButtonText: '确定'
@@ -153,7 +178,7 @@ export default {
       }
     },
     cancel() {
-      this.$emit('show')
+      this.dialogVisible = false
     }
   }
 }

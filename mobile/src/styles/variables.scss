@@ -21,6 +21,7 @@ $color_gray6: #eaeaea;
 $color_red1: #f52f15;
 $color_red2: #f55315;
 $color_orange1: #f59c15;
+$color_green: #03d330;
 
 // the :export directive is the magic sauce for webpack
 :export {
@@ -47,4 +48,5 @@ $color_orange1: #f59c15;
   color_red1: $color_red1;
   color_red2: $color_red2;
   color_orange1: $color_orange1;
+  color_green: $color_green;
 }

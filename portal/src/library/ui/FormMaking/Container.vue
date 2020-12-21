@@ -328,6 +328,16 @@ export default {
               func_body: '',
               func_name: ''
             }
+          },
+          button: {
+            onsubmit: {
+              label: '提交',
+              show: true
+            },
+            back: {
+              label: '返回',
+              show: true
+            }
           }
         }
       },
@@ -407,6 +417,16 @@ export default {
               "tips": "models: 初始化时数据",
               "func_body": "",
               "func_name": ""
+            }
+          },
+          "button": {
+            "onsubmit": {
+              "label": '提交',
+              "show": true
+            },
+            "back": {
+              "label": '返回',
+              "show": true
             }
           }
   }
@@ -576,6 +596,18 @@ export default {
           const args = this.widgetForm.config.events[event_name].args
           json.config.events[event_name].tips = tips
           json.config.events[event_name].args = args
+        }
+      }
+      if(json.config.button === undefined) {
+        json.config.button = {
+          onsubmit: {
+            label: '提交',
+            show: true
+          },
+          back: {
+            label: '返回',
+            show: true
+          }
         }
       }
       this.widgetForm = json

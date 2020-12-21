@@ -77,7 +77,7 @@
           <i v-if="scope.row.permission_can_edit" class="el-icon-edit" @click="object_update(scope.row.proj_code, scope.row.object_code, scope.row.biz_name)" />
           <i v-if="scope.row.permission_can_view" class="el-icon-view" @click="object_info(scope.row.proj_code, scope.row.object_code, scope.row.object_name)" />
           <i v-if="removePermission" class="el-icon-delete" @click="object_remove(scope.row.proj_code, scope.row.object_code)" />
-          <el-dropdown>
+          <el-dropdown trigger="click">
             <span class="el-dropdown-link">
               <i class="el-icon-more" />
             </span>

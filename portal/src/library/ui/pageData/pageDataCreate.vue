@@ -1,8 +1,15 @@
 <template>
   <div class="app-container">
     <div class="generateform-box" v-if="show">
-      <fm-generate-form ref="generateForm" :data="jsonData" :remote="remoteFuncs" :design-fields="designFields" />
-      <div :style="styleObject" class="handle-btn el-form">
+      <fm-generate-form
+        ref="generateForm"
+        :data="jsonData"
+        :remote="remoteFuncs"
+        :design-fields="designFields"
+        @handle-submit="handleSubmit"
+        @handle-back="handleReset"
+      />
+      <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
         <el-button id="submit" :loading="$store.state.app.loading" type="danger" @click="handleSubmit">
           立即添加
         </el-button>
@@ -59,7 +66,8 @@ export default {
       pntid: null,
       mtd_id: null,
       inIframe: false,
-      mtd_code: undefined
+      mtd_code: undefined,
+      custom_btn: false
     }
   },
   computed: {
@@ -81,6 +89,9 @@ export default {
           this.show = true
           this.styleObject = {
             paddingLeft: design_form.config.labelWidth + 'px'
+          }
+          if (design_form.config.button === undefined) {
+            this.custom_btn = true
           }
         }
       }
@@ -119,6 +130,7 @@ export default {
       })
     },
     handleSubmit() {
+      console.log('223')
       this.pntfk = this.$route.query.pntfk ? this.$route.query.pntfk : null
       this.pntid = this.$route.query.pntid ? this.$route.query.pntid : null
       this.mtd_code = this.$route.query.mtd_code ? this.$route.query.mtd_code : undefined

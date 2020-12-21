@@ -96,7 +96,7 @@
             <el-tab-pane v-for="(item, index) in button_obj" :key="index" :name="'btn_'+index">
               <span slot="label">{{ item.name }}</span>
               <div>
-                <fm-generate-form v-if="item.fmShow" ref="generateForm" :id="item.owner" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :module-init="moduleInit" />
+                <fm-generate-form v-if="item.fmShow" ref="generateForm" :id="item.owner" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :module-init="moduleInit" :show-btn="false" />
               </div>
             </el-tab-pane>
             <el-tab-pane v-for="item in button_module_form" :key="item.name" :name="item.name">
@@ -121,7 +121,7 @@
         </div>
         <div v-else>
           <template v-for="(item, index) in button_obj">
-            <fm-generate-form v-if="item.fmShow" ref="generateForm" :id="item.owner" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :module-init="moduleInit" />
+            <fm-generate-form v-if="item.fmShow" ref="generateForm" :id="item.owner" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :module-init="moduleInit" :show-btn="false" />
           </template>
           <template v-if="button_module_form.length > 0">
             <component

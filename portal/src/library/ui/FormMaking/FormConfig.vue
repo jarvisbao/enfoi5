@@ -29,6 +29,17 @@
         <el-switch v-model="data.readOnly" />
       </el-form-item>
 
+      <el-form-item label="表单按钮">
+        <div>
+          <el-checkbox v-model="data.button.onsubmit.show" :disabled="showEdit">
+            <el-input v-if="showEdit" v-model="data.button.onsubmit.label" size="mini" @change="showEdit = false" @blur="showEdit = false" />
+            <span v-else>{{ data.button.onsubmit.label }}</span>
+          </el-checkbox>
+          <i class="el-icon-edit event-icon" @click="edit_btnname()" />
+        </div>
+        <el-checkbox v-model="data.button.back.show">{{ data.button.back.label }}</el-checkbox>
+      </el-form-item>
+
       <el-form-item
         v-for="(item,event_name) in data.events"
         :key="event_name"
@@ -84,7 +95,8 @@ export default {
       title: '',
       param_code: '',
       prop_code: '',
-      variable: ''
+      variable: '',
+      showEdit: false
     }
   },
   watch: {
@@ -120,6 +132,9 @@ export default {
     remove_script(event_name) {
       this.data.events[event_name].func_name = ''
       this.data.events[event_name].func_body = ''
+    },
+    edit_btnname() {
+      this.showEdit = true
     }
   }
 }

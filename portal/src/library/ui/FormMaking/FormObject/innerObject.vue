@@ -70,7 +70,7 @@
       form
       title="添加子对象"
     >
-      <fm-generate-form ref="innerObjForm" :data="innerObjData" :remote="remoteFuncs" :value="editData" />
+      <fm-generate-form ref="innerObjForm" :data="innerObjData" :remote="remoteFuncs" :value="editData" :show-btn="false" />
       <div style="text-align:center;">
         <el-button @click="innerObjVisible = false">
           取消

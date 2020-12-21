@@ -13,7 +13,7 @@ i<template>
           <span><i class="el-icon-position" />{{ processInfo.status }}</span>
         </div>
         <template v-for="(item, index) in processInfo.forms">
-          <fm-generate-form ref="generateForm" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :edit="false" />
+          <fm-generate-form ref="generateForm" :key="index" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :edit="false" :show-btn="false" />
         </template>
       </div>
       <div v-if="isShow" class="node-info">
@@ -38,7 +38,7 @@ i<template>
                 <el-tab-pane v-for="i in item.display_forms" :key="i.name">
                   <span slot="label">{{ i.name }}</span>
                   <div>
-                    <fm-generate-form ref="generateForm" :data="i.jsonData" :value="i.editData" :remote="remoteFuncs" :edit="false" />
+                    <fm-generate-form ref="generateForm" :data="i.jsonData" :value="i.editData" :remote="remoteFuncs" :edit="false" :show-btn="false" />
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-for="i in item.module_forms" :key="i.name">
@@ -54,7 +54,7 @@ i<template>
             </template>
             <div v-else>
               <template v-for="(i, colIndex) in item.display_forms">
-                <fm-generate-form ref="generateForm" :key="colIndex" :data="i.jsonData" :value="i.editData" :remote="remoteFuncs" :edit="false" />
+                <fm-generate-form ref="generateForm" :key="colIndex" :data="i.jsonData" :value="i.editData" :remote="remoteFuncs" :edit="false" :show-btn="false" />
               </template>
               <template v-for="(i, colIndex) in item.module_forms">
                 <component :ref="i.name" :is="i.name" :key="colIndex" :module-init="moduleInit" :is-edit="false" :form-value="i.editData" keep-alive />

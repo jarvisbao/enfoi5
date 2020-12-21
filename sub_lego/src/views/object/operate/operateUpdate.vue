@@ -98,6 +98,18 @@
               如果是用于发送接口修改数据的请选择 无
             </div>
           </el-form-item>
+          <template v-if="operate.operate_type===3">
+            <el-form-item label="重定义接口URI">
+              <el-input id="operateUrl" v-model="operate.uri" />
+            </el-form-item>
+            <el-form-item label="打开方式">
+              <el-select id="openType" v-model="operate.uriopentype" placeholder="请选择">
+                <el-option value="0" label="新页面打开" />
+                <el-option value="1" label="本页面打开" />
+                <el-option value="2" label="在Module框中打开" />
+              </el-select>
+            </el-form-item>
+          </template>
           <template v-if="operate.operate_type===9">
             <el-form-item label="文件导入起始行">
               <el-input v-model="operate.start_rows_input" type="number" min="0" @input="operate.start_rows_input=operate.start_rows_input.replace(/[^\d]/g, '')" />

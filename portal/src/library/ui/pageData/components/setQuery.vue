@@ -1,34 +1,39 @@
 <template>
   <div>
-    <div v-if="items.length < 1">
-      没有可参与查询的字段，请先到业务类中设置
-    </div>
-    <el-form v-else ref="form" :model="form" label-width="100px">
-      <el-form-item v-for="item in items" :key="item.prop" :label="item.label">
-        <div style="display: flex; justify-content: space-between;">
-          <el-select id="operator" v-model="item.operator" clearable placeholder="请选择" style="width: 35%">
-            <el-option
-              v-for="item in operators"
-              :key="item.label"
-              :label="item.label"
-              :value="item.operator"
-            >
-              <span style="float: left">{{ item.label }}</span>
-              <span style="float: right; margin-right: 15px; color: #8492a6;">{{ item.operator }}</span>
-            </el-option>
-          </el-select>
-          <el-input v-model="item.queryValue" style="width: 60%;" />
-        </div>
-      </el-form-item>
-      <el-form-item>
-        <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
-          确定
-        </el-button>
-        <el-button id="cancel" plain @click="handleReset">
-          返回
-        </el-button>
-      </el-form-item>
-    </el-form>
+    <el-button type="text" @click="query" style="margin-right: 10px">
+      查询
+    </el-button>
+    <el-dialog v-if="dialogSearch" :visible.sync="dialogSearch" title="查询" :close-on-click-modal="false" style="text-align:left">
+      <div v-if="items.length < 1">
+        没有可参与查询的字段，请先到业务类中设置
+      </div>
+      <el-form v-else ref="form" :model="form" label-width="100px">
+        <el-form-item v-for="item in items" :key="item.prop" :label="item.label">
+          <div style="display: flex; justify-content: space-between;">
+            <el-select id="operator" v-model="item.operator" clearable placeholder="请选择" style="width: 35%">
+              <el-option
+                v-for="item in operators"
+                :key="item.label"
+                :label="item.label"
+                :value="item.operator"
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; margin-right: 15px; color: #8492a6;">{{ item.operator }}</span>
+              </el-option>
+            </el-select>
+            <el-input v-model="item.queryValue" style="width: 60%;" />
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
+            确定
+          </el-button>
+          <el-button id="cancel" plain @click="handleReset">
+            返回
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -100,11 +105,11 @@ export default {
         }
       ],
       loading: false,
-      queryparam: []
+      queryparam: [],
+      dialogSearch: false
     }
   },
   created() {
-    this.fetchData()
   },
   methods: {
     fetchData() {
@@ -134,6 +139,10 @@ export default {
         })
       }
     },
+    query() {
+      this.dialogSearch = !this.dialogSearch
+      this.fetchData()
+    },
     handleSubmit() {
       this.queryparam = []
       this.items.forEach(item => {
@@ -155,7 +164,7 @@ export default {
       this.$emit('getQueryData', this.queryparam)
     },
     handleReset() {
-      this.$emit('show')
+      this.dialogSearch = false
     }
   }
 }

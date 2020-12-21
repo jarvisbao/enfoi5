@@ -71,7 +71,7 @@
           <i v-if="updatePermission" class="el-icon-edit" @click="repository_update(scope.row.name)" />
           <i v-if="viewPermission" class="el-icon-view" @click="repository_info(scope.row.name)" />
           <i v-if="removePermission" class="el-icon-delete" @click="repository_delete(scope.row.name)" />
-          <el-dropdown>
+          <el-dropdown trigger="click">
             <span class="el-dropdown-link"><i class="el-icon-circle-plus-outline" /></span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>

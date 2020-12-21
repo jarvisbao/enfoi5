@@ -14,7 +14,7 @@
         <el-tab-pane v-for="(item, index) in formItems" :key="item.name" :name="'form_'+index">
           <span slot="label">{{ item.name }}</span>
           <div>
-            <fm-generate-form v-if="show" ref="generateForm" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :id="item.owner" :edit="edit" :module-init="moduleInit" @on-change="onChange" />
+            <fm-generate-form v-if="show" ref="generateForm" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :id="item.owner" :edit="edit" :module-init="moduleInit" :show-btn="false" @on-change="onChange" />
           </div>
         </el-tab-pane>
         <el-tab-pane v-for="item in module_forms" :key="item.name" :name="item.name">
@@ -37,7 +37,7 @@
               {{ item.name }}
             </template>
             <div>
-              <fm-generate-form v-if="show" ref="generateForm" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :id="item.owner" :edit="edit" :module-init="moduleInit" @on-change="onChange" />
+              <fm-generate-form v-if="show" ref="generateForm" :data="item.jsonData" :value="item.editData" :remote="remoteFuncs" :id="item.owner" :edit="edit" :module-init="moduleInit" :show-btn="false" @on-change="onChange" />
             </div>
           </el-collapse-item>
           <el-collapse-item v-for="item in module_forms" :key="item.name" :name="item.name" class="list">

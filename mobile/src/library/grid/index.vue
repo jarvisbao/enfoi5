@@ -2,20 +2,23 @@
   <section>
     <van-sticky>
       <header class="main-header">
-        {{ title }}
+        <div style="display: flex" @click="goBack">
+          <van-icon v-if="isBack" name="arrow-left" color="#1989fa" size="16px" style="margin-right: 6px" />
+          {{ title }}
+        </div>
       </header>
     </van-sticky>
     <div class="main-portal">
       <div class="container">
         <div class="grid">
-          <van-grid :border="false" :column-num="5">
+          <van-grid :border="false">
             <van-grid-item v-for="(menu, index) in menus" :key="index" @click="routeGo(menu)">
               <template #icon>
-                <i :class="[menu.meta.icon || 'el-icon-menu', 'color_' + parseInt(Math.random(0, 1) * 3)]" />
+                <i :class="[menu.icon || 'el-icon-menu']" />
               </template>
               <template #text>
                 <div class="text">
-                  <span>{{ menu.meta.title }}</span>
+                  <span>{{ menu.label }}</span>
                 </div>
               </template>
             </van-grid-item>
@@ -31,12 +34,14 @@ export default {
     return {
       menus: [],
       code: null,
-      title: null
+      title: null,
+      isBack: false
     }
   },
   created() {
     this.code = this.$route.query.code || null
     this.title = this.$route.query.label || null
+    this.isBack = this.$route.query.back || false
     this.fetchData()
   },
   methods: {
@@ -49,13 +54,15 @@ export default {
     },
     routeGo(menu) {
       if (menu.uri === '/grid') {
-        this.$router.push({ path: menu.uri, query: { code: menu.menu_code, label: menu.label }})
+        this.$router.push({ path: menu.uri, query: { code: menu.menu_code, label: menu.label, back: true }})
       } else {
         this.$router.push({ path: menu.uri })
       }
     },
-    onClickLeft() {
-      this.$router.go(-1)
+    goBack() {
+      if (this.isBack) {
+        this.$router.go(-1)
+      }
     }
   }
 }

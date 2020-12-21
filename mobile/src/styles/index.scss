@@ -295,11 +295,14 @@ li {
 .grid {
   width: 100%;
   & /deep/ .van-grid-item__content {
-    padding: 8px;
+    padding: 12px 4px;
+    .van-grid-item__icon-wrapper {
+      height: 26px;
+    }
   }
   i {
     font-size: 26px;
-    color: $color_gray2;
+    color: $color_blue1;
   }
   .text {
     width: 100%;
@@ -309,6 +312,15 @@ li {
     line-height: 20px;
     overflow: hidden;
     text-align: center;
+  }
+  & /deep/ .van-grid-item:nth-child(2n+0) i {
+    color: $color_orange1;
+  }
+  & /deep/ .van-grid-item:nth-child(3n+0) i {
+    color: $color_red1;
+  }
+  & /deep/ .van-grid-item:nth-child(5n+0) i {
+    color: $color_green;
   }
   .color_0 {
     color: $color_red1;
