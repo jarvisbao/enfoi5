@@ -214,12 +214,6 @@ export default {
       this.$Apis.repository.get_auto_orm().then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           let result = response.payload
-          if (result === 'True') {
-            result = true
-          } else {
-            result = false
-          }
-          // this.autoOrm = result
           this.$store.commit('SET_AUTO_ORM', result)
         }
       })
