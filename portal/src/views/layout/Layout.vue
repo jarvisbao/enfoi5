@@ -2,7 +2,9 @@
   <div class="master-app-wrapper" :style="{'background': inIframe ? '#fff' : 'transparent'}">
     <div v-if="!inIframe" class="master-topbar-container">
       <router-link :to="{name: 'index'}" class="logo">
-        <svg-icon icon-class="logo" class="logo-svg" /> 盈丰软件
+        <svg-icon v-if="logo_name.Cname==='盈丰软件'" icon-class="logo" class="logo-svg" />
+        <img v-else-if="logo_name.iconPath" :src="require(logo_name.iconPath)" class="logo-svg" />
+        {{ logo_name.Cname }}
       </router-link>
       <topbar />
       <navbar />
@@ -27,6 +29,7 @@
 
 <script>
 import { Navbar, Topbar, Sidebar } from './components'
+import { mapGetters } from 'vuex'
 import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
@@ -67,7 +70,10 @@ export default {
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
-    }
+    },
+    ...mapGetters([
+      'logo_name'
+    ])
   },
   created() {
     if (self.frameElement && self.frameElement.tagName === 'IFRAME') {

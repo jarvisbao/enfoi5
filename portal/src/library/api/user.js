@@ -448,3 +448,14 @@ export function bindSSOToken(SSOToken) {
     }
   })
 }
+
+export function param_info_by_key(sys_key, is_raise) {
+  return request({
+    url: '/rpcgateway/sysControlService/ParamInfoByKey',
+    method: 'get',
+    params: {
+      sys_key: sys_key,
+      is_raise: is_raise
+    }
+  })
+}

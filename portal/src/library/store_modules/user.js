@@ -2,7 +2,7 @@ import { login, login_by_thrid, logout, getInfo, login_by_ssotoken } from '@/lib
 import { download_attachment_by_id } from '@/library/api/attachment'
 import { getToken, setToken, removeToken } from '@/library/js/auth'
 import localstore from '@/library/js/localstore'
-import { user_myroles, clear_cache, get_orgs, get_active_org_id, set_active_org_id, user_mygroups } from '@/library/api/user'
+import { user_myroles, clear_cache, get_orgs, get_active_org_id, set_active_org_id, user_mygroups, param_info_by_key } from '@/library/api/user'
 import Constlib from '@/library/js/constlib'
 import { connect } from '@/library/api/security'
 import { getAppConfigApi } from '@/library/api/sysControl'
@@ -21,7 +21,8 @@ const user = {
     orgs: [],
     groups: [],
     active_org_id: null,
-    auto_orm: true
+    auto_orm: true,
+    logo_name: {}
   },
 
   mutations: {
@@ -64,6 +65,9 @@ const user = {
     },
     SET_GROUPS: (state, groups) => {
       state.groups = groups
+    },
+    SET_LOGO_NAME: (state, logo_name) => {
+      state.logo_name = logo_name
     }
   },
 
@@ -223,6 +227,19 @@ const user = {
               commit('SET_NAME', name)
               commit('SET_OPENID', openid)
               commit('SET_USERINFO', userinfo)
+              param_info_by_key(response.payload.nickname, false).then(response => {
+                if (response.code === Constlib.ERROR_CODE_OK) {
+                  if (JSON.stringify(response.payload) !== '{}') {
+                    commit('SET_LOGO_NAME', JSON.parse(response.payload.sys_value))
+                  } else {
+                    const logo_name = {
+                      Cname: '盈丰软件',
+                      iconPath: ''
+                    }
+                    commit('SET_LOGO_NAME', logo_name)
+                  }
+                }
+              })
             }
             if (state.avatar.length <= 0) {
               const attach_id = response.payload.head_id
@@ -338,7 +355,8 @@ const user = {
     orgs: state => state.orgs,
     active_org_id: state => state.active_org_id,
     auto_orm: state => state.auto_orm,
-    groups: state => state.groups
+    groups: state => state.groups,
+    logo_name: state => state.logo_name
   }
 }
 
