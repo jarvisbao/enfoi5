@@ -17,14 +17,18 @@ export default {
     cellAllBtns: {
       type: Array,
       default: () => ([])
+    },
+    cellIndex: {
+      type: Number,
+      default: 0
     }
   },
   methods: {
     mtdCall(fun, item, row) {
-      this.$emit('cellMtdCall', { fun: fun, item: item, row: row })
+      this.$emit('cellMtdCall', { fun: fun, item: item, row: row, index: this.cellIndex })
     },
     fnCall(fun, row) {
-      this.$emit('cellFnCall', { fun: fun, row: row })
+      this.$emit('cellFnCall', { fun: fun, row: row, index: this.cellIndex })
     },
     clickOverlay() {
       this.$emit('close_dialog_cell', false)

@@ -143,10 +143,12 @@ export default {
       }
       this.$Apis.ticket.action_do(data).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.$dialog.alert({
-            message: '提交成功！'
-          }).then(() => {
-            this.$emit('close')
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              this.$emit('close')
+            }
           })
         } else {
           this.$dialog.alert({

@@ -136,10 +136,13 @@ export default {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.onClickLeft()
+
+            this.$toast({
+              message: response.message,
+              forbidClick: true,
+              onClose: () => {
+                this.onClickLeft()
+              }
             })
           } else {
             this.showOverlay = false

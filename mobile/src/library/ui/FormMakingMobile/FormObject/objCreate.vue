@@ -67,7 +67,7 @@ export default {
           }
         }
       },
-      page_id: undefined,
+      // page_id: undefined,
       design_form: null,
       headersAll: [],
       show: false,
@@ -134,11 +134,14 @@ export default {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.$emit('refresh')
-              this.handleReset()
+
+            this.$toast({
+              message: response.message,
+              forbidClick: true,
+              onClose: () => {
+                this.$emit('refresh')
+                this.handleReset()
+              }
             })
           } else {
             this.showOverlay = false
@@ -150,6 +153,7 @@ export default {
         })
       }).catch(e => {
         // 数据校验失败
+        this.$toast(e)
       })
     },
     handleReset() {

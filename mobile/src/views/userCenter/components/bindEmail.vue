@@ -80,9 +80,7 @@ export default {
         })
       } else {
         this.$refs.email.focus()
-        this.$dialog.alert({
-          message: '请输入邮箱地址'
-        })
+        this.$toast('请输入邮箱地址')
       }
     },
     submit() {
@@ -92,7 +90,7 @@ export default {
           var data = response
           if (data.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             if (data['payload']['test']) {
-              user_loginid_create_email(this.email.email).then(response => {
+              this.$Apis.email.this.$Apis.email.user_loginid_create_email(this.email.email).then(response => {
                 if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
                   this.$router.go(-1)
                 } else {

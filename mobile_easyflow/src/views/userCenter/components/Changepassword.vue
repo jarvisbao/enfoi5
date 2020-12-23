@@ -1,112 +1,79 @@
 <template>
   <div class="change-password">
-    <el-form ref="passForm" :model="passForm" :rules="rules" label-width="120px">
-      <el-form-item label="原密码" prop="oldPass">
-        <el-input id="oldPass" v-model="passForm.oldPass" type="password" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="新密码" prop="newPass">
-        <el-input id="newPass" v-model="passForm.newPass" type="password" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="确认密码" prop="checkPass">
-        <el-input id="checkPass" v-model="passForm.checkPass" type="password" autocomplete="off" />
-      </el-form-item>
-      <el-form-item>
-        <el-button id="submit" type="danger" @click="submitForm('passForm')">
-          提交
-        </el-button>
-        <el-button id="cancel" plain @click="resetForm('passForm')">
-          重置
-        </el-button>
-      </el-form-item>
-    </el-form>
+    <div class="top-save" @click="submit">
+      保存
+    </div>
+    <van-form ref="passForm">
+      <van-field
+        v-model="passForm.oldPass"
+        :rules="[{ validator, message: '密码不能小于5位' }]"
+        clearable
+        name="oldPass"
+        label="原密码"
+        type="password"
+        placeholder="请输入原密码"
+      />
+      <van-field
+        v-model="passForm.newPass"
+        :rules="[{ validator, message: '密码不能小于5位' }]"
+        type="password"
+        name="newPass"
+        clearable
+        label="新密码"
+        placeholder="请输入新密码"
+      />
+      <van-field
+        v-model="passForm.checkPass"
+        :rules="[{ validator: checkPass, message: '两次输入密码不一致' }]"
+        type="password"
+        name="checkPass"
+        clearable
+        label="确认密码"
+        placeholder="再次填写确认"
+      />
+    </van-form>
   </div>
 </template>
 <script>
 export default {
   data() {
-    var validateOldPass = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入密码'))
-      } else {
-        if (value.length < 5) {
-          callback(new Error('密码不能小于5位'))
-        } else {
-          callback()
-        }
-      }
-      callback()
-    }
-    var validatePass = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入密码'))
-      }
-      if (value.length < 5) {
-        return callback(new Error('密码不能小于5位'))
-      } else {
-        if (this.passForm.checkPass !== '') {
-          this.$refs.passForm.validateField('checkPass')
-        }
-      }
-      callback()
-    }
-    var validatePass2 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请再次输入密码'))
-      } else if (value !== this.passForm.newPass) {
-        callback(new Error('两次输入密码不一致!'))
-      } else {
-        callback()
-      }
-    }
     return {
       passForm: {
         oldPass: '',
         newPass: '',
         checkPass: ''
-      },
-      rules: {
-        oldPass: [
-          { required: true, validator: validateOldPass, trigger: 'blur' }
-        ],
-        newPass: [
-          { required: true, validator: validatePass, trigger: 'blur' }
-        ],
-        checkPass: [
-          { required: true, validator: validatePass2, trigger: 'blur' }
-        ]
       }
     }
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.$Apis.user.update_pwd(this.passForm.oldPass, this.passForm.newPass).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.$alert('修改成功', '标题名称', {
-                confirmButtonText: '确定'
-              })
-            } else {
-              this.$alert(response.message, '标题名称', {
-                confirmButtonText: '确定'
-              })
-            }
-            this.resetForm('passForm')
-          })
-        } else {
-          return false
-        }
-      })
+    validator(val) {
+      return val.length >= 5
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields()
+    checkPass(val) {
+      return val === this.passForm.newPass
+    },
+    submit() {
+      this.$refs.passForm.validate().then(() => {
+        this.$Apis.user.update_pwd(this.passForm.oldPass, this.passForm.newPass).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            this.$toast({
+              message: '修改成功',
+              forbidClick: true,
+              onClose: () => {
+                this.$router.go(-1)
+              }
+            })
+          } else {
+            this.$dialog.alert({
+              message: response.message
+            })
+          }
+        })
+      }).catch(() => {})
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-.change-password {
-  width: 50%;
-  margin: 85px auto 0;
-}
+
 </style>

@@ -56,15 +56,15 @@ export default {
       const email = this.retrievePwd.email
       this.$Apis.login.retrieve_pwd(nickname, email).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.$dialog.alert({
-            title: '提示',
-            message: '密码重置成功，新密码已发送至邮箱'
-          }).then(() => {
-            this.$router.push({ path: '/' })
+          this.$toast({
+            message: '密码重置成功，新密码已发送至邮箱',
+            forbidClick: true,
+            onClose: () => {
+              this.$router.push({ path: '/' })
+            }
           })
         } else {
           this.$dialog.alert({
-            title: '提示',
             message: response.message
           })
         }

@@ -146,8 +146,8 @@ export default {
             this.get_object_design()
           }
         } else {
-          this.$alert(response.message, '提示', {
-            confirmButtonText: '确定'
+          this.$dialog.alert({
+            message: response.message
           })
         }
       })
@@ -172,11 +172,14 @@ export default {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.showOverlay = false
             this.loadingText = null
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.$emit('refresh')
-              this.handleReset()
+
+            this.$toast({
+              message: response.message,
+              forbidClick: true,
+              onClose: () => {
+                this.$emit('refresh')
+                this.handleReset()
+              }
             })
           } else {
             this.showOverlay = false
@@ -188,6 +191,7 @@ export default {
         })
       }).catch(e => {
         // 数据校验失败
+        this.$toast(e)
       })
     },
     handleReset() {

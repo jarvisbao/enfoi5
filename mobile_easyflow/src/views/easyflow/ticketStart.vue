@@ -121,10 +121,12 @@ export default {
               this.url_forms = this.ticketInfo.url_forms[0].url
             }
           } else {
-            this.$dialog.alert({
-              message: '请先设置流程发起表单'
-            }).then(() => {
-              this.back()
+            this.$toast({
+              message: '请先设置流程发起表单',
+              forbidClick: true,
+              onClose: () => {
+                this.back()
+              }
             })
           }
           this.nextNode = this.ticketInfo.next_node[0].name
@@ -149,11 +151,13 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.showOverlay = false
           this.loadingText = null
-          this.$dialog.alert({
-            message: '提交成功！下一个节点：' + this.nextNode
-          }).then(() => {
-            this.disabled = false
-            this.back()
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              this.disabled = false
+              this.back()
+            }
           })
         } else {
           this.showOverlay = false

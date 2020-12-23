@@ -480,10 +480,12 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.showOverlay = false
           this.loadingText = null
-          this.$dialog.alert({
-            message: '提交成功！'
-          }).then(() => {
-            this.back()
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              this.back()
+            }
           })
         } else {
           this.showOverlay = false
@@ -645,11 +647,13 @@ export default {
           this.$Apis.ticket.action_do(data).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.closeOverlay()
-              this.$dialog.alert({
-                message: '提交成功！'
-              }).then(() => {
-                this.closeDialog()
-                this.$router.push({ name: 'ticket-participate' })
+              this.$toast({
+                message: '提交成功！',
+                forbidClick: true,
+                onClose: () => {
+                  this.closeDialog()
+                  this.$router.push({ name: 'ticket-participate' })
+                }
               })
             } else {
               this.closeOverlay()

@@ -127,8 +127,8 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           const method = response.payload
           this.mtd_code = method.operate_code
-          if (method.operate_type === 3) {
-            this.design_form = method.design_form
+          if (method.operate_type === 3 || method.operate_type === 2) {
+            this.design_form = JSON.parse(method.design_form)
             if (this.design_form) {
               this.fmshow = true
               // this.styleObject = {
@@ -158,11 +158,13 @@ export default {
         }
         this.$Apis.object.data_update(this.object_id, ids, this.classColumn, this.mtd_code, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.$dialog.alert({
-              message: response.message
-            }).then(() => {
-              this.$emit('refresh')
-              this.$emit('show')
+            this.$toast({
+              message: response.message,
+              forbidClick: true,
+              onClose: () => {
+                this.handleReset()
+                this.$emit('refresh')
+              }
             })
           } else {
             this.$dialot.alert({
@@ -181,24 +183,24 @@ export default {
           }
           this.$Apis.object.data_update(this.object_id, ids, data, this.mtd_code, this.page_id).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.$dialog.alert({
-                message: response.message
-              }).then(() => {
-                this.handleReset()
-                this.$emit('refresh')
+              this.$toast({
+                message: response.message,
+                forbidClick: true,
+                onClose: () => {
+                  this.handleReset()
+                  this.$emit('refresh')
+                }
               })
             } else {
-              this.$alert(response.message, '提示', {
-                confirmButtonText: '确定'
+              this.$dialot.alert({
+                message: response.message
               })
             }
           })
           this.loading = false
         }).catch(e => {
           // 数据校验失败
-          this.$dialot.alert({
-            message: e
-          })
+          this.$toast(e)
         })
       }
     },

@@ -283,9 +283,7 @@ export default {
         }
         if (JSON.stringify(this.nodes) === '{}') {
           resolve(false)
-          this.$dialog.alert({
-            message: '请选择要提交的表单项！'
-          })
+          this.$toast('请选择要提交的表单项！')
           return false
         } else {
           resolve(true)
@@ -306,10 +304,12 @@ export default {
       this.$Apis.ticket.action_do(ticket_id, action, owner_id, task_id, forms, active_id, late_id, null).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.$emit('close_overlay')
-          this.$dialog.alert({
-            message: '提交成功！'
-          }).then(() => {
-            this.$emit('close')
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              this.$emit('close')
+            }
           })
         } else {
           this.$emit('close_overlay')

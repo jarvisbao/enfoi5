@@ -56,10 +56,12 @@ export default {
       this.$refs.passForm.validate().then(() => {
         this.$Apis.user.update_pwd(this.passForm.oldPass, this.passForm.newPass).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.$dialog.alert({
-              message: '修改成功'
-            }).then(() => {
-              this.$router.go(-1)
+            this.$toast({
+              message: '修改成功',
+              forbidClick: true,
+              onClose: () => {
+                this.$router.go(-1)
+              }
             })
           } else {
             this.$dialog.alert({

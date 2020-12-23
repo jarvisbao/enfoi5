@@ -721,9 +721,14 @@ li {
   .right-btn {
     flex: 1;
     margin-right: 12px;
+    margin-left: 20px;
     text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
     .van-button {
       padding: 0 16px;
+      margin-left: 12px;
     }
     &_pagedate {
       display: flex;
@@ -749,6 +754,49 @@ li {
         height: 100%;
         background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
       }
+    }
+    .box {
+      display: -webkit-box;
+      overflow-x: scroll;
+      .top-buttons {
+        div {
+          padding: 0;
+          margin-left: 12px;
+          i {
+            display: none;
+          }
+          span {
+            display: block;
+            height: 32px;
+            padding: 0 16px;
+            line-height: 30px;
+            border: 1px solid #ededed;
+            border-radius: 999px;
+          }
+        }
+      }
+    }
+    &::before {
+      content: '';
+      display: block;
+      width: 12px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(to right, white, transparent);
+    }
+    &.after::after {
+      content: '';
+      display: block;
+      width: 18px;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(to right, transparent, white);
     }
   }
   .check-all {

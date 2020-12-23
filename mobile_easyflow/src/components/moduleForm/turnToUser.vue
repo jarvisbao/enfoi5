@@ -198,11 +198,13 @@ export default {
       this.$Apis.ticket.action_do(data).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.$emit('close_overlay')
-          this.$dialog.alert({
-            message: '提交成功！'
-          }).then(() => {
-            this.$emit('close')
-            this.$router.replace('/ticket/participate')
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              this.$emit('close')
+              this.$router.replace('/ticket/participate')
+            }
           })
         } else {
           this.$emit('close_overlay')

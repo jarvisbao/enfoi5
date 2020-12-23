@@ -88,7 +88,6 @@ export default {
       this.moduleInit.deal_or_view = false
       this.isDisabled = true
       this.form = this.formValue
-      console.log('11111', this.form)
       if (this.form.sign_value === 'agree') {
         this.sign_name = '同意'
       } else if (this.form.sign_value === 'against') {

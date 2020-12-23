@@ -74,26 +74,28 @@ export default {
             forms: comment,
             child: []
           }
-          this.$dialog.alert({
-            message: '提交成功！'
-          }).then(() => {
-            if (this.element.parent === null) {
-              this.element.comment_list.push({
-                ...content,
-                reply_name: ''
-              })
-            } else if (this.isReplay) {
-              this.parentElement.child.push({
-                ...content,
-                reply_name: this.element.handler_name
-              })
-            } else {
-              this.element.child.push({
-                ...content,
-                reply_name: this.element.handler_name
-              })
+          this.$toast({
+            message: '提交成功！',
+            forbidClick: true,
+            onClose: () => {
+              if (this.element.parent === null) {
+                this.element.comment_list.push({
+                  ...content,
+                  reply_name: ''
+                })
+              } else if (this.isReplay) {
+                this.parentElement.child.push({
+                  ...content,
+                  reply_name: this.element.handler_name
+                })
+              } else {
+                this.element.child.push({
+                  ...content,
+                  reply_name: this.element.handler_name
+                })
+              }
+              this.closeCom()
             }
-            this.closeCom()
           })
         } else {
           this.$dialog.alert({
