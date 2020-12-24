@@ -87,6 +87,21 @@ export function user_update(openid, gender, birthday, last_name, first_name, pro
   })
 }
 
+export function user_update_props(openid, props) {
+  var params = {
+    'props': props,
+  }
+  if (openid) {
+    params['openid'] = openid
+  }
+  return request({
+    url: '/rpcgateway/UserService/update',
+    method: 'post',
+    data: params,
+    headers: { signature: true }
+  })
+}
+
 export function user_remove_v2(openid) {
   /**
    * 删除用户
