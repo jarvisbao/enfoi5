@@ -7,7 +7,7 @@
         点击展开顶部按钮
         <van-icon name="arrow-down" />
       </div>
-      <div ref="topBtnList" class="btn-list top-btn-list">
+      <div v-if="!showTopBtn" class="btn-list top-btn-list">
         <div v-show="can_create&&!is_view" id="create" @click="create">
           <i class="el-icon-circle-plus-outline" style="color: #2a89ea" />新建
         </div>

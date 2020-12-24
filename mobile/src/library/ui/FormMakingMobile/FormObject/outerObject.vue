@@ -68,9 +68,9 @@
         />
       </div>
     </div>
-    <div v-show="pntid && mulBtn" style="height: 50px;">
+    <div v-show="pntid" style="height: 50px;">
       <div class="check-all-box">
-        <div :class="{'check-all': isCheckAll}" class="check-btn" @click="selectAll" />
+        <div v-if="mulBtn" :class="{'check-all': isCheckAll}" class="check-btn" @click="selectAll" />
         <div :class="{'after': newOtherMethods.length > 0 && otherMtdBtn}" class="right-btn">
           <div class="box">
             <van-button v-if="can_create && !disabled" type="info" size="small" round @click="create">新建</van-button>

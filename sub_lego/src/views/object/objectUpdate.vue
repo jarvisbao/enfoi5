@@ -1,6 +1,10 @@
 <template>
   <div class="app-container">
     <common-title v-if="objView" />
+    <div class="jump-btn">
+      <el-button type="info" size="mini" plain @click="goMethod">操作定义</el-button>
+      <el-button type="info" size="mini" plain @click="goPage">界面定义</el-button>
+    </div>
     <el-form ref="objectForm" :model="object" :rules="rules" :disabled="objView" label-width="170px">
       <el-tabs v-model="activeName" type="card">
         <el-tab-pane label="基本信息" name="first">
@@ -1122,6 +1126,12 @@ export default {
     },
     renderFunc(h, option) {
       return <span title={option.prop}>{option.label}</span>
+    },
+    goMethod() {
+      this.$router.push({ name: 'operate', query: { object_id: this.object.object_id, name: this.$route.query.name }})
+    },
+    goPage() {
+      this.$router.push({ name: 'page_list', query: { object_id: this.object.object_id, name: this.$route.query.name }})
     }
   }
 }
@@ -1170,5 +1180,10 @@ export default {
 }
 /deep/ .el-transfer-panel__list.is-filterable {
   padding-bottom: 40px;
+}
+.jump-btn {
+  position: absolute;
+  right: 22px;
+  z-index: 100;
 }
 </style>

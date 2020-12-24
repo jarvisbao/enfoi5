@@ -150,8 +150,7 @@ export default {
           }).catch(() => {})
         } else {
           if (item.uriopentype === '0') {
-            // window.open(route.href, '_blank')
-            this.$emit('showMtdEdit', { mtd_id: item.mtd_id, data: [], dialogTitle: item.name, ids: ids, uri: item.uri })
+            window.open(route.href, '_blank')
           } else if (item.uriopentype === '1') {
             this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
           } else {
@@ -313,6 +312,7 @@ export default {
         }).catch(() => {})
       } else {
         if (item.uriopentype === '0') {
+          console.log('11', newUrl)
           window.open(newUrl, '_blank')
         } else if (item.uriopentype === '1') {
           this.$Utils.util.routerGo(newUrl)

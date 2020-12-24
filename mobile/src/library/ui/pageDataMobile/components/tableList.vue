@@ -9,7 +9,7 @@
         @load="operateData"
       >
         <van-checkbox-group ref="checkboxGroup" v-model="selectionData" class="list-box" @change="handleSelectionChange">
-          <div v-for="(item, index) in items" :key="index" class="list-item">
+          <div v-for="(item, index) in items" :key="index" :class="{highlight: index === cellIndex}" class="list-item">
             <van-swipe-cell>
               <div class="list padding" @click="handleCheck(item, index)">
                 <div ref="listFlex" class="list_flex">
@@ -157,7 +157,7 @@ export default {
       cellItem: {},
       showAllBtn: false,
       cellAllBtns: [],
-      cellIndex: 0,
+      cellIndex: -1,
       ids: [],
       isAll: false,
       isMultiple: false
@@ -222,6 +222,7 @@ export default {
       const index = args.index
       this[fun](item, row, index, this.isOuterObj)
       this.showAllBtn = false
+      this.cellIndex = -1
     },
     cellFnCall(args) {
       const fun = args.fun
@@ -229,6 +230,7 @@ export default {
       const index = args.index
       this[fun](row, index, this.isOuterObj)
       this.showAllBtn = false
+      this.cellIndex = -1
     },
     handleMoreBtn(item, index) {
       this.showAllBtn = true
@@ -277,8 +279,25 @@ export default {
       } else {
         this.showAllBtn = false
         this.cellAllBtns = []
+        this.cellIndex = -1
       }
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+.highlight {
+  background: #fff;
+  position: relative;
+  z-index: 9999;
+  ::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(255,255,255,.0);
+  }
+}
+</style>

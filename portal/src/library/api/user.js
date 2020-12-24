@@ -449,13 +449,12 @@ export function bindSSOToken(SSOToken) {
   })
 }
 
-export function param_info_by_key(sys_key, is_raise) {
+export function param_info_by_key_openid(sys_key) {
   return request({
-    url: '/rpcgateway/sysControlService/ParamInfoByKey',
+    url: '/rpcgateway/sysControlService/ParamInfoByKeyOpenid',
     method: 'get',
     params: {
-      sys_key: sys_key,
-      is_raise: is_raise
+      sys_key: sys_key
     }
   })
 }

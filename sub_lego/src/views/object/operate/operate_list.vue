@@ -5,6 +5,12 @@
       <div id="create" class="btn create-btn" @click="create">
         新建
       </div>
+      <div id="object" class="btn" @click="goObject">
+        对象定义
+      </div>
+      <div id="page" class="btn" @click="goPage">
+        界面定义
+      </div>
       <div class="right-btn">
         <el-input id="search" v-model="text" prefix-icon="el-icon-search" placeholder="请输入内容" class="search-input" />
       </div>
@@ -196,6 +202,19 @@ export default {
         })
       }).catch(() => {
       })
+    },
+    goObject() {
+      this.$Apis.object.object_info_by_id(this.object_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          const proj_code = response.payload.proj_code
+          const object_code = response.payload.object_code
+          const name = response.payload.object_name
+          this.$router.push({ name: 'object_update', query: { proj_code: proj_code, object_code: object_code, name: name }})
+        }
+      })
+    },
+    goPage() {
+      this.$router.push({ name: 'page_list', query: { object_id: this.object_id, name: this.$route.query.name }})
     }
   }
 }

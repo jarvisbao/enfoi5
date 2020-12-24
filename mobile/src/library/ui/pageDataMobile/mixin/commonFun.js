@@ -80,17 +80,13 @@ export default {
     },
     handleShowTopBtn() {
       this.showTopBtn = false
-      this.$refs.topBtnList.style.opacity = '1'
-      this.$refs.topBtnList.style.height = 'auto'
     },
     handleScroll() {
       if ((this.can_create && !this.is_view) || this.can_export || this.newOtherMethods.length > 0) {
         const scorllTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
         if (scorllTop > 46) {
           this.showTopBtn = true
-          this.$refs.topBtnList.style.height = '0px'
         } else {
-          this.$refs.topBtnList.style.height = 'auto'
           this.showTopBtn = false
         }
       }

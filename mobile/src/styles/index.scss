@@ -161,6 +161,11 @@ li {
 .list-box {
   .list-item {
     border-bottom: 5px solid $border_color_gray3;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     &:last-child {
       border-bottom: none;
     }
@@ -708,8 +713,6 @@ li {
   height: 50px;
   background: $bg_fff;
   border-top: 1px solid $border_color_gray4;
-  display: flex;
-  align-items: center;
   .check-btn {
     width: 23px;
     height: 23px;
@@ -717,9 +720,11 @@ li {
     overflow: hidden;
     border-radius: 50%;
     border: 1px solid $border_color_gray4;
+    float: left;
+    margin-top: 13px;
   }
   .right-btn {
-    flex: 1;
+    margin: 8px 12px 0 20px;
     margin-right: 12px;
     margin-left: 20px;
     text-align: right;

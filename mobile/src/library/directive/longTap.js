@@ -16,9 +16,9 @@ export default {
         timer = null
       }
 
-      document.oncontextmenu = function(e) {
-        e.preventDefault()
-      }
+      // document.oncontextmenu = function(e) {
+      //   e.preventDefault()
+      // }
 
       startX = event.changedTouches[0].clientX
       startY = event.changedTouches[0].clientY
@@ -32,7 +32,7 @@ export default {
           value.handler(event, data, vNode)
           return
         }
-      }, 500)
+      }, 750)
     })
 
     // 若手指移动超过 10 像素，则不是长按事件，取消 timeout
@@ -54,6 +54,10 @@ export default {
         clearTimeout(timer)
         timer = null
       }
+    })
+
+    document.addEventListener('contextmenu', e => {
+      e.preventDefault()
     })
   }
 }

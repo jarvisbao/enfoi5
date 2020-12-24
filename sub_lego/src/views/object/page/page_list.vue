@@ -8,6 +8,12 @@
       <div class="btn create-btn delete" @click="page_removes">
         删除所选
       </div>
+      <div id="object" class="btn" @click="goObject">
+        对象定义
+      </div>
+      <div class="btn mtd-btn" @click="goMethod">
+        操作定义
+      </div>
       <div class="right-btn">
         <el-input id="search" v-model="text" prefix-icon="el-icon-search" placeholder="请输入内容" class="search-input" @keyup.enter.native="schfilter" />
       </div>
@@ -307,6 +313,19 @@ export default {
       this.menu_data = JSON.parse(JSON.stringify(this.menu_data))
       this.dialogVisible = !this.dialogVisible
       this.dialogTitle = '创建菜单'
+    },
+    goObject() {
+      this.$Apis.object.object_info_by_id(this.object_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          const proj_code = response.payload.proj_code
+          const object_code = response.payload.object_code
+          const name = response.payload.object_name
+          this.$router.push({ name: 'object_update', query: { proj_code: proj_code, object_code: object_code, name: name }})
+        }
+      })
+    },
+    goMethod() {
+      this.$router.push({ name: 'operate', query: { object_id: this.object_id, name: this.$route.query.name }})
     }
   }
 }
