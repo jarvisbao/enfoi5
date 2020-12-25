@@ -16,7 +16,7 @@
         </el-button>
       </el-form-item>
       <el-form-item>
-        <el-button id="submit" type="danger" @click="submitForm('bindemail')">
+        <el-button id="submit" :loading="loading" type="danger" @click="submitForm('bindemail')">
           绑定
         </el-button>
         <el-button id="cancel" plain @click.stop="resetForm('bindemail')">
@@ -27,8 +27,6 @@
   </div>
 </template>
 <script>
-import { security_captcha_send2email, user_loginid_create_email } from '@/library/api/email'
-import { captcha_test } from '@/library/api/security'
 export default {
   props: {
     timeDown: {
@@ -44,6 +42,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       email: {
         email: '',
         code: null
@@ -70,7 +69,7 @@ export default {
           this.sendCode.sending = false
           this.sendCode.disabled = true
           this.$emit('timeDown')
-          security_captcha_send2email(this.email.email).then(response => {
+          this.$Apis.email.security_captcha_send2email(this.email.email).then(response => {
             if (response.code !== this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert(response.message, '标题名称', {
                 confirmButtonText: '确定'
@@ -83,12 +82,13 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.loading = true
           const captcha = this.email.code
-          captcha_test(captcha).then(response => {
+          this.$Apis.security.captcha_test(captcha).then(response => {
             var data = response
             if (data.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               if (data['payload']['test']) {
-                user_loginid_create_email(this.email.email).then(response => {
+                this.$Apis.email.user_loginid_create_email(this.email.email).then(response => {
                   if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
                     this.$emit('setEmail', this.email.email)
                     this.resetForm('bindemail')
@@ -99,7 +99,9 @@ export default {
                   }
                 })
               }
+              this.loading = false
             } else {
+              this.loading = false
               this.$alert(response.message, '标题名称', {
                 confirmButtonText: '确定'
               })

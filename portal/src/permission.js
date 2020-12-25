@@ -183,6 +183,19 @@ router.beforeEach(async(to, from, next) => {
           query: { noGoBack: true, role: to.meta.role }
         })
       }
+      // potal 404跳转
+      if (to.path !== '/404' && to.path !== '/401' && to.path !== '/') {
+        let flag = false
+        store.getters.routes.some(item => {
+          if (to.path.indexOf(item) !== -1) {
+            flag = true
+            return true
+          }
+        })
+        if (!flag) {
+          next({ path: '/404' })
+        }
+      }
       next()
     }
   } else {

@@ -7,7 +7,7 @@
     class="el-menu-top"
   >
     <template v-for="menu in permission_menus">
-      <router-link :key="menu.menu_code" :to="{path: menu.uri, query: {menu_code: menu.menu_code}}" :menu_code="menu.menu_code" exact @click.native="goto(menu)">
+      <router-link :key="menu.menu_code" :to="{path: menu.uri, query: {menu_code: menu.menu_code}}" :menu_code="menu.menu_code" :class="{active: code === menu.menu_code}" exact @click.native="goto(menu)">
         <el-menu-item :index="menu.menu_code">
           {{ menu.label }}
         </el-menu-item>
@@ -23,7 +23,8 @@ import { access_menus } from '@/library/api/menu.js'
 export default {
   data() {
     return {
-      menus: []
+      menus: [],
+      code: null
     }
   },
   computed: {
@@ -31,6 +32,14 @@ export default {
       'sidebar',
       'permission_menus'
     ])
+  },
+  watch: {
+    $route: {
+      handler(val) {
+        const parentCode = this.$Utils.util.getParentCode(this.permission_menus, data => data.uri === decodeURI(this.$route.fullPath), [])
+        this.code = parentCode[0]
+      }
+    }
   },
   methods: {
     goto(menu) {

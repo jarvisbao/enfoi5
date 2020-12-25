@@ -5,7 +5,7 @@
         <el-input id="mobile" v-model="mobile.mobile" />
       </el-form-item>
       <el-form-item>
-        <el-button id="submit" type="danger" @click="submitForm('bindmobile')">
+        <el-button id="submit" :loading="loading" type="danger" @click="submitForm('bindmobile')">
           绑定
         </el-button>
         <el-button id="cancel" plain @click.stop="resetForm('bindmobile')">
@@ -16,7 +16,6 @@
   </div>
 </template>
 <script>
-import { user_loginid_create_mobile } from '@/library/api/user'
 export default {
   props: {
     timeDown: {
@@ -32,6 +31,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       mobile: {
         mobile: '',
         code: null
@@ -68,11 +68,14 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          user_loginid_create_mobile(this.mobile.mobile).then(response => {
+          this.loading = true
+          this.$Apis.user.user_loginid_create_mobile(this.mobile.mobile).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$emit('setMobile', this.mobile.mobile)
               this.resetForm('bindmobile')
+              this.loading = false
             } else {
+              this.loading = false
               this.$alert(response.message, '标题名称', {
                 confirmButtonText: '确定'
               })

@@ -98,6 +98,20 @@ export const generateKeyToCol = (columns) => {
   return columns
 }
 
+export const getParentCode = (tree, func, path) => {
+  if (!tree) return []
+  for (const data of tree) {
+    path.push(data.menu_code)
+    if (func(data)) return path
+    if (data.children) {
+      const findChildren = getParentCode(data.children, func, path)
+      if (findChildren.length) return findChildren
+    }
+    path.pop()
+  }
+  return []
+}
+
 export default {
   loadJs_,
   loadJs,
@@ -106,5 +120,6 @@ export default {
   generateUUID,
   formatDate,
   generateKeyToTD,
-  generateKeyToCol
+  generateKeyToCol,
+  getParentCode
 }

@@ -7,6 +7,24 @@ import Constlib from '@/library/js/constlib'
 import { connect } from '@/library/api/security'
 import { getAppConfigApi } from '@/library/api/sysControl'
 import { get_auto_orm, set_auto_orm } from '@/library/api/repository'
+import router from '@/router'
+import path from 'path'
+
+let ppath = ''
+const routes = []
+const getRoutes = function(data) {
+  data.forEach(item => {
+    if (item.path.indexOf('404') === -1 && item.path.indexOf('401') === -1 && item.path !== '/') {
+      if (item.children) {
+        ppath = item.path
+        getRoutes(item.children)
+      } else {
+        routes.push(path.resolve(ppath, item.path))
+      }
+    }
+  })
+}
+getRoutes(router.options.routes)
 
 const user = {
   state: {
@@ -23,7 +41,8 @@ const user = {
     active_org_id: null,
     auto_orm: true,
     company_title: '盈丰软件',
-    company_logo: ''
+    company_logo: '',
+    routes: routes
   },
 
   mutations: {
@@ -72,6 +91,9 @@ const user = {
     },
     SET_COMPANY_LOGO: (state, company_logo) => {
       state.company_logo = company_logo
+    },
+    SET_ROUTES: (state, routes) => {
+      state.routes = routes
     }
   },
 
@@ -319,7 +341,11 @@ const user = {
             const portal = [{
               name: 'portal'
             }]
-            commit('SET_APPCONFIG', portal.concat(response.payload.items))
+            commit('SET_APPCONFIG', portal.concat(response.payload.items))            
+            const app_config_path = response.payload.items.map(item => {
+              return item.routerBase
+            })
+            commit('SET_ROUTES', routes.concat(app_config_path))
           }
           resolve(response)
         }).catch(error => {
@@ -366,7 +392,8 @@ const user = {
     auto_orm: state => state.auto_orm,
     groups: state => state.groups,
     company_title: state => state.company_title,
-    company_logo: state => state.company_logo
+    company_logo: state => state.company_logo,
+    routes: state => state.routes
   }
 }
 

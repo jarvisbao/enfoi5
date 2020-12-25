@@ -21,7 +21,6 @@
 import { mapGetters } from 'vuex'
 import variables from '@/library/styles/variables.scss'
 import SidebarItem from './SidebarItem'
-import { access_menus } from '@/library/api/menu.js'
 
 export default {
   components: { SidebarItem },
@@ -47,9 +46,14 @@ export default {
   watch: {
     $route: {
       handler(val) {
-        if (val.fullPath !== '/' && val.query.menu_code) {
-          const menu_code = val.query.menu_code
-          this.getChildMenu(menu_code)
+        if (val.fullPath !== '/') {
+          if (val.query.menu_code) {
+            const menu_code = val.query.menu_code
+            this.getChildMenu(menu_code)
+          } else {
+            const parentCode = this.$Utils.util.getParentCode(this.permission_menus, data => data.uri === decodeURI(this.$route.fullPath), [])
+            this.getChildMenu(parentCode[0])
+          }
         }
       }
     },

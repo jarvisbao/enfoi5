@@ -20,21 +20,22 @@ export default {
   },
   created() {
     this.title = this.$route.meta.title
-    this.getTitle()
+    // this.getTitle()
   },
   methods: {
     recursionData(source) {
-      for (var key in source) {
-        this.menusTags.push(source[key])
-        if (source[key].children) {
-          this.recursionData(source[key].children)
+      source.child_menus.forEach(item => {
+        if (item.children) {
+          this.recursionData(item.children)
+        } else {
+          this.menusTags.push(item)
         }
-      }
+      })
     },
     getTitle() {
       this.recursionData(this.permission_menus)
       this.menusTags.forEach(item => {
-        if (item.path === this.$route.fullPath) {
+        if (item.uri === this.$route.fullPath) {
           this.metaTitle = item.title
         }
       })
