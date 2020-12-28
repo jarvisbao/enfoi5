@@ -102,7 +102,7 @@ export default {
     },
     convert: {
       type: Boolean,
-      default: false
+      default: true
     },
     isMultiple: {
       type: Boolean,
