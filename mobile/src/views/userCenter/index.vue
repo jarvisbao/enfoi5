@@ -13,8 +13,9 @@
       <van-icon name="arrow" />
     </div>
     <div class="mb8">
-      <van-cell title="密码管理" @click="handlePassword" />
-      <van-cell title="清理缓存" @click="clear_cache" />
+      <van-cell :to="{name: 'set-password'}" title="密码管理" is-link />
+      <van-cell :to="{name: 'userparams'}" title="用户参数" is-link />
+      <van-cell title="清理缓存" @click="clear_cache" is-link />
     </div>
     <van-cell title="退出登录" @click="logout" style="text-align: center; color: #F56C6C; font-weight: bold;" />
     <page-footer />
@@ -66,9 +67,6 @@ export default {
           })
         }
       })
-    },
-    handlePassword() {
-      this.$router.push({ name: 'set-password' })
     }
   }
 }

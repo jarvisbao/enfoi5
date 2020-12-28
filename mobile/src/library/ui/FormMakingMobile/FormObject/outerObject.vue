@@ -387,23 +387,32 @@ export default {
       })
     },
     getData() {
-      this.$refs.tableList.loading = true
+      if (this.$refs.tableList) {
+        this.$refs.tableList.loading = true
+      }
       this.$Apis.object.data_list_by_code(this.proj_code, this.object_code, this.page_code, this.text, this.pagination.page, this.page_size, true, this.filters, this.convert, this.pntfk, this.pntid, this.pnt_clsname).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          if (response.payload.items.length === 0 && this.$refs.tableList) {
+            this.$refs.tableList.finished = true
+          }
           this.items = [...this.items, ...response.payload.items]
           this.pagination = response.payload.pagination
-          if (this.pagination.page === this.pagination.pages) {
+          if (this.pagination.page === this.pagination.pages && this.$refs.tableList) {
             this.$refs.tableList.finished = true
           } else {
             this.pagination.page += 1
           }
         } else {
-          this.$refs.tableList.finished = true
+          if (this.$refs.tableList) {
+            this.$refs.tableList.finished = true
+          }
           this.$dialog.alert({
             message: response.message
           })
         }
-        this.$refs.tableList.loading = false
+        if (this.$refs.tableList) {
+          this.$refs.tableList.loading = false
+        }
       })
     },
     fetchData() {
@@ -429,8 +438,10 @@ export default {
       this.dialogCreate = !this.dialogCreate
     },
     refresh() {
-      this.$refs.tableList.finished = false
-      this.$refs.tableList.loading = true
+      if (this.$refs.tableList) {
+        this.$refs.tableList.finished = false
+        this.$refs.tableList.loading = true
+      }
       this.items = []
       this.pagination.page = 1
       this.fetchData()

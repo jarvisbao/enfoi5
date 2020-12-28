@@ -2,7 +2,7 @@
   <section>
     <van-sticky>
       <header class="main-header">
-        盈丰软件
+        {{ company_title }}
       </header>
     </van-sticky>
     <div class="main-portal">
@@ -39,7 +39,8 @@ export default {
   computed: {
     ...mapGetters([
       'avatar',
-      'permission_menus'
+      'permission_menus',
+      'company_title'
     ])
   },
   created() {

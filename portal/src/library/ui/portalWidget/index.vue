@@ -1,9 +1,9 @@
 <template>
   <div class="portal-container">
     <div v-if="isWidget" class="msg-box">
-      <router-link to="/widget" class="msg">
+      <app-link :addon="addon" class="msg">
         您还没有设置主页，请点击此处设置主页
-      </router-link>
+      </app-link>
     </div>
     <template v-else v-loading="loading">
       <widget-generate :data="widgetLayout" />
@@ -12,11 +12,13 @@
 </template>
 <script>
 import widgetGenerate from './components/widgetGenerate'
+import appLink from './Link'
 
 export default {
   name: 'PortalWidget',
   components: {
-    widgetGenerate
+    widgetGenerate,
+    appLink
   },
   data() {
     return {

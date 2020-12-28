@@ -84,6 +84,12 @@ export const constantRouterMap = [
             name: 'set-password',
             component: () => import('@/views/userCenter/components/Changepassword'),
             meta: { title: '设置密码', icon: '' }
+          },
+          {
+            path: 'userparams',
+            name: 'userparams',
+            component: () => import('@/views/userCenter/components/Userparams'),
+            meta: { title: '用户参数' }
           }
         ]
       }

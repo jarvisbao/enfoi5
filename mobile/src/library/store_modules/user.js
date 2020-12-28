@@ -2,11 +2,29 @@ import { login, login_by_thrid, logout, getInfo } from '@/library/api/login'
 import { download_attachment_by_id } from '@/library/api/attachment'
 import { getToken, setToken, removeToken } from '@/library/js/auth'
 import localstore from '@/library/js/localstore'
-import { user_myroles, clear_cache, get_orgs, get_active_org_id, set_active_org_id } from '@/library/api/user'
+import { user_myroles, clear_cache, get_orgs, get_active_org_id, set_active_org_id, param_info_by_key_openid } from '@/library/api/user'
 import Constlib from '@/library/js/constlib'
 import { connect } from '@/library/api/security'
 import { getAppConfigApi } from '@/library/api/sysControl'
 import { get_auto_orm, set_auto_orm } from '@/library/api/repository'
+import router from '@/router'
+import path from 'path'
+
+let ppath = ''
+const routes = []
+const getRoutes = function(data) {
+  data.forEach(item => {
+    if (item.path.indexOf('404') === -1 && item.path.indexOf('401') === -1 && item.path !== '/') {
+      if (item.children) {
+        ppath = item.path
+        getRoutes(item.children)
+      } else {
+        routes.push(path.resolve(ppath, item.path))
+      }
+    }
+  })
+}
+getRoutes(router.options.routes)
 
 const user = {
   state: {
@@ -20,7 +38,10 @@ const user = {
     appconfig: [],
     orgs: [],
     active_org_id: null,
-    auto_orm: true
+    auto_orm: true,
+    company_title: '盈丰软件',
+    company_logo: '',
+    routes: routes
   },
 
   mutations: {
@@ -60,6 +81,15 @@ const user = {
     },
     SET_AUTO_ORM: (state, auto_orm) => {
       state.auto_orm = auto_orm
+    },
+    SET_COMPANY_TITLE: (state, company_title) => {
+      state.company_title = company_title
+    },
+    SET_COMPANY_LOGO: (state, company_logo) => {
+      state.company_logo = company_logo
+    },
+    SET_ROUTES: (state, routes) => {
+      state.routes = routes
     }
   },
 
@@ -180,6 +210,24 @@ const user = {
               commit('SET_NAME', name)
               commit('SET_OPENID', openid)
               commit('SET_USERINFO', userinfo)
+              param_info_by_key_openid('company_title').then(response => {
+                if (response.code === Constlib.ERROR_CODE_OK) {
+                  if (response.payload !== '') {
+                    commit('SET_COMPANY_TITLE', response.payload)
+                  } else {
+                    commit('SET_COMPANY_TITLE', '盈丰软件')
+                  }
+                }
+              })
+              param_info_by_key_openid('company_logo').then(response => {
+                if (response.code === Constlib.ERROR_CODE_OK) {
+                  if (response.payload !== '') {
+                    commit('SET_COMPANY_LOGO', response.payload)
+                  } else {
+                    commit('SET_COMPANY_LOGO', '')
+                  }
+                }
+              })
             }
             if (state.avatar.length <= 0) {
               const attach_id = response.payload.head_id
@@ -249,6 +297,10 @@ const user = {
               name: 'mobile'
             }]
             commit('SET_APPCONFIG', portal.concat(response.payload.items))
+            const app_config_path = response.payload.items.map(item => {
+              return item.routerBase
+            })
+            commit('SET_ROUTES', routes.concat(app_config_path))
           }
           resolve(response)
         }).catch(error => {
@@ -292,7 +344,10 @@ const user = {
     appconfig: state => state.appconfig,
     orgs: state => state.orgs,
     active_org_id: state => state.active_org_id,
-    auto_orm: state => state.auto_orm
+    auto_orm: state => state.auto_orm,
+    company_title: state => state.company_title,
+    company_logo: state => state.company_logo,
+    routes: state => state.routes
   }
 }
 

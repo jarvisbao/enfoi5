@@ -341,7 +341,7 @@ const user = {
             const portal = [{
               name: 'portal'
             }]
-            commit('SET_APPCONFIG', portal.concat(response.payload.items))            
+            commit('SET_APPCONFIG', portal.concat(response.payload.items))
             const app_config_path = response.payload.items.map(item => {
               return item.routerBase
             })

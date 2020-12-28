@@ -38,7 +38,7 @@
             <div v-show="currentTab!==element.wdgt_id" style="display: flex; align-items: center;">
               <ul>
                 <li v-for="(item, index) in toolList" :key="index">
-                  <a :id="'toolLink'+index" :href="item.ss_path" :target="item.open_type?'_blank':'_self'">
+                  <a :id="'toolLink'+index" :href="item.ss_path" :target="item.open_type?'_blank':'_self'" @click="handleClick()">
                     <i v-if="item.icon" :class="item.icon" />
                     <i v-else class="el-icon-folder" />
                     {{ item.ss_title }}
@@ -64,7 +64,7 @@
           <div class="wdgt-tools-box">
             <ul v-show="currentTab!==element.wdgt_id">
               <li v-for="(item, index) in lastMenu" :key="index">
-                <a :id="'menuLink'+index" :href="item.path">
+                <a :id="'menuLink'+index" :href="item.path" @click="handleClick()">
                   <i v-if="item.icon" :class="item.icon" />
                   <i v-else class="el-icon-folder" />
                   {{ item.title }}
@@ -93,7 +93,7 @@
         <template v-if="element.wdgt_type==='条目式'">
           <ul v-show="currentTab!==element.wdgt_id" v-loading="loading" class="wdgt-list">
             <li v-for="(item, index) in element.contentUrlData" :key="index">
-              <a :href="item.mtd_link" :target="JSON.parse(element.content_config).linkopentype==0?'_self':'_blank'">
+              <a :href="item.mtd_link" :target="JSON.parse(element.content_config).linkopentype==0?'_self':'_blank'" @click="handleClick()">
                 <div class="title">
                   <p>{{ item[JSON.parse(element.content_config).title] }}</p>
                 </div>
@@ -301,6 +301,9 @@ export default {
           }
         })
       }
+    },
+    handleClick() {
+      sessionStorage.clear()
     }
   }
 }
