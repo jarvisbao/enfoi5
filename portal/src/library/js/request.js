@@ -65,8 +65,14 @@ service.interceptors.response.use(
   },
   error => {
   // Do something with request error
-    console.log(error) // for debug
-    Message.error(error.message || 'Server error, please contact administrator')
+    console.log(error.response)
+    let message = 'Server error, please contact administrator'
+    if (error.response && error.response.data && Object.prototype.toString.call(error.response.data) && 'message' in error.response.data) {
+      message = error.response.data.message
+    } else {
+      message = error.message
+    }
+    Message.error(message)
     store.commit('SET_LOADING', false) // 取消按钮loading 状态
     Promise.reject(error)
   }
