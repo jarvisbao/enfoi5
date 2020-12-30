@@ -2,7 +2,7 @@
   <div class="master-app-wrapper" :style="{'background': inIframe ? '#fff' : 'transparent'}">
     <div v-if="!inIframe" class="master-topbar-container">
       <router-link :to="{name: 'index'}" class="logo">
-        <img v-if="company_logo" :src="require(`@/assets/images/${this.company_logo}`)" class="logo-svg" />
+        <img v-if="company_logo" :src="require(`@/assets/images/${this.company_logo}`)" class="company_logo" />
         <svg-icon v-else-if="company_title === '盈丰软件'" icon-class="logo" class="logo-svg" />
         {{ company_title }}
       </router-link>

@@ -47,6 +47,7 @@ export default {
   },
   methods: {
     routeGo(item) {
+      this.$store.commit('SET_TABBER_ACTIVE', item.menu_code)
       if (item.uri === '/grid') {
         this.$router.push({ path: item.uri, query: { code: item.menu_code, label: item.label }})
       } else {
