@@ -11,7 +11,7 @@
               class="widget-list"
             >
               <template v-for="(item, index) in widgetItem">
-                <li v-if="item.content_config !== null && JSON.parse(item.content_config).border" :id="'wdgt_' + item.wdgt_id" :key="index" :style="{borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}" :class="{hasColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}">
+                <li v-if="item.content_config && JSON.parse(item.content_config).border" :id="'wdgt_' + item.wdgt_id" :key="index" :style="{borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}" :class="{hasColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}">
                   <div :style="{background: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:'', borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}" class="title">
                     <span><i v-if="item.wdgt_icon" :class="item.wdgt_icon" />{{ item.wdgt_title }}</span>
                     <div class="tools-bar">

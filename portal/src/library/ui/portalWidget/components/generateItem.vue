@@ -81,7 +81,7 @@
           <i v-if="element.wdgt_icon" :class="element.wdgt_icon" />{{ element.wdgt_title }}
         </div>
         <div class="tools">
-          <i v-if="element.wdgt_type==='条目式'||element.wdgt_type==='占比式'" :id="'refresh'+element.wdgt_id" class="el-icon-refresh" @click="handleRefresh(element.wdgt_id)" />
+          <i v-if="element.wdgt_type==='条目式'||element.wdgt_type==='占比式'||element.wdgt_type==='图表'" :id="'refresh'+element.wdgt_id" class="el-icon-refresh" @click="handleRefresh(element.wdgt_id)" />
           <i :id="'edit'+element.wdgt_id" class="el-icon-edit" @click="updateWdgt(element.wdgt_id)" />
           <app-link v-if="element.more_url" :id="'more'+element.wdgt_id" :to="element.more_url">
             <i class="icon-gengduo" />
@@ -127,6 +127,9 @@
             <iframe :height="JSON.parse(element.content_config).height" :src="element.content_url" frameborder="0" width="100%" />
           </div>
         </template>
+        <template v-if="element.wdgt_type==='图表'">
+          <ve-chart :data="chartData" :settings="chartSettings" :loading="loading" :data-empty="dataEmpty" />
+        </template>
       </div>
     </div>
     <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" title="添加常用工具" width="45%" append-to-body>
@@ -161,7 +164,16 @@ export default {
       currentTab: '',
       wdgtItems: [],
       loading: false,
-      toolList: []
+      toolList: [],
+      chartData: {
+        columns: [],
+        rows: []
+      },
+      chartSettings: {
+        labelMap: {},
+        type: 'line'
+      },
+      dataEmpty: false
     }
   },
   computed: {
@@ -206,46 +218,105 @@ export default {
       if (this.element.content_url) {
         this.$set(this.element, 'contentUrlData', [])
         if (this.element.wdgt_type === '条目式') {
-          const content_config = JSON.parse(this.element.content_config)
-          if (!content_config.shownumber) {
-            this.shownumber = 10
-          } else {
-            this.shownumber = content_config.shownumber
-          }
-          this.$Utils.request.get(this.element.content_url + '?page=on&page_index=1&page_size=' + this.shownumber).then(response => {
-            if (this.element.content_prop) {
-              const data = eval(this.element.content_prop)
-              if (Array.isArray(data)) {
-                this.element.contentUrlData = data
-              } else {
-                this.element.contentUrlData.push(data)
-              }
-              const mainkey = content_config.key ? content_config.key.replace(/\s/g, '').split('||') : []
-              this.element.contentUrlData.forEach(item => {
-                const _result = []
-                mainkey.forEach(m => {
-                  _result.push(m + '=' + item[m])
-                  this.$set(item, 'mtd_link', content_config.link.split('?')[0] + '?' + _result.join('&'))
-                })
-              })
-            }
-            this.loading = false
-          })
+          this.getWdgtList(this.element)
         }
         if (this.element.wdgt_type === '占比式' || this.element.wdgt_type === '磁贴式') {
-          this.$Utils.request.get(this.element.content_url).then(response => {
-            if (this.element.content_prop) {
-              const data = eval(this.element.content_prop)
-              if (Array.isArray(data)) {
-                this.element.contentUrlData = data
-              } else {
-                this.element.contentUrlData.push(data)
+          this.getPercentAndPaste(this.element)
+        }
+        if (this.element.wdgt_type === '图表') {
+          this.getChartData(this.element)
+        }
+      }
+    },
+    getWdgtList(element) {
+      const content_config = JSON.parse(element.content_config)
+      if (!content_config.shownumber) {
+        this.shownumber = 10
+      } else {
+        this.shownumber = content_config.shownumber
+      }
+      this.$Utils.request.get(element.content_url + '?page=on&page_index=1&page_size=' + this.shownumber).then(response => {
+        if (element.content_prop) {
+          const data = eval(element.content_prop)
+          if (Array.isArray(data)) {
+            element.contentUrlData = data
+          } else {
+            element.contentUrlData = []
+            element.contentUrlData.push(data)
+          }
+          const mainkey = content_config.key ? content_config.key.replace(/\s/g, '').split('||') : []
+         element.contentUrlData.forEach(item => {
+            const _result = []
+            mainkey.forEach(m => {
+              _result.push(m + '=' + item[m])
+              this.$set(item, 'mtd_link', content_config.link.split('?')[0] + '?' + _result.join('&'))
+            })
+          })
+        }
+        this.loading = false
+      })
+    },
+    getPercentAndPaste(element) {
+      this.$Utils.request.get(element.content_url).then(response => {
+        if (element.content_prop) {
+          const data = eval(element.content_prop)
+          if (Array.isArray(data)) {
+            element.contentUrlData = data
+          } else {
+            element.contentUrlData = []
+            element.contentUrlData.push(data)
+          }
+          this.loading = false
+        }
+      })
+    },
+    getChartData(element) {
+      this.chartData.columns = []
+      const content_config = JSON.parse(element.content_config)
+      if (content_config.timer) {
+        const timing = content_config.interval || 1000
+        setInterval(() => {
+          this.chartData.columns.push(content_config.dimension)
+          content_config.metrics.forEach(item => {
+            this.chartData.columns.push(item.value)
+            this.$set(this.chartSettings.labelMap, item.value, item.label)
+          })
+          this.chartSettings.type = content_config.prop
+          this.$Utils.request({
+            url: element.content_url,
+            method: 'get'
+          }).then(response => {
+            if (element.content_prop) {
+              const data = eval(element.content_prop)
+              if (data.length < 1) {
+                this.dataEmpty = true
               }
+              this.chartData.rows = data
               this.loading = false
             }
           })
-        }
+        }, timing)
+        return false
       }
+      this.chartData.columns.push(content_config.dimension)
+      content_config.metrics.forEach(item => {
+        this.chartData.columns.push(item.value)
+        this.$set(this.chartSettings.labelMap, item.value, item.label)
+      })
+      this.chartSettings.type = content_config.prop
+      this.$Utils.request({
+        url: this.element.content_url,
+        method: 'get'
+      }).then(response => {
+        if (this.element.content_prop) {
+          const data = eval(this.element.content_prop)
+          if (data.length < 1) {
+            this.dataEmpty = true
+          }
+          this.chartData.rows = data
+          this.loading = false
+        }
+      })
     },
     updateWdgt(wdgt_id) {
       const vue_app_name = this.$store.state.app.vue_app_name
@@ -268,38 +339,15 @@ export default {
     },
     handleRefresh(wdgt_id) {
       this.loading = true
+      this.$set(this.element, 'contentUrlData', [])
       if (this.element.wdgt_type === '条目式') {
-        if (!JSON.parse(this.element.content_config).shownumber) {
-          this.shownumber = 10
-        } else {
-          this.shownumber = JSON.parse(this.element.content_config).shownumber
-        }
-        this.$Utils.request.get(this.element.content_url + '?page=on&page_index=1&page_size=' + this.shownumber).then(response => {
-          if (this.element.content_prop) {
-            const data = eval(this.element.content_prop)
-            if (Array.isArray(data)) {
-              this.element.contentUrlData = data
-            } else {
-              this.element.contentUrlData = []
-              this.element.contentUrlData.push(data)
-            }
-            this.loading = false
-          }
-        })
+        this.getWdgtList(this.element)
       }
-      if (this.element.wdgt_type === '占比式') {
-        this.$Utils.request.get(this.element.content_url).then(response => {
-          if (this.element.content_prop) {
-            const data = eval(this.element.content_prop)
-            if (Array.isArray(data)) {
-              this.element.contentUrlData = data
-            } else {
-              this.element.contentUrlData = []
-              this.element.contentUrlData.push(data)
-            }
-            this.loading = false
-          }
-        })
+      if (this.element.wdgt_type === '占比式' || this.element.wdgt_type === '磁贴式') {
+        this.getPercentAndPaste(this.element)
+      }
+      if (this.element.wdgt_type === '图表') {
+        this.getChartData(this.element)
       }
     },
     handleClick() {

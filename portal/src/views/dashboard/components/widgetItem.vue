@@ -52,7 +52,7 @@ export default {
   computed: {
     classObject: {
       get() {
-        if (this.element.content_config !== null && JSON.parse(this.element.content_config).border) {
+        if (this.element.content_config && JSON.parse(this.element.content_config).border) {
           return {
             hasColor: JSON.parse(this.element.content_config).border === 'obvious' ? this.element.wdgt_color : ''
           }
@@ -64,7 +64,7 @@ export default {
       }
     },
     styleBorder: function() {
-      if (this.element.wdgt_type !== '0' && this.element.wdgt_type !== '1') {
+      if (this.element.wdgt_type !== '0' && this.element.wdgt_type !== '1' && this.element.content_config) {
         return {
           borderColor: JSON.parse(this.element.content_config).border === 'obvious' ? this.element.wdgt_color : ''
         }
@@ -75,7 +75,7 @@ export default {
       }
     },
     styleObject: function() {
-      if (this.element.wdgt_type !== '0' && this.element.wdgt_type !== '1') {
+      if (this.element.wdgt_type !== '0' && this.element.wdgt_type !== '1' && this.element.content_config) {
         return {
           borderColor: JSON.parse(this.element.content_config).border === 'obvious' ? this.element.wdgt_color : '',
           background: JSON.parse(this.element.content_config).border === 'obvious' ? this.element.wdgt_color : ''

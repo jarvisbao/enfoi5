@@ -37,19 +37,13 @@
         </el-scrollbar>
       </el-aside>
       <el-main>
-        <create-info />
+        <widget-create />
       </el-main>
     </el-container>
   </div>
 </template>
 <script>
-import { widget_list, widget_remove } from '@/library/api/widget'
-import createInfo from './components/createInfo'
-
 export default {
-  components: {
-    createInfo
-  },
   data() {
     return {
       widgetItem: []
@@ -60,7 +54,7 @@ export default {
   },
   methods: {
     fetchData() {
-      widget_list().then(response => {
+      this.$Apis.widget.widget_list().then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.widgetItem = response.payload.items
         }
@@ -75,7 +69,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        widget_remove(wdgt_id).then(response => {
+        this.$Apis.widget.widget_remove(wdgt_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.$router.go(0)
           } else {

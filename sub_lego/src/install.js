@@ -14,3 +14,13 @@ window.$ = jQuery
 import '@/styles/index.scss' // global css
 import '@/iconfont/iconfont.css'
 import '@/icons' // icon
+
+import VeChart from 'v-charts/lib/chart.common'
+import VeLine from 'v-charts/lib/line.common' // 折线图
+import VeHistogram from 'v-charts/lib/histogram.common' // 柱状图
+import VePie from 'v-charts/lib/pie.common' // 饼图
+import 'v-charts/lib/style.css'
+
+[VeChart, VeLine, VeHistogram, VePie].forEach(comp => {
+  Vue.component(comp.name, comp);
+})

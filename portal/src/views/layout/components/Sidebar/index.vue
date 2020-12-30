@@ -55,7 +55,8 @@ export default {
             this.getChildMenu(parentCode[0])
           }
         }
-      }
+      },
+      immediate: true
     },
     permission_menus: {
       handler(val) {

@@ -37,18 +37,18 @@
         </el-scrollbar>
       </el-aside>
       <el-main>
-        <update-info :widget-info="widgetInfo" />
+        <!-- <update-info :widget-info="widgetInfo" /> -->
+        <widget-update :is-portal="true" :widget-info="widgetInfo" />
       </el-main>
     </el-container>
   </div>
 </template>
 <script>
-import { widget_list, widget_remove } from '@/library/api/widget'
-import updateInfo from './components/updateInfo'
+// import updateInfo from './components/updateInfo'
 
 export default {
   components: {
-    updateInfo
+    // updateInfo
   },
   data() {
     return {
@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     fetchData() {
-      widget_list().then(response => {
+      this.$Apis.widget.widget_list().then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.widgetItem = response.payload.items
         }
@@ -76,7 +76,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        widget_remove(wdgt_id).then(response => {
+        this.$Apis.widget.widget_remove(wdgt_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.$router.go(0)
           } else {

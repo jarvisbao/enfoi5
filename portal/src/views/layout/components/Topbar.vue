@@ -38,7 +38,8 @@ export default {
       handler(val) {
         const parentCode = this.$Utils.util.getParentCode(this.permission_menus, data => data.uri === decodeURI(this.$route.fullPath), [])
         this.code = parentCode[0]
-      }
+      },
+      immediate: true
     }
   },
   methods: {

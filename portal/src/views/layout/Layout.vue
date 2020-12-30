@@ -1,5 +1,5 @@
 <template>
-  <div class="master-app-wrapper" :style="{'background': inIframe ? '#fff' : 'transparent'}">
+  <div class="master-app-wrapper" :style="{'background': inIframe ? '#fff' : 'transparent'}" v-wechat-title="company_title">
     <div v-if="!inIframe" class="master-topbar-container">
       <router-link :to="{name: 'index'}" class="logo">
         <img v-if="company_logo" :src="require(`@/assets/images/${this.company_logo}`)" class="company_logo" />
