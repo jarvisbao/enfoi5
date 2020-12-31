@@ -9,6 +9,8 @@ import setQuery from './pageData/components/setQuery'
 import topOtherMethods from './pageData/components/topOtherMethods'
 import tableList from './pageData/components/tableList'
 import portalWidget from './portalWidget/index'
+import widgetCreate from './widgetDesign/index'
+import widgetUpdate from './widgetDesign/update'
 
 import '@/library/styles/form-making-cover.scss'
 import '@/library/styles/form-making-index.scss'
@@ -25,7 +27,9 @@ const components = [
   setQuery,
   topOtherMethods,
   tableList,
-  portalWidget
+  portalWidget,
+  widgetCreate,
+  widgetUpdate
 ]
 
 components.forEach((component) => {
