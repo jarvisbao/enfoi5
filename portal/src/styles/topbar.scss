@@ -24,6 +24,7 @@ $topbarHeight: 42px;
 
   .logo {
     display: flex;
+    margin-right: 50px;
     font-size: 14px;
     color: #fff;
     font-weight: bold;
@@ -65,6 +66,11 @@ $topbarHeight: 42px;
       position: static;
       margin-top: 0;
       margin-left: 8px;
+    }
+    .el-dropdown-link i {
+      font-size: 20px;
+      color: #fff;
+      cursor: pointer;
     }
   }
 
