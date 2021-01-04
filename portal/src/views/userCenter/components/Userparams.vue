@@ -1,10 +1,13 @@
 <template>
   <div class="userparams">
     <el-form ref="form" :model="user_info" :rules="rules" label-width="120px">
-      <el-form-item label="用户参数" prop="props">
-        <el-input id="props" v-model="user_info.props" type="textarea" />
+      <el-form-item label="公司名称" prop="company_title">
+        <el-input id="company_title" v-model="user_info.company_title" />
+      </el-form-item>
+      <el-form-item label="公司标志" prop="company_logo">
+        <el-input id="company_logo" v-model="user_info.company_logo" />
         <div class="tips">
-          请填写json格式的数据
+          请填写该标志在服务器中的路径
         </div>
       </el-form-item>
       <el-form-item>
@@ -53,7 +56,7 @@ export default {
         if (valid) {
           this.loading = true
           var openid = null
-          this.$Apis.user.user_update_props(openid, this.user_info.props).then(response => {
+          this.$Apis.user.user_update_props(openid, this.user_info.company_title, this.user_info.company_logo).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert('提交成功', '标题名称', {
                 confirmButtonText: '确定',
@@ -61,7 +64,7 @@ export default {
                   this.loading = false
                   this.$Apis.user.param_info_by_key_openid('company_title').then(res => {
                     if (res.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-                      if (res.payload !== '') {
+                      if (res.payload) {
                         this.$store.commit('SET_COMPANY_TITLE', res.payload)
                       }else{
                         this.$store.commit('SET_COMPANY_TITLE', '盈丰软件')
@@ -70,7 +73,7 @@ export default {
                   })
                   this.$Apis.user.param_info_by_key_openid('company_logo').then(res => {
                     if (res.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-                      if (res.payload !== '') {
+                      if (res.payload) {
                         this.$store.commit('SET_COMPANY_LOGO', res.payload)
                       }else{
                         this.$store.commit('SET_COMPANY_LOGO', '')

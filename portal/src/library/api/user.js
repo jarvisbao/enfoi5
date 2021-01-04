@@ -87,15 +87,16 @@ export function user_update(openid, gender, birthday, last_name, first_name, pro
   })
 }
 
-export function user_update_props(openid, props) {
+export function user_update_props(openid, company_title, company_logo) {
   var params = {
-    'props': props,
+    'company_title': company_title,
+    'company_logo': company_logo
   }
   if (openid) {
     params['openid'] = openid
   }
   return request({
-    url: '/rpcgateway/UserService/update',
+    url: '/rpcgateway/UserService/update_params',
     method: 'post',
     data: params,
     headers: { signature: true }

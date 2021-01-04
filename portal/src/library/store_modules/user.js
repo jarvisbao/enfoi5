@@ -255,7 +255,7 @@ const user = {
               commit('SET_USERINFO', userinfo)
               param_info_by_key_openid('company_title').then(response => {
                 if (response.code === Constlib.ERROR_CODE_OK) {
-                  if (response.payload !== '') {
+                  if (response.payload) {
                     commit('SET_COMPANY_TITLE', response.payload)
                   }else{
                     commit('SET_COMPANY_TITLE', '盈丰软件')
@@ -264,7 +264,7 @@ const user = {
               })
               param_info_by_key_openid('company_logo').then(response => {
                 if (response.code === Constlib.ERROR_CODE_OK) {
-                  if (response.payload !== '') {
+                  if (response.payload) {
                     commit('SET_COMPANY_LOGO', response.payload)
                   }else{
                     commit('SET_COMPANY_LOGO', '')
