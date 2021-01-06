@@ -95,9 +95,9 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.sidebar-menu {
-  & /deep/ .el-submenu__title {
-    background: #383d41 !important;
-  }
-}
+// .sidebar-menu {
+//   & /deep/ .el-submenu__title {
+//     background: #383d41 !important;
+//   }
+// }
 </style>

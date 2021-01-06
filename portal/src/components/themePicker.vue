@@ -1,14 +1,14 @@
 <template>
   <div class="theme-picker">
     <el-dropdown>
-      <span :style="{ background: current }" class="el-dropdown-link">
+      <span :style="{ background: on }" class="el-dropdown-link">
         <i class="el-icon-arrow-down" />
       </span>
       <el-dropdown-menu slot="dropdown" class="dropdown-ul">
         <el-dropdown-item v-for="(item, i) in list" :key="i" class="dropdown-li">
           <span
             :style="{ background: item.value }"
-            :class="{ active: current == item.value }"
+            :class="{ active: current == item.label }"
             @click="change(item)"
           />
         </el-dropdown-item>
@@ -17,29 +17,42 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
       list: [
-        { value: '#304156', key: 'darkBlue' },
-        { value: '#212121', key: 'black' },
-        { value: '#0b75e2', key: 'blue' },
-        { value: '#ef5c5c', key: 'red' },
-        { value: '#e1791d', key: 'orange' },
-        { value: '#891cdc', key: 'purple' },
-        { value: '#52a22b', key: 'green' },
-        { value: '#53585f', key: 'gray' }
+        { value: '#252a2e', label: 'black' },
+        { value: '#0278ae', label: 'blue' },
+        { value: '#ef5c5c', label: 'red' },
+        { value: '#e1791d', label: 'orange' },
+        { value: '#583d72', label: 'purple' },
+        { value: '#378810', label: 'green' }
       ],
-      // current: localStorage.theme ? localStorage.theme : '#304156'
-      current: '#304156'
+      current: 'black',
+      on: '#252a2e'
     }
+  },
+  computed: {
+    ...mapGetters([
+      'theme'
+    ])
+  },
+  created() {
+    this.current = localStorage.theme || this.theme
+  },
+  mounted() {
+    document.body.className = `theme-${this.current}`
+    const obj = this.list.find(item => item.label === this.current)
+    this.on = obj.value
   },
   methods: {
     change(val) {
-      // localStorage.theme = val.value
-      this.current = val.value
-      document.body.className = 'body-theme-' + val.key
-      document.documentElement.style.setProperty('--Main', val.value)
+      this.$store.commit('SET_THEME', val.label)
+      localStorage.theme = val.label
+      this.current = val.label
+      this.on = val.value
+      document.body.className = `theme-${val.label}`
     }
   }
 }
@@ -71,7 +84,7 @@ export default {
 <style lang="scss">
 .dropdown-ul {
   display: flex;
-  width: 200px;
+  width: 140px;
   flex-wrap: wrap;
   .dropdown-li {
     margin: 5px 0;
@@ -87,7 +100,7 @@ export default {
       box-shadow: 0 0 2px rgba(0, 0, 0, 0.75);
       &.active,
       &:hover {
-        outline: 2px solid #bfafaf;
+        outline: 2px solid #dd5d2a;
       }
     }
   }

@@ -132,7 +132,7 @@ export default {
           var url = this.menu.uri
           var icon = this.menu.icon
           var number = this.menu.number
-          const tabbar = this.menu.tabbar
+          const tabbar = this.menu.tabbar ? this.menu.tabbar : false
           this.loading = true
           this.$Apis.menu.menu_updata(menu_id, text, url, number, icon, tabbar).then(response => {
             this.loading = false

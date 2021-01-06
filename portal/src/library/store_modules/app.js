@@ -10,7 +10,8 @@ const app = {
     reload: '',
     vue_app_name: process.env.VUE_APP_NAME,
     loading: false,
-    platform: null
+    platform: null,
+    theme: 'black'
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -46,6 +47,9 @@ const app = {
     },
     SET_PLATFORM: (state, platform) => {
       state.platform = platform
+    },
+    SET_THEME: (state, theme) => {
+      state.theme = theme
     }
   },
   actions: {
@@ -72,6 +76,9 @@ const app = {
     },
     SetPlatform({ commit }, platform) {
       commit('SET_PLATFORM', platform)
+    },
+    getTheme({ commit }, theme) {
+      commit('SET_THEME', theme)
     }
   },
   getters: {
@@ -80,7 +87,8 @@ const app = {
     reload: state => state.reload,
     vue_app_name: state => state.vue_app_name,
     loading: state => state.loading,
-    platform: state => state.platform
+    platform: state => state.platform,
+    theme: state => state.theme
   }
 }
 

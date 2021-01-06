@@ -59,6 +59,13 @@ export default {
       handlewidgetSelect: this.widgetSelect
     }
   },
+  watch: {
+    colSpan: {
+      handler(val) {
+        this.col = val
+      }
+    }
+  },
   methods: {
     changeColSpan(val) {
       this.$emit('changeColSpan', val)

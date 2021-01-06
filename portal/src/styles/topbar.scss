@@ -1,6 +1,3 @@
-$topbarHeight: 42px;
-
-
 //@at-root
 .master-main-container {
   padding-top: $topbarHeight;
@@ -19,14 +16,17 @@ $topbarHeight: 42px;
   z-index: 1001;
   overflow: hidden;
   display: flex;
-  background: #252a2e;
+  // background: $topbarBg;
+  @include themify($themes) {
+    background: themed('topbarBg');
+  }
   align-items: center;
 
   .logo {
     display: flex;
     margin-right: 50px;
     font-size: 14px;
-    color: #fff;
+    color: $topbarColorWhite;
     font-weight: bold;
     align-items: center;
     .logo-svg {
@@ -46,21 +46,30 @@ $topbarHeight: 42px;
     flex-wrap: wrap;
     flex: 1;
     align-items: center;
-    background: #252a2e;
+    // background: $topbarBg;
+    @include themify($themes) {
+      background: themed('topbarBg');
+    }
     .el-menu-item {
       height: $topbarHeight; 
       line-height: $topbarHeight;
       color: #e6e6e6;
       &:hover {
         background: rgba(255,255,255,.25);
-        color: #fff !important;
-        border-bottom: 2px solid #e4440a !important;
+        color: $topbarColorWhite !important;
+        // border-bottom: 2px solid $topbarActive !important;
+        @include themify($themes) {
+          border-bottom: 2px solid  themed('topbarActive') !important;
+        }
       }
     }
     .el-menu-item.active, .router-link-active .el-menu-item, .active .el-menu-item {
-      border-bottom: 2px solid #e4440a !important;
+      // border-bottom: 2px solid $topbarActive !important;
+      @include themify($themes) {
+        border-bottom: 2px solid  themed('topbarActive') !important;
+      }
       background: rgba(255,255,255,.1);
-      color: #fff !important;
+      color: $topbarColorWhite !important;
     }
     .el-submenu__icon-arrow {
       position: static;
@@ -69,7 +78,7 @@ $topbarHeight: 42px;
     }
     .el-dropdown-link i {
       font-size: 20px;
-      color: #fff;
+      color: $topbarColorWhite;
       cursor: pointer;
     }
   }
@@ -93,6 +102,15 @@ $topbarHeight: 42px;
 
     &:hover {
       background-color: $subMenuHover !important;
+    }
+  }
+}
+.menu-drop a {
+  display: block;
+  &.active {
+    background: #ecf5ff;
+    li {
+      color: #409EFF;
     }
   }
 }

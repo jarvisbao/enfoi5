@@ -57,6 +57,19 @@
       width: 100% !important;
       .el-menu-item {
         border-bottom: 1px solid rgba(0,0,0,.1);
+        @include themify($themes) {
+          background-color: themed('menuBg') !important;
+        }
+      }
+    }
+    .sidebar-menu {
+      @include themify($themes) {
+        background-color: themed('menuBg') !important;
+      }
+      .el-submenu__title {
+        @include themify($themes) {
+          background-color: themed('menuBg') !important;
+        }
       }
     }
 
@@ -64,7 +77,10 @@
     .submenu-title-noDropdown,
     .el-submenu__title {
       &:hover {
-        background-color: $menuHover !important;
+        // background-color: $menuHover !important;
+        @include themify($themes) {
+          background-color: themed('menuHover') !important;
+        }
       }
     }
 
@@ -75,14 +91,23 @@
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      // background-color: $subMenuBg !important;
+      @include themify($themes) {
+        background-color: themed('subMenuBg') !important;
+      }
 
       &:hover {
-        background-color: $subMenuHover !important;
+        // background-color: $subMenuHover !important;
+        @include themify($themes) {
+          background-color: themed('menuHover') !important;
+        }
       }
     }
     & .el-submenu .el-menu-item.is-active, & .el-menu .el-menu-item.is-active {
-      background: $subMenuHover !important;
+      // background: $subMenuHover !important;
+      @include themify($themes) {
+        background-color: themed('menuHover') !important;
+      }
     }
   }
 
@@ -176,7 +201,10 @@
   .el-menu-item {
     &:hover {
       // you can use $subMenuHover
-      background-color: $menuHover !important;
+      // background-color: $menuHover !important;
+      @include themify($themes) {
+        background-color: themed('menuHover') !important;
+      }
     }
   }
 

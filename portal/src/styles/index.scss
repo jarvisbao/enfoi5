@@ -1,5 +1,5 @@
-
-@import './variables.scss';
+@import '../library/styles/variables.scss';
+@import '../library/styles/themeMixin.scss';
 @import './topbar.scss';
 
 //main-container全局样式
@@ -319,9 +319,9 @@
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
-        padding: 5px 0;
+        // padding: 5px 0;
         li {
-          margin: 0 8px;
+          margin: 5px 8px;
           text-align: center;
           color: #5a5a5a;
           a {

@@ -1,6 +1,6 @@
 <template>
   <div class="qk-navbar">
-    <!-- <theme-picker/> -->
+    <theme-picker/>
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <div class="user-avatar">
@@ -36,12 +36,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-// import themePicker from '@/components/themePicker'
+import themePicker from '@/components/themePicker'
 
 export default {
-  // components: {
-  //   themePicker
-  // },
+  components: {
+    themePicker
+  },
   data() {
     return {
     }
