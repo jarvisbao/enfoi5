@@ -35,11 +35,11 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'theme'
+      'userProps'
     ])
   },
   created() {
-    this.current = localStorage.theme || this.theme
+    this.current = localStorage.theme || this.userProps.theme
   },
   mounted() {
     document.body.className = `theme-${this.current}`
@@ -48,11 +48,16 @@ export default {
   },
   methods: {
     change(val) {
-      this.$store.commit('SET_THEME', val.label)
       localStorage.theme = val.label
       this.current = val.label
       this.on = val.value
       document.body.className = `theme-${val.label}`
+      const params = {
+        props: Object.assign(this.userProps, {
+          theme: val.label
+        })
+      }
+      this.$Apis.user.user_update_props(params)
     }
   }
 }

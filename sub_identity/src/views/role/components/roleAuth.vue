@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="panel-heading">
-      <el-button type="primary" @click="role_menus">
+      <el-button :disabled="!select_value" type="primary" @click="role_menus">
         确定
       </el-button>
       <el-button @click="reset">
@@ -9,48 +9,58 @@
       </el-button>
     </div>
     <div class="tab-content">
-      <el-select v-model="select_value" class="form-control" @change="get_data">
-        <el-option v-permission="['ns://create_assign@identity.menus']" label="菜单" value="menu" />
-        <el-option v-permission="['ns://create_assign@identity.menus']" label="手机菜单" value="mobileMenu" />
-      </el-select>
-      <div v-show="select_value === 'menu'" class="ztree">
-        <el-tree
-          ref="menu"
-          :data="data"
-          :default-checked-keys="checked_keys"
-          :props="{ label: 'label', children: 'children' }"
-          :check-strictly="true"
-          node-key="menu_id"
-          show-checkbox
-          default-expand-all
-          @check-change="change"
-        />
+      <div style="display: flex;">
+        <el-select v-model="select_value" class="form-control" @change="get_data">
+          <el-option v-permission="['ns://create_assign@identity.menus']" label="菜单" value="menu" />
+          <el-option v-permission="['ns://create_assign@identity.menus']" label="手机菜单" value="mobileMenu" />
+        </el-select>
+        <el-input v-model="filterText" :disabled="!select_value" placeholder="输入关键字进行过滤" />
       </div>
-      <div v-show="select_value === 'mobileMenu'" class="ztree">
-        <el-tree
-          ref="mobileMenu"
-          :data="data"
-          :default-checked-keys="checked_keys"
-          :props="{ label: 'label', children: 'children' }"
-          :check-strictly="true"
-          node-key="menu_id"
-          show-checkbox
-          default-expand-all
-          @check-change="change"
-        />
-      </div>
-      <div v-show="select_value === 'resource'" class="ztree">
-        <el-tree
-          ref="resource"
-          :data="data"
-          :props="{ label: 'text', children: 'children' }"
-          :check-strictly="true"
-          node-key="res_id"
-          show-checkbox
-          default-expand-all
-          @check-change="change"
-        />
-      </div>
+      <el-scrollbar wrap-class="scrollbar-wrapper">
+        <div class="scrollbar-content">
+          <div v-show="select_value === 'menu'" class="ztree">
+            <el-tree
+              ref="menu"
+              :data="data"
+              :default-checked-keys="checked_keys"
+              :props="{ label: 'label', children: 'children' }"
+              :check-strictly="true"
+              :filter-node-method="filterNode"
+              node-key="menu_id"
+              show-checkbox
+              default-expand-all
+              @check-change="change"
+            />
+          </div>
+          <div v-show="select_value === 'mobileMenu'" class="ztree">
+            <el-tree
+              ref="mobileMenu"
+              :data="data"
+              :default-checked-keys="checked_keys"
+              :props="{ label: 'label', children: 'children' }"
+              :check-strictly="true"
+              :filter-node-method="filterNode"
+              node-key="menu_id"
+              show-checkbox
+              default-expand-all
+              @check-change="change"
+            />
+          </div>
+          <div v-show="select_value === 'resource'" class="ztree">
+            <el-tree
+              ref="resource"
+              :data="data"
+              :props="{ label: 'text', children: 'children' }"
+              :check-strictly="true"
+              :filter-node-method="filterNode"
+              node-key="res_id"
+              show-checkbox
+              default-expand-all
+              @check-change="change"
+            />
+          </div>
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -76,10 +86,14 @@ export default {
       },
       checked_keys: [],
       select_value: null,
-      data: []
+      data: [],
+      filterText: null
     }
   },
   watch: {
+    filterText(val) {
+      this.$refs[this.select_value].filter(val)
+    }
   },
   created() {
   },
@@ -165,12 +179,21 @@ export default {
         this.checked_keys = []
       }
       this.$emit('show', false)
+    },
+    filterNode(value, data) {
+      if (!value) {
+        return true
+      }
+      return data.label.indexOf(value) !== -1
     }
   }
 }
 </script>
 
 <style>
+.scrollbar-content {
+  max-height: 400px;
+}
 button {
   text-align: center;
 }

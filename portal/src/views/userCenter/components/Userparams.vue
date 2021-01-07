@@ -1,11 +1,11 @@
 <template>
   <div class="userparams">
     <el-form ref="form" :model="user_info" :rules="rules" label-width="120px">
-      <el-form-item label="公司名称" prop="company_title">
-        <el-input id="company_title" v-model="user_info.company_title" />
+      <el-form-item label="公司名称">
+        <el-input id="company_title" v-model="user_info.props.company_title" />
       </el-form-item>
-      <el-form-item label="公司标志" prop="company_logo">
-        <el-input id="company_logo" v-model="user_info.company_logo" />
+      <el-form-item label="公司标志">
+        <el-input id="company_logo" v-model="user_info.props.company_logo" />
         <div class="tips">
           请填写该标志在服务器中的路径
         </div>
@@ -23,28 +23,16 @@ import { mapGetters } from 'vuex'
 
 export default {
   data() {
-    var validateJson = (rule, value, callback) => {
-      if (!value) {
-        callback()
-      } else if (!this.$Utils.validate.isJSON(value)) {
-        callback(new Error('请输入正确的json格式!'))
-      } else {
-        callback()
-      }
-    }
     return {
       loading: false,
       user_info: {},
-      rules: {
-        props: [
-          { validator: validateJson, trigger: 'blur' }
-        ]
-      }
+      rules: {}
     }
   },
   computed: {
     ...mapGetters([
-      'userinfo'
+      'userinfo',
+      'userProps'
     ])
   },
   created() {
@@ -56,7 +44,13 @@ export default {
         if (valid) {
           this.loading = true
           var openid = null
-          this.$Apis.user.user_update_props(openid, this.user_info.company_title, this.user_info.company_logo).then(response => {
+          const params = {
+            props: Object.assign(this.userProps, {
+              company_title: this.user_info.props.company_title,
+              company_logo: this.user_info.props.company_logo
+            })
+          }
+          this.$Apis.user.user_update_props(params).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.$alert('提交成功', '标题名称', {
                 confirmButtonText: '确定',
@@ -66,7 +60,7 @@ export default {
                     if (res.code === this.$Utils.Constlib.ERROR_CODE_OK) {
                       if (res.payload) {
                         this.$store.commit('SET_COMPANY_TITLE', res.payload)
-                      }else{
+                      } else {
                         this.$store.commit('SET_COMPANY_TITLE', '盈丰软件')
                       }
                     }
@@ -75,7 +69,7 @@ export default {
                     if (res.code === this.$Utils.Constlib.ERROR_CODE_OK) {
                       if (res.payload) {
                         this.$store.commit('SET_COMPANY_LOGO', res.payload)
-                      }else{
+                      } else {
                         this.$store.commit('SET_COMPANY_LOGO', '')
                       }
                     }

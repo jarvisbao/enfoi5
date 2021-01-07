@@ -87,14 +87,14 @@ export function user_update(openid, gender, birthday, last_name, first_name, pro
   })
 }
 
-export function user_update_props(openid, company_title, company_logo) {
-  var params = {
-    'company_title': company_title,
-    'company_logo': company_logo
-  }
-  if (openid) {
-    params['openid'] = openid
-  }
+export function user_update_props(params) {
+  // var params = {
+  //   'company_title': company_title,
+  //   'company_logo': company_logo
+  // }
+  // if (openid) {
+  //   params['openid'] = openid
+  // }
   return request({
     url: '/rpcgateway/UserService/update_params',
     method: 'post',

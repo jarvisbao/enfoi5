@@ -329,7 +329,7 @@ export default {
       this.dialogVisible = !this.dialogVisible
       this.dialogCreate = false
       this.dialogUpdate = false
-      this.dialog_width = '15%'
+      this.dialog_width = '22%'
       this.old_role_code = role_code
       this.dialogTitle = role_name
     }

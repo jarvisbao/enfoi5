@@ -42,7 +42,12 @@ const user = {
     auto_orm: true,
     company_title: '盈丰软件',
     company_logo: '',
-    routes: routes
+    routes: routes,
+    userProps: {
+      company_title: '盈丰软件',
+      company_logo: '',
+      theme: 'black'
+    }
   },
 
   mutations: {
@@ -94,6 +99,9 @@ const user = {
     },
     SET_ROUTES: (state, routes) => {
       state.routes = routes
+    },
+    SET_USER_PROPS: (state, userProps) => {
+      state.userProps = userProps
     }
   },
 
@@ -250,14 +258,19 @@ const user = {
               const name = response.payload.full_name
               const openid = response.payload.openid
               const userinfo = response.payload
+              const userProps = JSON.parse(JSON.stringify(response.payload.props))
+              if (!userProps.theme) {
+                userProps.theme = 'black'
+              }
               commit('SET_NAME', name)
               commit('SET_OPENID', openid)
               commit('SET_USERINFO', userinfo)
               param_info_by_key_openid('company_title').then(response => {
                 if (response.code === Constlib.ERROR_CODE_OK) {
                   if (response.payload) {
+                    userProps.company_title = response.payload
                     commit('SET_COMPANY_TITLE', response.payload)
-                  }else{
+                  } else {
                     commit('SET_COMPANY_TITLE', '盈丰软件')
                   }
                 }
@@ -265,12 +278,14 @@ const user = {
               param_info_by_key_openid('company_logo').then(response => {
                 if (response.code === Constlib.ERROR_CODE_OK) {
                   if (response.payload) {
+                    userProps.company_logo = response.payload
                     commit('SET_COMPANY_LOGO', response.payload)
-                  }else{
+                  } else {
                     commit('SET_COMPANY_LOGO', '')
                   }
                 }
               })
+              commit('SET_USER_PROPS', userProps)
             }
             if (state.avatar.length <= 0) {
               const attach_id = response.payload.head_id
@@ -393,7 +408,8 @@ const user = {
     groups: state => state.groups,
     company_title: state => state.company_title,
     company_logo: state => state.company_logo,
-    routes: state => state.routes
+    routes: state => state.routes,
+    userProps: state => state.userProps
   }
 }
 
