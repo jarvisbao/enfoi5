@@ -1,6 +1,18 @@
 <template>
   <div class="list-to-tree">
-    <el-tree ref="tree" :data="tree_items" :props="defaultProps" :filter-node-method="filterNode" :load="loadNode" :expand-on-click-node="false" lazy node-key="org_code" @node-click="handleNodeClick">
+    <el-tree
+      ref="tree"
+      :data="tree_items"
+      :props="defaultProps"
+      :filter-node-method="filterNode"
+      :load="loadNode"
+      :expand-on-click-node="false"
+      lazy
+      show-checkbox
+      check-strictly
+      node-key="org_code"
+      @node-click="handleNodeClick"
+    >
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}</span>
         <span class="tree-list">
@@ -58,9 +70,17 @@ export default {
   mounted() {
     // 修改局部刷新
     this.$Utils.EventBus.$on('refreshTree', org_code => {
-      const node = this.$refs.tree.getNode(org_code)
-      node.parent.loaded = false
-      node.parent.expand()
+      if (Array.isArray(org_code)) {
+        org_code.forEach(item => {
+          const node = this.$refs.tree.getNode(item)
+          node.parent.loaded = false
+          node.parent.expand()
+        })
+      } else {
+        const node = this.$refs.tree.getNode(org_code)
+        node.parent.loaded = false
+        node.parent.expand()
+      }
     })
     // 添加数据回显
     this.$Utils.EventBus.$on('add-refresh', (events) => {
@@ -109,7 +129,8 @@ export default {
                 pNode: node.data,
                 isParent: false,
                 isTree: true,
-                leaf: true
+                leaf: true,
+                disabled: true
               })
             }
             resolve(treeItems)
@@ -137,7 +158,8 @@ export default {
                     pNode: node.data,
                     isParent: false,
                     isTree: false,
-                    leaf: true
+                    leaf: true,
+                    disabled: true
                   })
                 }
                 resolve(data)
@@ -182,6 +204,9 @@ export default {
           }
         })
       }
+    },
+    checkHandle() {
+      return this.$refs.tree.getCheckedKeys()
     }
   }
 }

@@ -4,7 +4,7 @@
       <div id="create" class="btn create-btn" @click="create">
         新建
       </div>
-      <div class="btn create-btn delete" @click="RemovePositions">
+      <div class="btn create-btn delete" @click="RemovePosition(role_codes)">
         删除所选
       </div>
       <div class="right-btn">
@@ -57,12 +57,15 @@
 
 <script>
 import orgPositionAdd from './orgPositionAdd'
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
 
 export default {
   name: 'OrgPositions',
   components: {
     orgPositionAdd
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [{
@@ -86,16 +89,8 @@ export default {
       org_code: null
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.org_code = this.$route.query.org_code
+    this.org_code = this.$route.query.org_code || null
     this.fetchData()
     // this.removePermission = checkPermission(['ns://remove_org_role@identity.orgs'])
   },
@@ -141,6 +136,18 @@ export default {
       })
     },
     RemovePosition(role_code) {
+      let tips = '是否删除该组织机构职位?'
+      this.role_codes = [role_code]
+      if (Array.isArray(role_code)) {
+        if (JSON.stringify(role_code) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选组织机构职位?'
+        this.role_codes = role_code
+      }
       this.$confirm('是否删除该组织机构职位?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -148,33 +155,7 @@ export default {
         confirmButtonClass: 'confirm-button',
         cancelButtonClass: 'cancel-button'
       }).then(() => {
-        this.role_codes = [role_code]
-        this.$Apis.organize.RemovePosition(this.role_codes).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    RemovePositions() {
-      if (JSON.stringify(this.role_codes) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选组织机构职位?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
+        // this.role_codes = [role_code]
         this.$Apis.organize.RemovePosition(this.role_codes).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
@@ -197,13 +178,10 @@ export default {
     refresh() {
       this.fetchData()
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
     position_info(position_code, name) {
       this.set_session()
       this.$router.push({ name: 'position_members', query: { name: name, position_code: position_code }})
-    },
+    }
   }
 }
 </script>

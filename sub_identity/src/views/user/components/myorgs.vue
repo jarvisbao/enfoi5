@@ -45,10 +45,13 @@
 import myOrgsAdd from './myOrgsAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     myOrgsAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [{
@@ -70,14 +73,6 @@ export default {
       showPage: false,
       myorgsList: [],
       removePermission: false
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {

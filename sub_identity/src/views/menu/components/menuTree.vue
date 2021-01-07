@@ -1,6 +1,18 @@
 <template>
   <div class="list-to-tree">
-    <el-tree ref="tree" :data="tree_items" :props="defaultProps" :filter-node-method="filterNode" :load="loadNode" :expand-on-click-node="false" lazy node-key="menu_id" @node-click="handleNodeClick">
+    <el-tree
+      ref="tree"
+      :data="tree_items"
+      :props="defaultProps"
+      :filter-node-method="filterNode"
+      :load="loadNode"
+      :expand-on-click-node="false"
+      lazy
+      show-checkbox
+      check-strictly
+      node-key="menu_id"
+      @node-click="handleNodeClick"
+    >
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label.title }}</span>
         <span class="tree-list">
@@ -77,7 +89,13 @@ export default {
     })
     // 删除数据回显
     EventBus.$on('delete-refresh', menu_id => {
-      this.$refs.tree.getNode(menu_id).remove()
+      if (Array.isArray(menu_id)) {
+        menu_id.forEach(item => {
+          this.$refs.tree.getNode(menu_id).remove()
+        })
+      } else {
+        this.$refs.tree.getNode(menu_id).remove()
+      }
     })
     // 添加数据回显
     EventBus.$on('add-refresh', (events) => {
@@ -129,7 +147,8 @@ export default {
                 pNode: node.data,
                 isParent: false,
                 isTree: true,
-                leaf: true
+                leaf: true,
+                disabled: true
               })
             }
             resolve(treeItems)
@@ -157,7 +176,8 @@ export default {
                     pNode: node.data,
                     isParent: false,
                     isTree: false,
-                    leaf: true
+                    leaf: true,
+                    disabled: true
                   })
                 }
                 resolve(data)
@@ -199,6 +219,9 @@ export default {
           }
         })
       }
+    },
+    checkHandle() {
+      return this.$refs.tree.getCheckedKeys()
     }
   }
 }

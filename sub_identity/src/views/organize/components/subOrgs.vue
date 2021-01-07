@@ -5,10 +5,10 @@
         新建
       </div>
       <template v-show="cur==0">
-        <div v-if="removePermission" class="btn create-btn delete" @click="organize_deletes">
+        <div v-if="removePermission" class="btn create-btn delete" @click="organize_delete(org_codes)">
           注销所选
         </div>
-        <div v-if="removePermission" class="btn create-btn delete" @click="active_organizes">
+        <div v-if="removePermission" class="btn create-btn delete" @click="active_organize(org_codes)">
           激活所选
         </div>
       </template>
@@ -81,11 +81,15 @@ import organizeCreate from './organizeCreate'
 import organizeUpdate from './organizeUpdate'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     organizeCreate,
     organizeUpdate
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [{
@@ -118,16 +122,7 @@ export default {
       status: 'all'
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.get_page_params()
     this.fetchData()
     this.updatePermission = checkPermission(['ns://update_organize@identity.orgs'])
     this.removePermission = checkPermission(['ns://remove_organize@identity.orgs'])
@@ -149,16 +144,6 @@ export default {
         return this.parent
       } else {
         return null
-      }
-    },
-    get_page_params() {
-      if (sessionStorage.getItem(this.$route.name)) {
-        const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-        if (this.$route.path === pageParams.path) {
-          this.text = pageParams.text
-          this.pagination.page = pageParams.page_index
-          this.page_size = pageParams.page_size
-        }
       }
     },
     fetchData() {
@@ -227,7 +212,17 @@ export default {
       this.operateData()
     },
     organize_delete(org_code) {
-      this.$confirm('是否删除该机构?', '提示', {
+      let tips = '是否删除该机构?'
+      if (Array.isArray(org_code)) {
+        if (JSON.stringify(org_code) === '[]') {
+          this.$alert('请选择要注销的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否注销所选机构?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -246,62 +241,6 @@ export default {
       }).catch(() => {
       })
     },
-    organize_deletes() {
-      if (JSON.stringify(this.org_codes) === '[]') {
-        this.$alert('请选择要注销的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否注销所选机构?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      })
-        .then(() => {
-          this.$Apis.organize.organize_remove_v2(this.org_codes).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.refresh()
-            } else {
-              this.$alert(response.message, '提示', {
-                confirmButtonText: '确定'
-              })
-            }
-          })
-        })
-        .catch(() => {
-        })
-    },
-    active_organizes() {
-      if (JSON.stringify(this.org_codes) === '[]') {
-        this.$alert('请选择要激活的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否激活所选机构?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      })
-        .then(() => {
-          this.$Apis.organize.active_organize(this.org_codes).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.refresh()
-            } else {
-              this.$alert(response.message, '提示', {
-                confirmButtonText: '确定'
-              })
-            }
-          })
-        })
-        .catch(() => {
-        })
-    },
     create() {
       this.dialogVisible = !this.dialogVisible
       this.dialogShow = true
@@ -315,9 +254,6 @@ export default {
         this.organize = response.payload
       })
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
     organize_info(org_code, name) {
       this.set_session()
       this.$router.push({ name: 'organize_info', query: { org_code: org_code, name: name }})
@@ -329,7 +265,17 @@ export default {
       this.fetchData()
     },
     active_organize(org_code) {
-      this.$confirm('是否激活该机构?', '提示', {
+      let tips = '是否激活该机构?'
+      if (Array.isArray(org_code)) {
+        if (JSON.stringify(org_code) === '[]') {
+          this.$alert('请选择要激活的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否激活所选机构?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',

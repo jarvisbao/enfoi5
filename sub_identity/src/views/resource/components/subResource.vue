@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_resource@identity.resource']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="resource_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="resource_delete(res_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -94,11 +94,15 @@ import resourceCreate from './resourceCreate'
 import resourceUpdate from './resourceUpdate'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     resourceCreate,
     resourceUpdate
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [{
@@ -133,16 +137,7 @@ export default {
       removePermission: false
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.get_page_params()
     this.fetchData()
     this.updatePermission = checkPermission(['ns://update_resource@identity.resource'])
     this.removePermission = checkPermission(['ns://remove_resource@identity.resource'])
@@ -163,16 +158,6 @@ export default {
         return this.parent_id
       } else {
         return null
-      }
-    },
-    get_page_params() {
-      if (sessionStorage.getItem(this.$route.name)) {
-        const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-        if (this.$route.path === pageParams.path) {
-          this.text = pageParams.text
-          this.pagination.page = pageParams.page_index
-          this.page_size = pageParams.page_size
-        }
       }
     },
     fetchData() {
@@ -244,15 +229,22 @@ export default {
         this.resource = response.payload
       })
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
     resource_info(namespace, text) {
       this.set_session()
       this.$router.push({ name: 'resource_info', query: { namespace: namespace, name: text }})
     },
     resource_delete(res_id) {
-      this.$confirm('是否删除该资源?', '提示', {
+      let tips = '是否删除该资源?'
+      if (Array.isArray(res_id)) {
+        if (JSON.stringify(res_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选资源?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -260,32 +252,6 @@ export default {
         cancelButtonClass: 'cancel-button'
       }).then(() => {
         this.$Apis.resource.resource_remove(res_id).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    resource_deletes() {
-      if (JSON.stringify(this.res_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选资源?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.resource.resource_remove(this.res_ids).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {

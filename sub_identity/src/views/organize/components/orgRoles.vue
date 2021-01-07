@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_org_role@identity.orgs']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="organize_role_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="organize_role_delete(org_code, role_codes)">
         删除所选
       </div>
       <div class="right-btn">
@@ -67,10 +67,13 @@
 import organizeRolesAdd from './organizeRolesAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     organizeRolesAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [{
@@ -87,6 +90,7 @@ export default {
       layout: 'sizes, prev, pager, next',
       text: null,
       role_codes: [],
+      org_code: null,
       multipleSelection: [],
       loading: false,
       dialogVisible: false,
@@ -94,14 +98,6 @@ export default {
       dialogTitle: '',
       showPage: false,
       removePermission: false
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -112,11 +108,11 @@ export default {
     checkPermission,
     get_org_code() {
       if ('org_code' in this.$route.query) {
-        const org_code = this.$route.query.org_code
-        return org_code
+        this.org_code = this.$route.query.org_code
+        return this.org_code
       } else {
-        const org_code = null
-        return org_code
+        this.org_code = null
+        return this.org_code
       }
     },
     fetchData() {
@@ -161,6 +157,18 @@ export default {
       this.fetchData()
     },
     organize_role_delete(org_code, role_code) {
+      let tips = '是否删除该机构角色?'
+      this.role_codes = [role_code]
+      if (Array.isArray(role_code)) {
+        if (JSON.stringify(role_code) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选机构角色?'
+        this.role_codes = role_code
+      }
       this.$confirm('是否删除该机构角色?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -168,34 +176,7 @@ export default {
         confirmButtonClass: 'confirm-button',
         cancelButtonClass: 'cancel-button'
       }).then(() => {
-        this.role_codes = [role_code]
-        this.$Apis.organize.organize_roles_remove(org_code, this.role_codes).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    organize_role_deletes() {
-      if (JSON.stringify(this.role_codes) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选机构角色?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        const org_code = this.get_org_code()
+        // this.role_codes = [role_code]
         this.$Apis.organize.organize_roles_remove(org_code, this.role_codes).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()

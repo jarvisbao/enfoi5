@@ -204,7 +204,6 @@ export default {
           if (this.$refs.cascader) {
             selected_menu_id = this.$refs.cascader.getCheckedNodes().length > 0 ? this.$refs.cascader.getCheckedNodes()[0].data.menu_id : null // 获取级联选择器选择值的menu_id
           }
-
           this.$Apis.menu.menu_create(label, menu_code, uri, icon, number, parent, this.device, tabbar).then(response => {
             this.loading = false
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {

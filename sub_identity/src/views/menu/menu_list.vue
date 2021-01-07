@@ -6,7 +6,7 @@
         新建
       </div>
       <template v-show="cur==0">
-        <div v-if="removePermission" class="btn create-btn delete" @click="menu_deletes">
+        <div v-if="removePermission" class="btn create-btn delete" @click="menu_delete(menu_ids)">
           删除所选
         </div>
       </template>
@@ -93,15 +93,16 @@
       />
     </div>
     <menu-tree
+      ref="menuTree"
       v-if="cur==1"
       :update-permission="updatePermission"
       :remove-permission="removePermission"
       :assign-permission="assignPermission"
       :text="text"
       :device="device"
-      @menu_update="menu_update($event)"
-      @menu_delete="menu_delete($event)"
-      @tree_menu_assignments="tree_menu_assignments($event)"
+      @menu_update="menu_update"
+      @menu_delete="menu_delete"
+      @tree_menu_assignments="tree_menu_assignments"
     />
     <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
       <menu-create v-if="dialogShow" :is-disabled="true" :parent-menu="parentMenu" :show-type="cur" @show="isShow" @refresh="refresh" :device="device" />
@@ -120,6 +121,9 @@ import menuAssignmentsCreate from './components/menuAssignmentsCreate'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
 const EventBus = Vue.$Utils.EventBus
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   filters: {
   },
@@ -136,6 +140,7 @@ export default {
     menuTree,
     menuAssignmentsCreate
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [{
@@ -174,16 +179,7 @@ export default {
       assignPermission: false
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.get_page_params()
     this.fetchData()
     this.updatePermission = checkPermission(['ns://update_menu@identity.menus'])
     this.removePermission = checkPermission(['ns://remove_menu@identity.menus'])
@@ -197,16 +193,6 @@ export default {
         return menu_code
       } else {
         return null
-      }
-    },
-    get_page_params() {
-      if (sessionStorage.getItem(this.$route.name)) {
-        const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-        if (this.$route.path === pageParams.path) {
-          this.text = pageParams.text
-          this.pagination.page = pageParams.page_index
-          this.page_size = pageParams.page_size
-        }
       }
     },
     fetchData() {
@@ -276,9 +262,6 @@ export default {
         this.dialogUpdate = true
       })
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
     menu_info(menu_code, title) {
       this.set_session()
       let menu_name = 'menu_info'
@@ -288,7 +271,20 @@ export default {
       this.$router.push({ name: menu_name, query: { menu_code: menu_code, name: title }})
     },
     menu_delete(menu_id) {
-      this.$confirm('是否删除该菜单?', '提示', {
+      let tips = '是否删除该菜单?'
+      if (Array.isArray(menu_id)) {
+        if (this.cur === 1) {
+          menu_id = this.$refs.menuTree.checkHandle()
+        }
+        if (JSON.stringify(menu_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选菜单?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -302,33 +298,6 @@ export default {
             } else {
               EventBus.$emit('delete-refresh', menu_id) // 刷新树形数据
             }
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    menu_deletes() {
-      if (JSON.stringify(this.menu_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选菜单?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.menu.menu_remove(this.menu_ids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.refresh()
-            EventBus.$emit('refreshTree') // 刷新树形数据
           } else {
             this.$alert(response.message, '提示', {
               confirmButtonText: '确定'

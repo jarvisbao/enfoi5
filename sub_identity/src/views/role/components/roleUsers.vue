@@ -65,10 +65,13 @@
 import roleUserAdd from './roleUserAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     roleUserAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [],
@@ -87,14 +90,6 @@ export default {
       showPage: false,
       removePermission: false,
       role_name: null
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -201,7 +196,6 @@ export default {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {
-            alert(response.message)
             this.$alert(response.message, '提示', {
               confirmButtonText: '确定'
             })

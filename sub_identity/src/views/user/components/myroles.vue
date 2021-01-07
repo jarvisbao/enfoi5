@@ -16,8 +16,8 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column label="role_code" prop="role_code" show-overflow-tooltip />
-      <el-table-column label="role_name" prop="role_name" />
+      <el-table-column label="角色编码" prop="role_code" show-overflow-tooltip />
+      <el-table-column label="角色名称" prop="role_name" />
       <el-table-column label="角色类别" prop="sort" />
       <el-table-column label="角色描述" prop="sort2" />
       <el-table-column align="right">
@@ -47,10 +47,13 @@
 import myRoleAdd from './myRoleAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     myRoleAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [{

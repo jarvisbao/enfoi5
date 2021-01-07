@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_group_admin@identity.groups']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="group_admin_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="group_admin_delete(user_ids)">
         删除所选
       </div>
     </div>
@@ -117,7 +117,17 @@ export default {
       this.dialogTitle = '添加群组管理员'
     },
     group_admin_delete(openid) {
-      this.$confirm('是否删除该群组管理员?', '提示', {
+      let tips = '是否删除该群组管理员?'
+      if (Array.isArray(openid)) {
+        if (JSON.stringify(openid) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选群组管理员?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -138,33 +148,33 @@ export default {
       }).catch(() => {
       })
     },
-    group_admin_deletes() {
-      if (JSON.stringify(this.user_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选群组管理员?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        const group_id = this.get_group_id()
-        this.$Apis.group.group_admin_remove(group_id, this.user_ids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
+    // group_admin_deletes() {
+    //   if (JSON.stringify(this.user_ids) === '[]') {
+    //     this.$alert('请选择要删除的条目！', '提示', {
+    //       confirmButtonText: '确定'
+    //     })
+    //     return false
+    //   }
+    //   this.$confirm('是否删除所选群组管理员?', '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning',
+    //     confirmButtonClass: 'confirm-button',
+    //     cancelButtonClass: 'cancel-button'
+    //   }).then(() => {
+    //     const group_id = this.get_group_id()
+    //     this.$Apis.group.group_admin_remove(group_id, this.user_ids).then(response => {
+    //       if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+    //         this.fetchData()
+    //       } else {
+    //         this.$alert(response.message, '提示', {
+    //           confirmButtonText: '确定'
+    //         })
+    //       }
+    //     })
+    //   }).catch(() => {
+    //   })
+    // },
     isShow() {
       this.dialogVisible = !this.dialogVisible
     },

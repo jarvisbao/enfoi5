@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_attribute@identity.attribute']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="attributes_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="attributes_delete(attr_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -89,6 +89,8 @@ import attributesCreate from './attributesCreate'
 import attributesUpdate from './attributesUpdate'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   filters: {
   },
@@ -96,6 +98,7 @@ export default {
     attributesCreate,
     attributesUpdate
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [{
@@ -124,14 +127,6 @@ export default {
       attr_ids: [],
       updatePermission: false,
       removePermission: false
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -180,7 +175,17 @@ export default {
       })
     },
     attributes_delete(attr_id) {
-      this.$confirm('是否删除该属性?', '提示', {
+      let tips = '是否删除该属性?'
+      if (Array.isArray(attr_id)) {
+        if (JSON.stringify(attr_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选属性?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -188,32 +193,6 @@ export default {
         cancelButtonClass: 'cancel-button'
       }).then(() => {
         this.$Apis.resource.attributes_remove(attr_id).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    attributes_deletes() {
-      if (JSON.stringify(this.attr_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选属性?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.resource.attributes_remove(this.attr_ids).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {

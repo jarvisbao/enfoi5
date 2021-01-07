@@ -5,10 +5,10 @@
       <div id="create" v-permission="['ns://create_user@identity.users']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="user_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="user_delete(openids)">
         注销所选
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="active_users">
+      <div v-if="removePermission" class="btn create-btn delete" @click="active_user(openids)">
         激活所选
       </div>
       <el-dropdown v-role-permission="['superadmin']">
@@ -87,6 +87,7 @@
       />
     </template>
     <user-list-card
+      ref="userListCard"
       v-if="cur==1"
       :pagination="pagination"
       :page_size="page_size"
@@ -94,11 +95,11 @@
       :update-permission="updatePermission"
       :remove-permission="removePermission"
       :card-refresh="cardRefresh"
-      @user_update="user_update($event)"
-      @user_delete="user_delete($event)"
-      @user_crad_info="user_crad_info($event)"
-      @user_card_deletes="get_card_openids($event)"
-      @active_user="active_user($event)"
+      @user_update="user_update"
+      @user_delete="user_delete"
+      @user_crad_info="user_crad_info"
+      @user_card_deletes="get_card_openids"
+      @active_user="active_user"
     />
     <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
       <user-create v-if="dialogCreate" @show="isShow" @refresh="refresh" />
@@ -114,7 +115,8 @@ import userCreate from './components/userCreate'
 import userListCard from './components/userListCard'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
-const EventBus = Vue.$Utils.EventBus
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
 
 export default {
   filters: {
@@ -125,6 +127,7 @@ export default {
     userCreate,
     userListCard
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [],
@@ -151,32 +154,13 @@ export default {
       cardRefresh: false
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.get_page_params()
     this.fetchData()
     this.updatePermission = checkPermission(['ns://update_user@identity.users'])
     this.removePermission = checkPermission(['ns://remove_user@identity.users'])
   },
   methods: {
     checkPermission,
-    get_page_params() {
-      if (sessionStorage.getItem(this.$route.name)) {
-        const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-        if (this.$route.path === pageParams.path) {
-          this.text = pageParams.text
-          this.pagination.page = pageParams.page_index
-          this.page_size = pageParams.page_size
-        }
-      }
-    },
     fetchData() {
       this.loading = true
       this.$Apis.user.user_list(this.text, true, this.pagination.page, this.page_size, this.status).then(response => {
@@ -240,7 +224,7 @@ export default {
       if (this.cur === 0) {
         this.operateData()
       } else {
-        EventBus.$emit('search')
+        this.$refs.userListCard.search()
       }
     },
     handleSizeChange(val) {
@@ -260,9 +244,9 @@ export default {
         this.user = response.payload
       })
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
+    // set_session() {
+    //   sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
+    // },
     user_info(openid, full_name) {
       this.set_session()
       this.$router.push({ name: 'user_info', query: { openid: openid, name: full_name }})
@@ -274,7 +258,17 @@ export default {
       this.dialogTitle = '新建用户'
     },
     user_delete(openid) {
-      this.$confirm('是否注销该用户?', '提示', {
+      let tips = '是否注销该用户?'
+      if (Array.isArray(openid)) {
+        if (JSON.stringify(openid) === '[]') {
+          this.$alert('请选择要注销的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否注销所选用户?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -294,7 +288,17 @@ export default {
       })
     },
     active_user(openid) {
-      this.$confirm('是否激活该用户?', '提示', {
+      let tips = '是否激活该用户?'
+      if (Array.isArray(openid)) {
+        if (JSON.stringify(openid) === '[]') {
+          this.$alert('请选择要激活的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否激活所选用户?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -313,58 +317,58 @@ export default {
       }).catch(() => {
       })
     },
-    user_deletes($event) {
-      if (JSON.stringify(this.openids) === '[]') {
-        this.$alert('请选择要注销的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否注销所选用户?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.user.user_remove_v2(this.openids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.refresh()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    active_users($event) {
-      if (JSON.stringify(this.openids) === '[]') {
-        this.$alert('请选择要激活的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否激活所选用户?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.user.active_user(this.openids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.refresh()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
+    // user_deletes() {
+    //   if (JSON.stringify(this.openids) === '[]') {
+    //     this.$alert('请选择要注销的条目！', '提示', {
+    //       confirmButtonText: '确定'
+    //     })
+    //     return false
+    //   }
+    //   this.$confirm('是否注销所选用户?', '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning',
+    //     confirmButtonClass: 'confirm-button',
+    //     cancelButtonClass: 'cancel-button'
+    //   }).then(() => {
+    //     this.$Apis.user.user_remove_v2(this.openids).then(response => {
+    //       if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+    //         this.refresh()
+    //       } else {
+    //         this.$alert(response.message, '提示', {
+    //           confirmButtonText: '确定'
+    //         })
+    //       }
+    //     })
+    //   }).catch(() => {
+    //   })
+    // },
+    // active_users() {
+    //   if (JSON.stringify(this.openids) === '[]') {
+    //     this.$alert('请选择要激活的条目！', '提示', {
+    //       confirmButtonText: '确定'
+    //     })
+    //     return false
+    //   }
+    //   this.$confirm('是否激活所选用户?', '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning',
+    //     confirmButtonClass: 'confirm-button',
+    //     cancelButtonClass: 'cancel-button'
+    //   }).then(() => {
+    //     this.$Apis.user.active_user(this.openids).then(response => {
+    //       if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+    //         this.refresh()
+    //       } else {
+    //         this.$alert(response.message, '提示', {
+    //           confirmButtonText: '确定'
+    //         })
+    //       }
+    //     })
+    //   }).catch(() => {
+    //   })
+    // },
     isShow() {
       this.dialogVisible = !this.dialogVisible
     },
@@ -372,9 +376,8 @@ export default {
       if (this.cur === 0) {
         this.fetchData()
       } else {
-        EventBus.$emit('search')
+        this.$refs.userListCard.search()
         this.cardRefresh = true
-        console.log('0000', this.cardRefresh)
       }
     },
     user_crad_info($event) {

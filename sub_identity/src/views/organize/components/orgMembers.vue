@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_org_member@identity.orgs']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="organize_members_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="organize_members_delete(org_code, user_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -74,10 +74,13 @@
 import organizeMemberAdd from './organizeMemberAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     organizeMemberAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [{
@@ -105,14 +108,6 @@ export default {
       showPage: false,
       removePermission: false,
       org_name: null
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -202,6 +197,18 @@ export default {
       this.operateData()
     },
     organize_members_delete(org_code, user_id) {
+      let tips = '是否删除该机构成员?'
+      this.user_ids = [user_id]
+      if (Array.isArray(user_id)) {
+        if (JSON.stringify(user_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选机构成员?'
+        this.user_ids = user_id
+      }
       this.$confirm('是否删除该机构成员?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -209,34 +216,8 @@ export default {
         confirmButtonClass: 'confirm-button',
         cancelButtonClass: 'cancel-button'
       }).then(() => {
-        this.user_ids = [user_id]
+        // this.user_ids = [user_id]
         this.$Apis.organize.organize_members_remove(org_code, this.user_ids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    organize_members_deletes() {
-      if (JSON.stringify(this.user_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选机构成员?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.organize.organize_members_remove(this.org_code, this.user_ids).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {

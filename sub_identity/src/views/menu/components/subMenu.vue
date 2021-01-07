@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_menu@identity.menus']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="menu_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="menu_delete(menu_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -95,6 +95,9 @@ import menuUpdate from './menuUpdate'
 import menuAssignmentsCreate from './menuAssignmentsCreate'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import pageParams from '@/mixin/pageParams'
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   props: {
     device: {
@@ -107,6 +110,7 @@ export default {
     menuUpdate,
     menuAssignmentsCreate
   },
+  mixins: [paginationHandler, pageParams],
   data() {
     return {
       items: [
@@ -146,16 +150,7 @@ export default {
       assignPermission: false
     }
   },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
-    }
-  },
   created() {
-    this.get_page_params()
     this.fetchData()
     this.updatePermission = checkPermission(['ns://update_menu@identity.menus'])
     this.removePermission = checkPermission(['ns://remove_menu@identity.menus'])
@@ -177,16 +172,6 @@ export default {
         return this.parentMenu
       } else {
         return null
-      }
-    },
-    get_page_params() {
-      if (sessionStorage.getItem(this.$route.name)) {
-        const pageParams = JSON.parse(sessionStorage.getItem(this.$route.name))
-        if (this.$route.path === pageParams.path) {
-          this.text = pageParams.text
-          this.pagination.page = pageParams.page_index
-          this.page_size = pageParams.page_size
-        }
       }
     },
     handleSelectionChange(val) {
@@ -259,9 +244,6 @@ export default {
         this.dialogUpdate = true
       })
     },
-    set_session() {
-      sessionStorage.setItem(this.$route.name, JSON.stringify({ 'path': this.$route.path, 'text': this.text, 'page_index': this.pagination.page, 'page_size': this.page_size }))
-    },
     menu_info(menu_code, title) {
       this.set_session()
       let menu_name = 'menu_info'
@@ -271,6 +253,16 @@ export default {
       this.$router.push({ name: menu_name, query: { menu_code: menu_code, name: title }})
     },
     menu_delete(menu_id) {
+      let tips = '是否删除该菜单?'
+      if (Array.isArray(menu_id)) {
+        if (JSON.stringify(menu_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选菜单?'
+      }
       this.$confirm('是否删除该菜单?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -280,34 +272,6 @@ export default {
       })
         .then(() => {
           this.$Apis.menu.menu_remove(menu_id).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.refresh()
-            } else {
-              this.$alert(response.message, '提示', {
-                confirmButtonText: '确定'
-              })
-            }
-          })
-        })
-        .catch(() => {
-        })
-    },
-    menu_deletes() {
-      if (JSON.stringify(this.menu_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选菜单?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      })
-        .then(() => {
-          this.$Apis.menu.menu_remove(this.menu_ids).then(response => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.refresh()
             } else {

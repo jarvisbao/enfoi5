@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_group_role@identity.groups']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="group_role_deletes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="group_role_delete(role_codes)">
         删除所选
       </div>
       <div class="right-btn">
@@ -179,40 +179,23 @@ export default {
       this.operateData()
     },
     handleCurrentChange(val) {
-      console.log('val', val)
       this.pagination.page = val
       this.operateData()
     },
     group_role_delete(role_code) {
-      this.$confirm('是否删除该群组角色?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        const group_id = this.get_group_id()
-        this.role_codes = [role_code]
-        this.$Apis.group.group_role_remove(group_id, this.role_codes).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    group_role_deletes() {
-      if (JSON.stringify(this.role_codes) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
+      let tips = '是否删除该群组角色?'
+      let role_codes = [role_code]
+      if (Array.isArray(role_code)) {
+        if (JSON.stringify(role_code) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选群组角色?'
+        role_codes = role_code
       }
-      this.$confirm('是否删除所选群组角色?', '提示', {
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -220,7 +203,8 @@ export default {
         cancelButtonClass: 'cancel-button'
       }).then(() => {
         const group_id = this.get_group_id()
-        this.$Apis.group.group_role_remove(group_id, this.role_codes).then(response => {
+        // this.role_codes = [role_code]
+        this.$Apis.group.group_role_remove(group_id, role_codes).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {

@@ -5,7 +5,7 @@
       <div id="create" v-permission="['ns://create_wdget@identity.wdget']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-if="removePermission" class="btn create-btn delete" @click="removes">
+      <div v-if="removePermission" class="btn create-btn delete" @click="remove(wdgt_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -65,10 +65,13 @@
 import CommonTitle from '@/components/CommonTitle'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     CommonTitle
   },
+  mixins: [paginationHandler],
   data() {
     return {
       loading: false,
@@ -85,14 +88,6 @@ export default {
       removePermission: false,
       showPage: false,
       showColumn: false
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -182,7 +177,17 @@ export default {
       this.$router.push({ name: 'widget_edit', query: { wdgt_id: wdgt_id }})
     },
     remove(wdgt_id) {
-      this.$confirm('是否删除该组件?', '提示', {
+      let tips = '是否删除该组件?'
+      if (Array.isArray(wdgt_id)) {
+        if (JSON.stringify(wdgt_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选组件?'
+      }
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -193,34 +198,6 @@ export default {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {
-            alert(response.message)
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    removes() {
-      if (JSON.stringify(this.wdgt_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.$confirm('是否删除所选组件?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        this.$Apis.widget.widget_remove(this.wdgt_ids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            alert(response.message)
             this.$alert(response.message, '提示', {
               confirmButtonText: '确定'
             })

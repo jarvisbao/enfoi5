@@ -4,7 +4,7 @@
       <div id="create" v-permission="['ns://create_group_member@identity.groups', 'ref://create_group_member@{'+group_id+'}']" class="btn create-btn" @click="create">
         新建
       </div>
-      <div v-permission="['ns://remove_group_member@identity.groups', 'ref://remove_group_member@{'+group_id+'}']" class="btn create-btn delete" @click="group_members_deletes">
+      <div v-permission="['ns://remove_group_member@identity.groups', 'ref://remove_group_member@{'+group_id+'}']" class="btn create-btn delete" @click="group_members_delete(user_ids)">
         删除所选
       </div>
       <div class="right-btn">
@@ -67,10 +67,13 @@
 import groupMembersAdd from './groupMembersAdd'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+import paginationHandler from '@/mixin/paginationHandler'
+
 export default {
   components: {
     groupMembersAdd
   },
+  mixins: [paginationHandler],
   data() {
     return {
       items: [],
@@ -87,14 +90,6 @@ export default {
       group_id: null,
       showPage: false,
       loading: false
-    }
-  },
-  watch: {
-    'pagination.total': function(val) {
-      if (this.pagination.total === (this.pagination.page - 1) * this.page_size && this.pagination.total !== 0) {
-        this.pagination.page -= 1
-        this.fetchData()
-      }
     }
   },
   created() {
@@ -175,35 +170,19 @@ export default {
       this.operateData()
     },
     group_members_delete(user_id) {
-      this.$confirm('是否删除该群组成员?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'confirm-button',
-        cancelButtonClass: 'cancel-button'
-      }).then(() => {
-        const group_id = this.get_group_id()
-        this.user_ids = [user_id]
-        this.$Apis.group.group_members_remove(group_id, this.user_ids).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.fetchData()
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定'
-            })
-          }
-        })
-      }).catch(() => {
-      })
-    },
-    group_members_deletes() {
-      if (JSON.stringify(this.user_ids) === '[]') {
-        this.$alert('请选择要删除的条目！', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
+      let tips = '是否删除该群组成员?'
+      let user_ids = [user_id]
+      if (Array.isArray(user_id)) {
+        if (JSON.stringify(user_id) === '[]') {
+          this.$alert('请选择要删除的条目！', '提示', {
+            confirmButtonText: '确定'
+          })
+          return false
+        }
+        tips = '是否删除所选群组成员?'
+        user_ids = user_id
       }
-      this.$confirm('是否删除所选群组成员?', '提示', {
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -211,7 +190,8 @@ export default {
         cancelButtonClass: 'cancel-button'
       }).then(() => {
         const group_id = this.get_group_id()
-        this.$Apis.group.group_members_remove(group_id, this.user_ids).then(response => {
+        // this.user_ids = [user_id]
+        this.$Apis.group.group_members_remove(group_id, user_ids).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.fetchData()
           } else {

@@ -1,6 +1,18 @@
 <template>
   <div class="list-to-tree">
-    <el-tree ref="tree" :data="tree_items" :props="defaultProps" :filter-node-method="filterNode" :load="loadNode" :expand-on-click-node="false" lazy node-key="res_id" @node-click="handleNodeClick">
+    <el-tree
+      ref="tree"
+      :data="tree_items"
+      :props="defaultProps"
+      :filter-node-method="filterNode"
+      :load="loadNode"
+      :expand-on-click-node="false"
+      lazy
+      show-checkbox
+      check-strictly
+      node-key="res_id"
+      @node-click="handleNodeClick"
+    >
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}</span>
         <!-- <span class="tree-list" @click="go_resource_list(data)">查看列表</span> -->
@@ -14,8 +26,6 @@
   </div>
 </template>
 <script>
-import { instance as Vue } from '@/life-cycle'
-const EventBus = Vue.$Utils.EventBus
 export default {
   props: {
     updatePermission: {
@@ -50,23 +60,29 @@ export default {
     }
   },
   beforeDestroy() {
-    EventBus.$off('refreshTree')
-    EventBus.$off('delete-refresh')
-    EventBus.$off('add-refresh')
+    this.$Utils.EventBus.$off('refreshTree')
+    this.$Utils.EventBus.$off('delete-refresh')
+    this.$Utils.EventBus.$off('add-refresh')
   },
   mounted() {
     // 修改局部刷新
-    EventBus.$on('refreshTree', (res_id) => {
+    this.$Utils.EventBus.$on('refreshTree', (res_id) => {
       const node = this.$refs.tree.getNode(res_id)
       node.parent.loaded = false
       node.parent.expand()
     })
     // 删除数据回显
-    EventBus.$on('delete-refresh', res_id => {
-      this.$refs.tree.getNode(res_id).remove()
+    this.$Utils.EventBus.$on('delete-refresh', res_id => {
+      if (Array.isArray(res_id)) {
+        res_id.forEach(item => {
+          this.$refs.tree.getNode(item).remove()
+        })
+      } else {
+        this.$refs.tree.getNode(res_id).remove()
+      }
     })
     // 添加数据回显
-    EventBus.$on('add-refresh', (events) => {
+    this.$Utils.EventBus.$on('add-refresh', (events) => {
       if (events.parent_namespace) {
         const parendNode = this.$refs.tree.getNode(events.parent_id)
         this.$refs.tree.append(events, parendNode)
@@ -109,7 +125,8 @@ export default {
                 pNode: node.data,
                 isParent: false,
                 isTree: true,
-                leaf: true
+                leaf: true,
+                disabled: true
               })
             }
             resolve(treeItems)
@@ -138,7 +155,8 @@ export default {
                     pNode: node.data,
                     isParent: false,
                     isTree: false,
-                    leaf: true
+                    leaf: true,
+                    disabled: true
                   })
                 }
                 resolve(data)
@@ -183,6 +201,9 @@ export default {
           }
         })
       }
+    },
+    checkHandle() {
+      return this.$refs.tree.getCheckedKeys()
     }
   }
 }

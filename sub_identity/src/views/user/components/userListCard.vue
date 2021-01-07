@@ -1,6 +1,6 @@
 <template>
   <el-scrollbar v-loading="loadingData" wrap-class="scrollbar-wrapper" class="infinite-list-wrapper">
-    <div v-infinite-scroll="load" infinite-scroll-disabled="disabled" infinite-scroll-distance="10" class="user-list-card clearfix">
+    <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" infinite-scroll-distance="10" class="user-list-card clearfix">
       <el-checkbox-group v-model="checkList" class="card-box" @change="handleCheckedChange">
         <div v-for="(item, index) in cardItems" :key="index" class="card-item">
           <el-checkbox :label="item.openid" />
@@ -34,8 +34,6 @@
   </el-scrollbar>
 </template>
 <script>
-import { instance as Vue } from '@/life-cycle'
-const EventBus = Vue.$Utils.EventBus
 export default {
   filters: {
     toChina(str) {
@@ -63,12 +61,6 @@ export default {
     }
   },
   props: {
-    items: {
-      type: Array,
-      default() {
-        return []
-      }
-    },
     openids: {
       type: Array,
       default() {
@@ -127,23 +119,22 @@ export default {
   watch: {
     cardRefresh: {
       handler(val) {
-        console.log('222', val)
       }
     }
   },
   created() {
     this.pageCount = this.pagination.pages
     this.fetchData()
-    EventBus.$on('search', () => {
+  },
+  methods: {
+    search() {
       this.cardItems = []
       this.loadingData = true
       this.loading = true
       // this.noMore = false
       this.cardPagination.page = 1
       this.get_datalist(this.cardPagination.page)
-    })
-  },
-  methods: {
+    },
     user_update(item) {
       this.$emit('user_update', item.openid)
     },
@@ -183,6 +174,7 @@ export default {
               })
             }
           })
+          this.pageCount = response.payload.pagination.pages
           this.cardItems = this.cardItems.concat(response.payload.items)
           this.loading = false
           this.loadingData = false
