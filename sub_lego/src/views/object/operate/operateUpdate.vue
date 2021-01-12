@@ -73,7 +73,7 @@
             </el-form-item>
           </template>
           <template v-if="operate.operate_type===4||operate.operate_type===5||operate.operate_type===6||operate.operate_type===7||operate.operate_type===8||operate.operate_type===9">
-            <el-form-item label="URL地址" prop="url">
+            <el-form-item label="URL地址" prop="uri">
               <el-input id="operateUrl" v-model="operate.uri" />
               <div class="tips">
                 url地址以 http:// 或 / 开头
@@ -99,8 +99,9 @@
             </div>
           </el-form-item>
           <template v-if="operate.operate_type===3">
-            <el-form-item label="重定义接口URI">
+            <el-form-item label="重定义接口URI" prop="uri">
               <el-input id="operateUrl" v-model="operate.uri" />
+              <div class="tips">url地址以 http:// 或 / 开头, 并传入参数data，data格式{"object_id":object_id,"page_id":page_id,"ids":ids,"mtd_code":mtd_code}；</div>
             </el-form-item>
             <el-form-item label="打开方式">
               <el-select id="openType" v-model="operate.uriopentype" placeholder="请选择">
@@ -115,7 +116,7 @@
               <el-input v-model="operate.start_rows_input" type="number" min="0" @input="operate.start_rows_input=operate.start_rows_input.replace(/[^\d]/g, '')" />
             </el-form-item>
             <el-form-item label="文件导入列名">
-              <el-input v-model="operate.cols_name_input"/>
+              <el-input v-model="operate.cols_name_input" />
               <div class="tips">多个列名用管道符“|”隔开</div>
             </el-form-item>
             <!-- <el-form-item label="文件导入脚本操作">
@@ -282,7 +283,7 @@ export default {
         operate_name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
         operate_code: [{ required: true, message: '请输入编码', trigger: 'blur' }],
         operate_type: { required: true, message: '请选择类型', trigger: 'change' },
-        url: { validator: validateUrl, trigger: 'blur' }
+        uri: { validator: validateUrl, trigger: 'blur' }
       },
       activeName: 'first',
       code_placeholder: '',

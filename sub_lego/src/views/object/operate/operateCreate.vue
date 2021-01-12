@@ -74,7 +74,7 @@
             </el-form-item>
           </template>
           <template v-if="operate.operate_type===4||operate.operate_type===5||operate.operate_type===6||operate.operate_type===7||operate.operate_type===8||operate.operate_type===9">
-            <el-form-item label="URL地址" prop="url">
+            <el-form-item label="URL地址" prop="uri">
               <el-input id="operateUrl" v-model="operate.uri" />
               <div class="tips">
                 url地址以 http:// 或 / 开头
@@ -100,8 +100,9 @@
             </div>
           </el-form-item>
           <template v-if="operate.operate_type===3">
-            <el-form-item label="重定义接口URI">
+            <el-form-item label="重定义接口URI" prop="uri">
               <el-input id="operateUrl" v-model="operate.uri" />
+              <div class="tips">url地址以 http:// 或 / 开头, 并传入参数data，data格式{"object_id":object_id,"page_id":page_id,"ids":ids,"mtd_code":mtd_code}；</div>
             </el-form-item>
             <el-form-item label="打开方式">
               <el-select id="openType" v-model="operate.uriopentype" placeholder="请选择">
@@ -241,7 +242,7 @@ export default {
         editval: '', // 设置值
         apply_condition: '', // 本操作适用条件
         confirm_msg: '', // 确认执行操作的提示信息
-        uri: '', // URI or URL地址
+        // uri: '', // URI or URL地址
         uriopentype: '0', // 页面打开方式
         summary: '', // 描述
         start_rows_input: null, // 文件导入起始行
@@ -309,7 +310,7 @@ export default {
         operate_name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
         operate_code: [{ required: true, message: '请输入编码', trigger: 'blur' }],
         operate_type: { required: true, message: '请选择类型', trigger: 'change' },
-        url: [{ validator: validateUrl, trigger: 'blur' }]
+        uri: [{ validator: validateUrl, trigger: 'blur' }]
       },
       activeName: 'first',
       code_placeholder: '',
@@ -387,8 +388,11 @@ export default {
           const pyafteredit2 = this.operate.pyafteredit2
           const icon = this.operate.icon
           const btn_color = this.operate.btn_color
-          let design_form = JSON.parse(this.operate.design_form)
-          design_form.config.id = this.proj_code + '-' + this.object_code
+          let design_form = null
+          if (this.operate.operate_type === 2 || this.operate.operate_type === 3) {
+            design_form = JSON.parse(this.operate.design_form)
+            design_form.config.id = this.proj_code + '-' + this.object_code
+          }
           design_form = JSON.stringify(design_form)
           this.$Apis.object.method_create(this.object_id, operate_name, operate_type, operate_code, edit_prop, view_prop, editval,
             apply_condition, confirm_msg, uri, uriopentype, summary, start_rows_input, cols_name_input, import_py,

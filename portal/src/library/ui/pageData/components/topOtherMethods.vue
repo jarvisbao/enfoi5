@@ -17,8 +17,7 @@
       :on-change="changeUpload"
       action=""
       style="display: none"
-    >
-    </el-upload>
+    />
   </div>
 </template>
 <script>
@@ -67,3 +66,12 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.operate-btn {
+  padding: 0 !important;
+  span {
+    display: block;
+    padding: 8px 22px;
+  }
+}
+</style>

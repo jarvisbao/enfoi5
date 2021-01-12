@@ -22,7 +22,16 @@
       </el-form-item>
     </el-form>
     <div v-else>
-      <fm-generate-form ref="generateForm" v-if="fmshow" :data="design_form" :remote="remoteFuncs" :design-fields="batchData" @handle-submit="handleSubmit" @handle-back="handleReset" />
+      <fm-generate-form
+        ref="generateForm"
+        v-if="fmshow"
+        :data="design_form"
+        :remote="remoteFuncs"
+        :value="editData"
+        :design-fields="batchData"
+        @handle-submit="handleSubmit"
+        @handle-back="handleReset"
+      />
       <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
         <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
           立即修改
@@ -107,7 +116,8 @@ export default {
       fmshow: false,
       styleObject: null,
       mtd_code: undefined,
-      custom_btn: false
+      custom_btn: false,
+      editData: {}
     }
   },
   created() {
@@ -127,7 +137,7 @@ export default {
           if (method.operate_type === 3 || method.operate_type === 2) {
             this.design_form = JSON.parse(method.design_form)
             if (this.design_form) {
-              this.fmshow = true
+              // this.fmshow = true
               this.styleObject = {
                 paddingLeft: this.design_form.config.labelWidth + 'px'
               }
@@ -136,6 +146,12 @@ export default {
               }
             }
           }
+          this.$Apis.object.data_info(this.object_id, this.ids, this.mtd_code, this.page_id).then(data => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.editData = data.payload
+              this.fmshow = true
+            }
+          })
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'

@@ -1,16 +1,21 @@
 <template>
   <div class="app-container">
     <div class="action-btn">
-      <div class="right-btn">
-        <el-button type="text" @click="query" style="margin-right: 10px">
-          查询
-        </el-button>
+      <div class="right-btn" style="display: flex; justify-content: flex-end;">
+        <set-query
+          ref="setQuery"
+          :proj_code="proj_code"
+          :object_code="object_code"
+          :page_code="page_code"
+          :is-bycode="true"
+          @getQueryData="getQueryData"
+        />
         <el-input id="search" v-model="text" prefix-icon="el-icon-search" placeholder="请输入内容" class="search-input" @keyup.enter.native="schfilter" />
       </div>
     </div>
     <el-table
       v-loading="loading"
-      :data="items"
+      :data="datas"
       tooltip-effect="dark"
       style="width: 100%"
       @selection-change="handleSelectionChange"
@@ -66,9 +71,6 @@
         </el-button>
       </div>
     </div>
-    <el-dialog v-if="dialogSearch" :visible.sync="dialogSearch" title="查询" :close-on-click-modal="false" append-to-body>
-      <set-query :proj_code="proj_code" :object_code="object_code" :page_code="page_code" :is-bycode="true" @show="isQueryShow" @getQueryData="getQueryData" />
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -108,27 +110,21 @@ export default {
     items: {
       type: Array,
       default: () => []
-    },
-    pagination: {
-      type: Object,
-      default: () => {}
     }
   },
   data() {
     return {
       loading: false,
-      // headers: [],
-      // items: [],
+      datas: [],
       pageSize: 10,
       text: null,
-      // pagination: {
-      //   total: 10,
-      //   page: 1
-      // },
+      pagination: {
+        total: 10,
+        page: 1
+      },
       page_size: 10,
       layout: 'sizes, prev, pager, next',
-      chooseItems: this.select2Items,
-      dialogSearch: false
+      chooseItems: this.select2Items
     }
   },
   watch: {
@@ -138,11 +134,14 @@ export default {
       }
     }
   },
+  mounted() {
+    this.datas = this.items
+  },
   methods: {
     operateData() {
       this.$Apis.object.data_list_by_code(this.proj_code, this.object_code, this.page_code, this.text, this.pagination.page, this.page_size, true, this.filters, true).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.items = response.payload.items
+          this.datas = response.payload.items
           this.pagination = response.payload.pagination
         } else {
           this.$alert(response.message, '提示', {
@@ -187,24 +186,18 @@ export default {
     close() {
       this.$emit('isShow')
     },
-    query() {
-      this.dialogSearch = !this.dialogSearch
-    },
-    isQueryShow() {
-      this.dialogSearch = !this.dialogSearch
-    },
     getQueryData(params) {
       const queryparam = []
       params.forEach(item => {
         queryparam.push(Object.values(item).join(''))
       })
-      this.$Apis.object.data_list_by_code(this.proj_code, this.object_code, this.page_code, this.text, this.pagination.page, this.page_size, true, this.filters, true).then(response => {
+      this.$Apis.object.data_list_by_code(this.proj_code, this.object_code, this.page_code, this.text, this.pagination.page, this.page_size, true, queryparam, true).then(response => {
         this.loading = true
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-          this.items = response.payload.items
+          this.datas = response.payload.items
           this.pagination = response.payload.pagination
           this.loading = false
-          this.isQueryShow()
+          this.$refs.setQuery.handleReset()
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'

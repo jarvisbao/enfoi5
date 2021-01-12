@@ -245,6 +245,7 @@ export default {
     get_page_info() {
       this.$Apis.object.page_info_by_code(this.proj_code, this.object_code, this.page_code).then(response => {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          this.is_view = response.payload.is_view
           this.can_create = response.payload.can_create
         } else {
           this.$alert(response.message, '提示', {
@@ -272,6 +273,7 @@ export default {
           this.objectData.push(data)
         }
         this.innerObjVisible = !this.innerObjVisible
+        this.isUpdate = false
       }).catch(e => {
         // 数据校验失败
       })
@@ -351,7 +353,7 @@ export default {
     }
   }
   & ::v-deep.el-table thead tr th {
-    background: #f5f7fa;
+    background: #f5f7fa !important;
     color: #909399;
   }
 }

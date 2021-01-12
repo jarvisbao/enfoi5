@@ -9,7 +9,7 @@
       <div class="main-container">
         <navbar />
         <section class="app-main">
-          <div v-if="$route.meta.isBack" class="enfo-header-tips">
+          <div v-if="$route.meta.isBack && show" class="enfo-header-tips">
             <span class="goback" @click="goBack"><i class="el-icon-arrow-left" />返回</span>
             <div v-if="$route.query.name" class="current-state">
               {{ $route.query.name }}
@@ -35,18 +35,19 @@ export default {
     Sidebar
   },
   mixins: [ResizeMixin],
+  // 提供可注入子组件属性
+  provide() {
+    return {
+      refresh: this.refresh
+    }
+  },
   data() {
     return {
       isShow: true,
       menu_code: null,
       qiankun: window.__POWERED_BY_QIANKUN__,
-      inIframe: false
-    }
-  },
-  // 提供可注入子组件属性
-  provide() {
-    return {
-      refresh: this.refresh
+      inIframe: false,
+      show: true
     }
   },
   computed: {
@@ -66,11 +67,6 @@ export default {
     },
     reload() {
       return this.$store.state.app.reload
-    }
-  },
-  created() {
-    if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
-      this.inIframe = true
     }
   },
   watch: {
@@ -95,7 +91,28 @@ export default {
       }
     }
   },
+  created() {
+    if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
+      this.inIframe = true
+    }
+  },
+  mounted() {
+    if (window.history.length < 2) {
+      this.show = false
+    }
+    window.addEventListener('popstate', this.getHistory)
+  },
+  destroyed() {
+    window.removeEventListener('popstate', this.getHistory)
+  },
   methods: {
+    getHistory() {
+      if (window.history.length < 2) {
+        this.show = false
+      } else {
+        this.show = true
+      }
+    },
     refresh() {
       this.isShow = false
       this.$nextTick(() => {

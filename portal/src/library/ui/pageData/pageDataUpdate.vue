@@ -75,7 +75,8 @@ export default {
       designFields: [],
       objid: null,
       inIframe: false,
-      custom_btn: false
+      custom_btn: false,
+      reloadUri: null
     }
   },
   computed: {
@@ -93,13 +94,15 @@ export default {
         if (val.headersAll.length > 0 && val.design_form) {
           const design_form = JSON.parse(val.design_form)
           this.designFields = val.headersAll
-          this.jsonData = design_form
-          this.show = true
-          this.styleObject = {
-            paddingLeft: design_form.config.labelWidth + 'px'
-          }
-          if (design_form.config.button === undefined) {
-            this.custom_btn = true
+          if (design_form) {
+            this.jsonData = design_form
+            this.show = true
+            this.styleObject = {
+              paddingLeft: design_form.config.labelWidth + 'px'
+            }
+            if (design_form.config.button === undefined) {
+              this.custom_btn = true
+            }
           }
         }
       }
@@ -153,6 +156,7 @@ export default {
           this.mtd_code = method.operate_code
           if (method.operate_type === 3) {
             this.design_form = method.design_form
+            this.reloadUri = method.uri
             this.fetchDate()
           } else {
             this.get_object_design()
@@ -178,7 +182,29 @@ export default {
     },
     handleSubmit() {
       this.$refs.generateForm.getData().then(data => {
-       this.$store.commit('SET_LOADING', true)
+      this.$store.commit('SET_LOADING', true)
+      if (this.reloadUri) {
+          this.$Utils.request({
+            url: this.reloadUri,
+            method: 'post',
+            data: {
+              object_id: this.object_id,
+              ids: this.objid,
+              fields: data,
+              mtd_code: this.mtd_code,
+              page_id: this.page_id
+            }
+          }).then(response => {
+            this.$alert(response.message, '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.handleReset()
+              }
+            })
+            this.$store.commit('SET_LOADING', false)
+          })
+          return
+       }
        this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_code, this.page_id).then(response => {
          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
            this.$alert(response.message, '提示', {

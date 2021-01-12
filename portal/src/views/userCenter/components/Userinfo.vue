@@ -26,7 +26,7 @@
           </div>
         </div>
       </div>
-      <el-form ref="userinfo" :model="userinfo" :rules="rules" label-width="120px">
+      <el-form ref="userinfo" :model="userinfo" :rules="rules" label-width="130px">
         <el-form-item label="姓名">
           <el-input v-model="userinfo.full_name" :disabled="true" />
         </el-form-item>

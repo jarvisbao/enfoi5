@@ -41,7 +41,7 @@
       >
         <template slot-scope="scope">
           <div v-for="item in scope.row.buttons.slice(0, 3)" :key="item.action">
-            <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)">
+            <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)" style="cursor:pointer">
               <i v-if="item.icon" :class="item.icon" :title="item.name" />
               <span v-else>{{ item.name }}</span>
             </span>
@@ -200,3 +200,22 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.dlink /deep/ a {
+  margin: 0 3px;
+  color: #409eff;
+}
+[class*=" icon-"], [class^=icon-] {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.cell [class*=" icon-"], .cell [class^=icon-] {
+  margin: 0 3px;
+  font-size: 18px;
+  cursor: pointer;
+  color: #c5c5c5;
+}
+</style>

@@ -220,7 +220,7 @@ export default {
   mounted() {
     const _that = this
     window.addEventListener('message', function(e){
-      if(e.data.msg === 'closeDialog'){
+      if (e.data.msg === 'closeDialog'){
         _that.closeDialog()
       }
     }, false)
@@ -455,51 +455,5 @@ export default {
         bottom: 0;
       }
     }
-  }
-  .pagedata /deep/ .scrollbar-container {
-    display: flex;
-    max-height: 400px;
-    .generateform-box {
-      width: 100%;
-    }
-    .handle-btn {
-      width: 100%;
-      margin-bottom: 5px;
-    }
-  }
-  .col-operate {
-    display: flex;
-    flex-wrap: wrap;
-    .col-operate-btn {
-      display: block;
-      margin: 2px 4px;
-      color: #909399;
-      background: #f4f4f5;
-      border-color: #d3d4d6;
-    }
-  }
-  .app-container .action-btn .operate-btn {
-    padding: 0;
-    span {
-      display: block;
-      padding: 8px 22px;
-    }
-  }
-  .dlink /deep/ a {
-    margin: 0 3px;
-    color: #409eff;
-  }
-  [class*=" icon-"], [class^=icon-] {
-    font-family: "iconfont" !important;
-    font-size: 16px;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  .cell [class*=" icon-"], .cell [class^=icon-] {
-    margin: 0 3px;
-    font-size: 18px;
-    cursor: pointer;
-    color: #c5c5c5;
   }
 </style>

@@ -83,7 +83,8 @@
         :page_id="page_id"
         :reload-uri="reloadUri"
         @show="isCreateShow"
-        @refresh="refresh" />
+        @refresh="refresh"
+      />
       <object-update
         v-else
         :object_id="object_id"
@@ -93,7 +94,8 @@
         :page_id="page_id"
         :reload-uri="reloadUri"
         @show="isCreateShow"
-        @refresh="refresh" />
+        @refresh="refresh"
+      />
     </el-dialog>
     <el-dialog v-if="dialogMtd" :visible.sync="dialogMtd" :title="mtdTitle" :close-on-click-modal="false" width="85%" append-to-body>
       <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
@@ -197,7 +199,7 @@ export default {
   mounted() {
     const _that = this
     window.addEventListener('message', function(e){
-      if(e.data.msg === 'closeDialog'){
+      if (e.data.msg === 'closeDialog'){
         _that.closeDialog()
       }
     }, false)
@@ -455,7 +457,7 @@ export default {
     }
   }
   & ::v-deep.el-table thead tr th {
-    background: #f5f7fa;
+    background: #f5f7fa !important;
     color: #909399;
   }
   .action-btn {
@@ -463,10 +465,12 @@ export default {
       ::v-deep.btn {
         margin-left: 10px;
         margin-right: 0;
-        padding: 9px 15px;
         border-radius: 3px;
         line-height: 1;
         font-size: 12px;
+        span {
+          padding: 9px 15px;
+        }
         &:hover, &:focus {
           color: #409EFF;
           border-color: #c6e2ff;

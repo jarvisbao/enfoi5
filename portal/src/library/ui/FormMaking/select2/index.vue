@@ -24,7 +24,6 @@
         :option="option"
         :headers="headers"
         :items="items"
-        :pagination="pagination"
         :select2-items="select2Items"
         @getChoose="getChoose"
         @isShow="isShow"

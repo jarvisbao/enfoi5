@@ -149,6 +149,7 @@ export default {
             }
           }).catch(() => {})
         } else {
+          // eslint-disable-next-line no-lonely-if
           if (item.uriopentype === '0') {
             window.open(route.href, '_blank')
           } else if (item.uriopentype === '1') {
@@ -159,7 +160,6 @@ export default {
           // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }
       }
-      
     },
     // 定制操作POST
     clickType4(item, row, isOuterObj) {

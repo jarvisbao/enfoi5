@@ -735,7 +735,7 @@ export default {
       if (Array.isArray(value)) {
         const arr = []
         if (this.dataModel && Array.isArray(this.dataModel)) {
-          for(var i = 0; i < this.dataModel.length; i++) {
+          for (var i = 0; i < this.dataModel.length; i++) {
             if (this.dataModel[i]) {
               if (!this.dataModel.toString().match(/##(\S*)##/)) {
                 arr.push(true)
@@ -808,7 +808,9 @@ export default {
     }
 
     if (this.widget.type === 'date' && this.widget.options.defaultValue && this.widget.options.type !== 'dates') {
-      this.dataModel = fecha.format(new Date(this.dataModel), this.widget.options.format)
+      if (this.isDate(this.dataModel)) {
+        this.dataModel = fecha.format(new Date(this.dataModel), this.widget.options.format)
+      }
     }
   },
   mounted() {
@@ -819,6 +821,12 @@ export default {
   destroyed() {
   },
   methods: {
+    isDate(date) {
+      if (date === null || date === undefined) return false
+      if (isNaN(new Date(date).getTime())) return false
+      if (Array.isArray(date)) return false // deal with `new Date([ new Date() ]) -> new Date()`
+      return true
+    },
     getRemoteData() {
       return new Promise((resolve, reject) => {
         let uri = ''

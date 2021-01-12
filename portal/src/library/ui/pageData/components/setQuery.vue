@@ -3,7 +3,7 @@
     <el-button type="text" @click="query" style="margin-right: 10px">
       查询
     </el-button>
-    <el-dialog v-if="dialogSearch" :visible.sync="dialogSearch" title="查询" :close-on-click-modal="false" style="text-align:left">
+    <el-dialog v-if="dialogSearch" :visible.sync="dialogSearch" title="查询" :close-on-click-modal="false" append-to-body style="text-align:left">
       <div v-if="items.length < 1">
         没有可参与查询的字段，请先到业务类中设置
       </div>
@@ -12,13 +12,13 @@
           <div style="display: flex; justify-content: space-between;">
             <el-select id="operator" v-model="item.operator" clearable placeholder="请选择" style="width: 35%">
               <el-option
-                v-for="item in operators"
-                :key="item.label"
-                :label="item.label"
-                :value="item.operator"
+                v-for="opera in operators"
+                :key="opera.label"
+                :label="opera.label"
+                :value="opera.operator"
               >
-                <span style="float: left">{{ item.label }}</span>
-                <span style="float: right; margin-right: 15px; color: #8492a6;">{{ item.operator }}</span>
+                <span style="float: left">{{ opera.label }}</span>
+                <span style="float: right; margin-right: 15px; color: #8492a6;">{{ opera.operator }}</span>
               </el-option>
             </el-select>
             <el-input v-model="item.queryValue" style="width: 60%;" />
