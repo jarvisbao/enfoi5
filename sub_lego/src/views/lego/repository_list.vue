@@ -334,7 +334,7 @@ export default {
     },
     repository_test(repo_id) {
       this.$Apis.repository.repository_test(repo_id).then(response => {
-        if (response.payload === 'True') {
+        if (['True', 'true', true].includes(response.payload)) {
           this.$alert('连接成功', '提示', {
             confirmButtonText: '确定'
           })

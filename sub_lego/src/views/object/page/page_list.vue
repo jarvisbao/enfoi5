@@ -292,7 +292,12 @@ export default {
     },
     data_view(row) {
       this.set_session()
-      this.$router.push({ name: 'data', query: { object_id: row.object_id, page_id: row.page_id, name: row.page_name }})
+      const route = this.$router.resolve({
+        name: 'data',
+        query: { object_id: row.object_id, page_id: row.page_id, name: row.page_name }
+      })
+      window.open(route.href, '_blank')
+      // this.$router.push({ name: 'data', query: { object_id: row.object_id, page_id: row.page_id, name: row.page_name }})
     },
     isShow() {
       this.dialogVisible = !this.dialogVisible

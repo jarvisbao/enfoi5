@@ -322,7 +322,12 @@ export default {
     },
     data_view(row) {
       this.set_session()
-      this.$router.push({ name: 'data', query: { object_id: row.object_id, name: row.object_name }})
+      const route = this.$router.resolve({
+        name: 'data',
+        query: { object_id: row.object_id, name: row.object_name }
+      })
+      window.open(route.href, '_blank')
+      // this.$router.push({ name: 'data', query: { object_id: row.object_id, name: row.object_name }})
     },
     isShow() {
       this.dialogVisible = !this.dialogVisible
