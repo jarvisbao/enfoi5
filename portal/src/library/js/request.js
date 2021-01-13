@@ -14,9 +14,10 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     const qs = require('qs')
+
     if (config.method === 'get') {
       // 如果是get请求，且params是数组类型如arr=[1,2]，则转换成arr=1&arr=2
-      config.paramsSerializer = function(params) {
+      config.paramsSerializer = function (params) {
         return qs.stringify(params, { arrayFormat: 'repeat' })
       }
     }
@@ -31,9 +32,10 @@ service.interceptors.request.use(
   },
   error => {
     // Do something with request error
-    console.log(error) // for debug
+    // console.log(error) // for debug
     Message.error(error.message || 'Server error, please contact administrator')
-    Promise.reject(error)
+    // Promise.reject(error)
+    return Promise.reject(error)
   }
 )
 
@@ -53,7 +55,7 @@ service.interceptors.response.use(
         })
       })
       Message.error(
-        response.data.message || 'Verification failed, please login again'
+        response.data.message || '验证失败，请重新登录'
       )
       return Promise.reject('error')
     } else {
@@ -64,9 +66,10 @@ service.interceptors.response.use(
     }
   },
   error => {
-  // Do something with request error
-    console.log(error.response)
+    // Do something with request error
+    // console.log(error.response)
     let message = 'Server error, please contact administrator'
+
     if (error.response && error.response.data && Object.prototype.toString.call(error.response.data) && 'message' in error.response.data) {
       message = error.response.data.message
     } else {
@@ -74,7 +77,8 @@ service.interceptors.response.use(
     }
     Message.error(message)
     store.commit('SET_LOADING', false) // 取消按钮loading 状态
-    Promise.reject(error)
+    // Promise.reject(error)
+    return Promise.reject(error)
   }
 )
 

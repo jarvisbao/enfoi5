@@ -5,37 +5,44 @@
 import request from '@/library/js/request'
 import { get_server_cryptor } from '@/library/js/cryptor'
 
-export function repository_create(db_uri, name, options) {
+export function repository_create(db_uri, name, options, validation) {
   /**
    * @method repository_create
    * @param db_uri: 仓库连接的URI
    * @param name: 仓库名称
    * @param options: 连接参数
+   * @param validation 验证参数
    */
   var cryptor = get_server_cryptor()
+
   db_uri = cryptor.encrypt(db_uri)
+  validation = validation ? cryptor.encrypt(validation) : validation
   return request({
     url: '/rpcgateway/RepositoryService/create',
     method: 'post',
     data: {
       name: name,
       dburi: db_uri,
-      options: options
+      options: options,
+      validation
     },
     headers: { signature: true }
   })
 }
 
-export function repository_edit(name, db_uri, new_name, options) {
+export function repository_edit(name, db_uri, new_name, options, validation) {
   /**
    * @method repository_edit
    * @param repo_id 被修改的仓库id
    * @param db_uri: 仓库连接的URI
    * @param name: 仓库名称
    * @param options: 连接参数
+   * @param validation 验证参数
    */
   var cryptor = get_server_cryptor()
+
   db_uri = cryptor.encrypt(db_uri)
+  validation = validation ? cryptor.encrypt(validation) : validation
   return request({
     url: '/rpcgateway/RepositoryService/update_by_name',
     method: 'post',
@@ -43,7 +50,8 @@ export function repository_edit(name, db_uri, new_name, options) {
       name: name,
       new_name: new_name,
       dburi: db_uri,
-      options: options
+      options: options,
+      validation
     },
     headers: { signature: true }
   })

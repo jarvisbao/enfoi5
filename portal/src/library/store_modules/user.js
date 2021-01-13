@@ -12,7 +12,7 @@ import path from 'path'
 
 let ppath = ''
 const routes = []
-const getRoutes = function(data) {
+const getRoutes = function (data) {
   data.forEach(item => {
     if (item.path.indexOf('404') === -1 && item.path.indexOf('401') === -1 && item.path !== '/') {
       if (item.children) {
@@ -24,6 +24,7 @@ const getRoutes = function(data) {
     }
   })
 }
+
 getRoutes(router.options.routes)
 
 const user = {
@@ -109,6 +110,7 @@ const user = {
     // 登录
     Login({ commit }, userInfo) {
       const username = userInfo.username.trim()
+
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
           if (response.code === Constlib.ERROR_CODE_OK) {
@@ -185,6 +187,7 @@ const user = {
         user_myroles().then(response => {
           if (response.code === Constlib.ERROR_CODE_OK) {
             var roles = []
+
             response.payload.forEach(item => {
               roles.push(item.role_code)
             })
@@ -237,7 +240,7 @@ const user = {
       })
     },
     // 获取用户的所属群组列表
-    GetUserGroups({commit, state}, openid) {
+    GetUserGroups({ commit, state }, openid) {
       return new Promise((resolve, reject) => {
         user_mygroups(openid).then(response => {
           if (response.code === Constlib.ERROR_CODE_OK) {
@@ -258,7 +261,8 @@ const user = {
               const name = response.payload.full_name
               const openid = response.payload.openid
               const userinfo = response.payload
-              const userProps = JSON.parse(JSON.stringify(response.payload.props))
+              const userProps = response.payload.props ? JSON.parse(JSON.stringify(response.payload.props)) : {}
+
               if (!userProps.theme) {
                 userProps.theme = 'black'
               }
@@ -289,16 +293,20 @@ const user = {
             }
             if (state.avatar.length <= 0) {
               const attach_id = response.payload.head_id
+
               if (!attach_id) {
                 const avatar = require('@/assets/images/user_default.png')
+
                 commit('SET_AVATAR', avatar)
               } else {
                 download_attachment_by_id(attach_id).then(response => {
                   if (response.code === Constlib.ERROR_CODE_OK) {
                     const avatar = response.payload.content
+
                     commit('SET_AVATAR', avatar)
                   } else {
                     const avatar = require('@/assets/images/user_default.png')
+
                     commit('SET_AVATAR', avatar)
                   }
                 })
@@ -356,10 +364,12 @@ const user = {
             const portal = [{
               name: 'portal'
             }]
+
             commit('SET_APPCONFIG', portal.concat(response.payload.items))
             const app_config_path = response.payload.items.map(item => {
               return item.routerBase
             })
+
             commit('SET_ROUTES', routes.concat(app_config_path))
           }
           resolve(response)
