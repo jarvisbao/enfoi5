@@ -76,7 +76,7 @@ service.interceptors.response.use(
       message = error.message
     }
     Message.error(message)
-    store.commit('SET_LOADING', false) // 取消按钮loading 状态
+    // store.commit('SET_LOADING', false) // 取消按钮loading 状态  删除
     // Promise.reject(error)
     return Promise.reject(error)
   }

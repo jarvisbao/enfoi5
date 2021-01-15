@@ -3,13 +3,13 @@ import Cookies from 'js-cookie'
 const app = {
   state: {
     sidebar: {
-      opened: !+Cookies.get('sidebarStatus'),
+      opened: !Number(Cookies.get('sidebarStatus')),
       withoutAnimation: false
     },
     device: 'desktop',
     reload: '',
     vue_app_name: process.env.VUE_APP_NAME,
-    loading: false,
+    // loading: false, 删除
     platform: null
   },
   mutations: {
@@ -41,9 +41,9 @@ const app = {
     SET_VUE_APP_NAME: (state, vue_app_name) => {
       state.vue_app_name = vue_app_name
     },
-    SET_LOADING: (state, loading) => {
-      state.loading = loading
-    },
+    // SET_LOADING: (state, loading) => {  删除
+    //   state.loading = loading
+    // },
     SET_PLATFORM: (state, platform) => {
       state.platform = platform
     }
@@ -67,9 +67,9 @@ const app = {
     getVueAppName({ commit }, vue_app_name) {
       commit('SET_VUE_APP_NAME', vue_app_name)
     },
-    getLoading({ commit }, loading) {
-      commit('SET_LOADING', loading)
-    },
+    // getLoading({ commit }, loading) {  删除
+    //   commit('SET_LOADING', loading)
+    // },
     SetPlatform({ commit }, platform) {
       commit('SET_PLATFORM', platform)
     }
@@ -79,7 +79,7 @@ const app = {
     device: state => state.device,
     reload: state => state.reload,
     vue_app_name: state => state.vue_app_name,
-    loading: state => state.loading,
+    // loading: state => state.loading,  删除
     platform: state => state.platform
   }
 }

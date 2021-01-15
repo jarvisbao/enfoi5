@@ -23,9 +23,6 @@
         <el-button id="cancel" plain @click="resetForm('form')">
           取消
         </el-button>
-        <div class="red-error" v-if="submitFailed">
-          <i class="el-icon-error" />&nbsp;{{ submitErrMsg }}，添加失败，请重试
-        </div>
       </el-form-item>
     </el-form>
   </div>
@@ -78,9 +75,7 @@
         loading: false, // 提交请求的状态（按钮动画效果），加载状态为true，加载结束为false
         options_key: '',
         options_value: '',
-        optionsItems: [],
-        submitFailed: false, // 提交状态，判断是否提交失败，失败为true，成功为false，默认:false
-        submitErrMsg: '' // 提交的错误信息，默认：'',类型：String
+        optionsItems: []
       }
     },
     created() {
@@ -107,7 +102,6 @@
                 if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
                   // 初始化提交请求的状态和提交状态
                   this.loading = false
-                  this.submitFailed = false
                   this.$alert('更新成功!', '提示', {
                     confirmButtonText: '确定',
                     callback: action => {
@@ -121,40 +115,12 @@
                     callback: action => {
                       // 初始化提交请求的状态和提交状态
                       this.loading = false
-                      this.submitFailed = false
                     }
                   })
                 }
               })
-              .catch(err => { // 若响应发生错误,提交按钮下显示提示信息
-                const Constlib = this.$Utils.Constlib, // 常量库
-                  code = err.response.data.code ? err.response.data.code :
-                    0, // 获取响应状态码，若没有状态码属性或影响格式不正确，设置为0，类型：Number
-
-                  /**
-                   * @description 判断网络错误类型
-                   * @param networkCode 服务器响应数据中的code属性，默认：0，类型：Number
-                   * @returns 返回对应错误代码的提示信息，类型：String
-                   */
-                  // 判断网络错误类型，返回对应类型提示信息
-                  networkErrorType = (networkCode = 0) => {
-                    for (var k in Constlib) {
-                      if (Constlib[k] == networkCode) {
-                        return Constlib.ErrorMessage[k]
-                      }
-                    }
-                    return '未知错误'
-                  }
-
-                if (code) { //判断code属性是否存在
-                  this.submitErrMsg = networkErrorType(code)
-                } else {
-                  this.submitErrMsg = '服务器错误';
-                }
-                // 初始化提交请求的状态
+              .catch(err => { // 处理响应错误
                 this.loading = false
-                // 设置提交为失败状态
-                this.submitFailed = true
               })
           } else {
             return false
