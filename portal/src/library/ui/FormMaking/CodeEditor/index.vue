@@ -22,7 +22,7 @@ export default {
       default: 'xml'
     },
     value: {
-      type: [String, Object],
+      type: [String, Object, Array],
       default: ''
     }
   },

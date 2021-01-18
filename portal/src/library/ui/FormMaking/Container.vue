@@ -598,7 +598,7 @@ export default {
           json.config.events[event_name].args = args
         }
       }
-      if(json.config.button === undefined) {
+      if (json.config.button === undefined) {
         json.config.button = {
           onsubmit: {
             label: '提交',

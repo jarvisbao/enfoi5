@@ -132,9 +132,11 @@ const render = props => {
   if (!__qiankun__) {
     props.LibraryJs.router_permission(router)
   }
+  const i18n = props.i18n
   instance = new Vue({
     router,
     store,
+    i18n,
     render: h => h(App)
   }).$mount('#app')
 }

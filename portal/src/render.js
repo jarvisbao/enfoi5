@@ -2,7 +2,7 @@ import Vue from 'vue'
 import router from './router'
 import store from './store'
 import App from './App.vue'
-import i18n from './lang'
+import i18n from './library/lang'
 /**
  * @description 实例化vue，并提供子应用 render函数模式的装载能力
  * @description 如果使用qiankun2.0 版本，只需正常实例化vue即可 不需要存在此render函数

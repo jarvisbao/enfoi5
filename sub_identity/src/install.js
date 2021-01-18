@@ -24,3 +24,6 @@ import 'v-charts/lib/style.css'
 [VeChart, VeLine, VeHistogram, VePie].forEach(comp => {
   Vue.component(comp.name, comp);
 })
+
+import VueI18n from 'vue-i18n'
+Vue.use(VueI18n)

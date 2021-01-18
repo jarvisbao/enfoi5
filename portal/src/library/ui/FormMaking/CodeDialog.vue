@@ -3,12 +3,12 @@
     :visible="templateVisible"
     @on-close="templateVisible = false"
     ref="templateDialog"
-    width="800px"
+    :width="width"
     form
-    title="自定义模板"
+    :title="title"
     @on-submit="handleSubmit"
   >
-    <code-editor height="400px" :mode="this.mode" v-model="templ" />
+    <code-editor :height="codeHeight" :mode="mode" v-model="templ" />
   </cus-dialog>
 </template>
 
@@ -25,6 +25,18 @@ export default {
     mode: {
       type: String,
       default: 'xml'
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: String,
+      default: '900px'
+    },
+    codeHeight: {
+      type: String,
+      default: '460px'
     }
   },
   data() {

@@ -725,6 +725,25 @@ export const advanceComponents = [
       placeholder: '',
       disabled: false,
       clearable: false,
+      options: [
+        {
+          value: 'Option 1',
+          label: 'Option 1',
+          children: [
+            {value: 'Option 1 - children', label: 'Option 1 - children'}
+          ]
+        },
+        {
+          value: 'Option 2',
+          label: 'Option 2',
+          children: [
+            {value: 'Option 2 - children', label: 'Option 2 - children'}
+          ]
+        },{
+          value: 'Option 3',
+          label: 'Option 3'
+        }
+      ],
       remote: true,
       remoteOptions: [],
       props: {

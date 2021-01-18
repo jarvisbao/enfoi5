@@ -326,7 +326,7 @@
         :clearable="widget.options.clearable"
         :placeholder="widget.options.placeholder"
         :style="{width: isTable ? '100%' : widget.options.width}"
-        :options="widget.options.remoteOptions"
+        :options="widget.options.remote ? remoteOptions : widget.options.options"
         :filterable="widget.options.filterable"
         :props="cascaderProp"
         @change="onCascaderChange"
@@ -775,7 +775,7 @@ export default {
         }
       }
     }
-    if (this.widget.type === 'select' || this.widget.type === 'radio' || this.widget.type === 'checkbox') {
+    if (['select', 'radio', 'checkbox', 'cascader'].includes(this.widget.type)) {
       if (this.widget.options.remote) {
         for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
           if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
@@ -796,16 +796,16 @@ export default {
         }
       }
     }
-    if (this.widget.type === 'cascader') {
-      for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
-        if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
-          this.widget.options.remoteOptions[i].value = eval(this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1])
-        }
-        if (this.widget.options.remoteOptions[i].label && this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)) {
-          this.widget.options.remoteOptions[i].label = eval(this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1])
-        }
-      }
-    }
+    // if (this.widget.type === 'cascader') {
+    //   for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
+    //     if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
+    //       this.widget.options.remoteOptions[i].value = eval(this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1])
+    //     }
+    //     if (this.widget.options.remoteOptions[i].label && this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)) {
+    //       this.widget.options.remoteOptions[i].label = eval(this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1])
+    //     }
+    //   }
+    // }
 
     if (this.widget.type === 'date' && this.widget.options.defaultValue && this.widget.options.type !== 'dates') {
       if (this.isDate(this.dataModel)) {
@@ -1068,7 +1068,7 @@ export default {
     },
     onCascaderChange() {
       this.$nextTick(() => {
-        this.$parent.$parent.$refs.generateFormItem.clearValidate()
+        this.$parent && this.$parent.$parent && this.$parent.$parent.$refs.generateFormItem && this.$parent.$parent.$refs.generateFormItem.clearValidate()
       })
     }
   }

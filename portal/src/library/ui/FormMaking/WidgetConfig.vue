@@ -158,7 +158,17 @@
           v-model="data.options.showLabel"
         />
       </el-form-item>
-      <el-form-item v-if="Object.keys(data.options).indexOf('options')>=0" label="选项">
+
+      <template v-if="data.type=='cascader'">
+        <el-form-item label="是否可搜索">
+          <el-switch v-model="data.options.filterable" />
+        </el-form-item>
+        <el-form-item label="返回值是否为数组">
+          <el-switch v-model="data.options.emitPath" @change="changeEmitPath" />
+        </el-form-item>
+      </template>
+
+      <el-form-item v-if="Object.keys(data.options).indexOf('options')>=0 || data.type=='cascader'" label="选项">
         <el-radio-group v-model="data.options.remote" size="small" style="margin-bottom:10px;" @change="changeRemote">
           <el-radio-button id="static" :label="false">
             静态数据
@@ -168,7 +178,7 @@
           </el-radio-button>
         </el-radio-group>
         <template v-if="data.options.remote">
-          <div>
+          <div v-if="data.type != 'cascader'">
             <div class="remote-databox" style="margin-bottom: 12px;">
               <div class="title">
                 远端方法
@@ -223,6 +233,67 @@
               </template>
             </el-input>
           </div>
+          <div else>
+            <el-form-item label="是否动态加载">
+              <el-switch v-model="data.options.lazy" />
+            </el-form-item>
+            <el-form-item label="远端数据">
+              <div>
+                <div class="remote-databox">
+                  <div class="title">
+                    远端方法
+                  </div>
+                  <el-select v-model="data.options.remoteFunc" :popper-append-to-body="false" filterable placeholder="请选择" size="mini">
+                    <el-option
+                      v-for="item in remote"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </div>
+                <!-- <el-input v-model="data.options.remoteFunc" size="mini" style="">
+                  <template slot="prepend">远端方法</template>
+                </el-input> -->
+                <el-input v-model="data.options.remoteUri" size="mini" style="">
+                  <template slot="prepend">
+                    远端接口
+                  </template>
+                </el-input>
+                <div class="remote-databox">
+                  <div class="title">
+                    接口参数
+                  </div>
+                  <el-input v-model="data.options.remoteParams" type="textarea" autosize placeholder="请填写json格式的数据" @blur="validateParams" />
+                </div>
+                <el-input v-model="data.options.remoteData" size="mini" style="" placeholder="response.payload">
+                  <template slot="prepend">
+                    远端数据
+                  </template>
+                </el-input>
+                <el-input v-if="data.options.lazy" v-model="data.options.primary" size="mini" style="">
+                  <template slot="prepend">
+                    动态数据主键
+                  </template>
+                </el-input>
+                <el-input v-model="data.options.props.value" size="mini" style="">
+                  <template slot="prepend">
+                    值
+                  </template>
+                </el-input>
+                <el-input v-model="data.options.props.label" size="mini" style="">
+                  <template slot="prepend">
+                    标签
+                  </template>
+                </el-input>
+                <el-input v-model="data.options.props.children" size="mini" style="">
+                  <template slot="prepend">
+                    子选项
+                  </template>
+                </el-input>
+              </div>
+            </el-form-item>
+          </div>
         </template>
         <template v-else>
           <template v-if="data.type=='radio' || (data.type=='select'&&!data.options.multiple)">
@@ -273,7 +344,7 @@
               </draggable>
             </el-checkbox-group>
           </template>
-          <div style="margin-left: 22px;">
+          <div style="margin-left: 22px;" v-if="data.type != 'cascader'">
             <el-button type="text" @click="handleAddOption">
               添加选项
             </el-button>
@@ -289,19 +360,13 @@
             </template>
             <el-button type="text" @click="handleClearSelect">重置选择</el-button>
           </div>
+          <template v-if="data.type == 'cascader'">
+            <el-button style="width: 100%;" @click="handleSetCascader">{{ $t('enfo.fm.config.widget.setting') }}</el-button>
+          </template>
         </template>
       </el-form-item>
 
       <template v-if="data.type=='cascader'">
-        <el-form-item label="是否动态加载">
-          <el-switch v-model="data.options.lazy" />
-        </el-form-item>
-        <el-form-item label="是否可搜索">
-          <el-switch v-model="data.options.filterable" />
-        </el-form-item>
-        <el-form-item label="返回值是否为数组">
-          <el-switch v-model="data.options.emitPath" @change="changeEmitPath" />
-        </el-form-item>
         <el-form-item label="默认值" style="position:relative;">
           <i class="el-icon-edit" style="position: absolute; top: -27px; left: 50px; cursor: pointer;" @click="setDefaultValue" />
           <ul>
@@ -311,62 +376,6 @@
               <el-button circle plain type="danger" size="mini" icon="el-icon-minus" style="padding: 4px;margin-left: 5px;" @click="cascaderOptionsRemove(index)" />
             </li>
           </ul>
-        </el-form-item>
-        <el-form-item label="远端数据">
-          <div>
-            <div class="remote-databox">
-              <div class="title">
-                远端方法
-              </div>
-              <el-select v-model="data.options.remoteFunc" :popper-append-to-body="false" filterable placeholder="请选择" size="mini">
-                <el-option
-                  v-for="item in remote"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <!-- <el-input v-model="data.options.remoteFunc" size="mini" style="">
-              <template slot="prepend">远端方法</template>
-            </el-input> -->
-            <el-input v-model="data.options.remoteUri" size="mini" style="">
-              <template slot="prepend">
-                远端接口
-              </template>
-            </el-input>
-            <div class="remote-databox">
-              <div class="title">
-                接口参数
-              </div>
-              <el-input v-model="data.options.remoteParams" type="textarea" autosize placeholder="请填写json格式的数据" @blur="validateParams" />
-            </div>
-            <el-input v-model="data.options.remoteData" size="mini" style="" placeholder="response.payload">
-              <template slot="prepend">
-                远端数据
-              </template>
-            </el-input>
-            <el-input v-if="data.options.lazy" v-model="data.options.primary" size="mini" style="">
-              <template slot="prepend">
-                动态数据主键
-              </template>
-            </el-input>
-            <el-input v-model="data.options.props.value" size="mini" style="">
-              <template slot="prepend">
-                值
-              </template>
-            </el-input>
-            <el-input v-model="data.options.props.label" size="mini" style="">
-              <template slot="prepend">
-                标签
-              </template>
-            </el-input>
-            <el-input v-model="data.options.props.children" size="mini" style="">
-              <template slot="prepend">
-                子选项
-              </template>
-            </el-input>
-          </div>
         </el-form-item>
       </template>
 
@@ -477,8 +486,7 @@
             :format="data.options.format"
             style="width: 100%"
             v-if="data.options.type == 'datetimerange' || data.options.type == 'daterange'"
-          >
-          </el-date-picker>
+          />
           <el-date-picker
             key="2"
             v-model="data.options.defaultValue"
@@ -488,8 +496,7 @@
             :format="data.options.format"
             style="width: 100%"
             v-else
-          >
-          </el-date-picker>
+          />
         </el-form-item>
         <el-form-item v-if="data.type == 'date'" label="最小值-最大值">
           <div style="position: absolute; left: 92px; top: -40px">
@@ -581,8 +588,6 @@
             设置
           </el-button>
         </el-form-item>
-
-        <code-dialog ref="codeDialog" mode="html" @on-confirm="handleTemplateConfirm" />
       </template>
 
       <template v-if="data.type == 'grid'">
@@ -662,43 +667,43 @@
 
       <template v-if="data.type == 'col'">
         <el-form-item label="栅格占据的列数">
-          <el-input-number v-model="data.options.span"  :step="1" :min="1" :max="24"></el-input-number>
+          <el-input-number v-model="data.options.span" :step="1" :min="1" :max="24" />
         </el-form-item>
         <el-form-item label="响应式栅格数">
           <div>
             <span style="width: 25px; display: inline-block;">xs: </span>
-            <el-input-number v-model="data.options.xs"  :step="1" :min="1" :max="24" size="mini"></el-input-number>
-            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'<768px'"></pre>
+            <el-input-number v-model="data.options.xs" :step="1" :min="1" :max="24" size="mini" />
+            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'<768px'" />
           </div>
           <div>
             <span style="width: 25px; display: inline-block;">sm: </span>
-            <el-input-number v-model="data.options.sm"  :step="1" :min="1" :max="24" size="mini"></el-input-number>
-            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥768px'"></pre>
+            <el-input-number v-model="data.options.sm" :step="1" :min="1" :max="24" size="mini" />
+            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥768px'" />
           </div>
           <div>
             <span style="width: 25px; display: inline-block;">md: </span>
-            <el-input-number v-model="data.options.md"  :step="1" :min="1" :max="24" size="mini"></el-input-number>
-            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥992px'"></pre>
+            <el-input-number v-model="data.options.md" :step="1" :min="1" :max="24" size="mini" />
+            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥992px'" />
           </div>
           <div>
             <span style="width: 25px; display: inline-block;">lg: </span>
-            <el-input-number v-model="data.options.lg"  :step="1" :min="1" :max="24" size="mini"></el-input-number>
-            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥1200px'"></pre>
+            <el-input-number v-model="data.options.lg" :step="1" :min="1" :max="24" size="mini" />
+            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥1200px'" />
           </div>
           <div>
             <span style="width: 25px; display: inline-block;">xl: </span>
-            <el-input-number v-model="data.options.xl"  :step="1" :min="1" :max="24" size="mini"></el-input-number>
-            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥1920px'"></pre>
+            <el-input-number v-model="data.options.xl" :step="1" :min="1" :max="24" size="mini" />
+            <pre style="width: 55px; display: inline; color: #999; margin-left: 5px;" v-html="'≥1920px'" />
           </div>
         </el-form-item>
         <el-form-item label="栅格左侧的间隔格数">
-          <el-input-number v-model="data.options.offset"  :step="1" :min="0" :max="24"></el-input-number>
+          <el-input-number v-model="data.options.offset" :step="1" :min="0" :max="24" />
         </el-form-item>
         <el-form-item label="栅格向右移动格数">
-          <el-input-number v-model="data.options.push"  :step="1" :min="0" :max="24"></el-input-number>
+          <el-input-number v-model="data.options.push" :step="1" :min="0" :max="24" />
         </el-form-item>
         <el-form-item label="栅格向左移动格数">
-          <el-input-number v-model="data.options.pull"  :step="1" :min="0" :max="24"></el-input-number>
+          <el-input-number v-model="data.options.pull" :step="1" :min="0" :max="24" />
         </el-form-item>
       </template>
 
@@ -976,6 +981,8 @@
         <el-button type="primary" @click="getValue">确 定</el-button>
       </span>
     </el-dialog>
+    <code-dialog ref="codeDialog" mode="html" :title="$t('enfo.fm.config.widget.customTemplates')" @on-confirm="handleTemplateConfirm" />
+    <code-dialog ref="cascaderDialog" width="800px" code-height="400px" mode="javascript" :title="$t('enfo.fm.config.widget.option')" @on-confirm="handleCascaderConfirm" />
   </div>
   <div v-else class="empty">
     请添加字段
@@ -1122,7 +1129,7 @@ export default {
       // } else {
       //   this.data.options.defaultValue = new Date()
       // }
-      switch(val) {
+      switch (val) {
         case 'year':
           this.data.options.defaultValue = new Date(new Date().getFullYear(), 0, 1)
           break
@@ -1237,6 +1244,19 @@ export default {
       this.data.options.template = value
 
       this.$refs.codeDialog.close()
+    },
+
+    handleSetCascader() {
+      this.$refs.cascaderDialog.open(this.data.options.options)
+    },
+    handleCascaderConfirm(value) {
+      if (typeof value == 'string') {
+        this.data.options.options = Function('"use strict";return (' + value + ')')()
+      } else {
+        this.data.options.options = value
+      }
+
+      this.$refs.cascaderDialog.close()
     },
 
     validateRequired(val) {

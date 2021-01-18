@@ -18,6 +18,7 @@ import Vue from 'vue'
  * @param emits 主应要传递给子应用的方法类信息
  * @param utils 主应要传递给子应用的工具类信息（只是一种方案）
  * @param components 主应要传递给子应用的组件类信息（只是一种方案）
+ * @param i18n 国际化语言设置
  */
 import store_modules from '@/library/store_modules'
 import directive from '@/library/directive'
@@ -25,6 +26,7 @@ import LibraryJs from '@/library/js'
 import LibraryUi from '@/library/ui'
 import LibraryApi from '@/library/api'
 import commonRouterMap from '@/library/commonRouter'
+import i18n from '@/library/lang'
 
 // 通讯
 const actions = initGlobalState({
@@ -45,6 +47,7 @@ const props = {
   components: LibraryUi,
   Apis: LibraryApi,
   commonRouterMap: commonRouterMap,
+  i18n: i18n,
   emits: [{ actions }]
 }
 

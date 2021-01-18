@@ -35,18 +35,18 @@ export default {
     Sidebar
   },
   mixins: [ResizeMixin],
+  // 提供可注入子组件属性
+  provide() {
+    return {
+      refresh: this.refresh
+    }
+  },
   data() {
     return {
       isShow: true,
       menu_code: null,
       qiankun: window.__POWERED_BY_QIANKUN__,
       inIframe: false
-    }
-  },
-  // 提供可注入子组件属性
-  provide() {
-    return {
-      refresh: this.refresh
     }
   },
   computed: {
@@ -66,11 +66,6 @@ export default {
     },
     reload() {
       return this.$store.state.app.reload
-    }
-  },
-  created() {
-    if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
-      this.inIframe = true
     }
   },
   watch: {
@@ -93,6 +88,11 @@ export default {
         }
         this.$store.commit('SET_RELOAD', '')
       }
+    }
+  },
+  created() {
+    if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
+      this.inIframe = true
     }
   },
   methods: {

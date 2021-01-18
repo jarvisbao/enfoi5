@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import zh from './zh-cn'
-import en from './en'
+import zh from './zh-CN'
+import en from './en-US'
 
 Vue.use(VueI18n)
 
 export const i18n = new VueI18n({
-  locale: 'zh-cn', // 设置语言环境
+  locale: 'zh-CN', // 设置语言环境
   messages: {
     zh,
     en

@@ -1,8 +1,17 @@
 <template>
   <div :style="{width: data.config.width, margin: 'auto'}" class="widget-form-container">
-    <el-form :size="data.config.size" :label-position="data.config.labelPosition" :label-width="data.config.isLabelWidth ? data.config.labelWidth + 'px' : 'auto'" :disabled="data.config.readOnly" label-suffix=":">
+    <el-form
+      :size="data.config.size"
+      :label-position="data.config.labelPosition"
+      :label-width="data.config.isLabelWidth ? data.config.labelWidth + 'px' : 'auto'"
+      :disabled="data.config.readOnly"
+      :class="{
+        [data.config && data.config.customClass]: (data.config && data.config.customClass) ? true : false,
+      }"
+      label-suffix=":"
+    >
       <div v-if="data.list.length == 0" class="form-empty">
-        从左侧拖拽或点击来添加字段
+        {{ $t('enfo.fm.description.containerEmpty') }}
       </div>
       <draggable
         v-model="data.list"
@@ -88,7 +97,6 @@ import WidgetTable from './WidgetTable'
 import WidgetTabItem from './WidgetTabItem'
 import WidgetReport from './WidgetReport'
 import WidgetObject from './WidgetObject'
-import { EventBus } from '@/library/js/event-bus'
 import _ from 'lodash'
 
 export default {
@@ -137,7 +145,7 @@ export default {
       }
     }
 
-    EventBus.$on('on-field-add', item => {
+    this.$Utils.EventBus.$on('on-field-add', item => {
       // console.log('.....')
       // console.log(item, this.data, this.select)
       const key = new Date().getTime() + ''
@@ -157,14 +165,21 @@ export default {
         widgetItem.rows = this.$Utils.util.generateKeyToTD(widgetItem.rows)
       }
 
+      if (widgetItem.type == 'grid') {
+        widgetItem.columns = this.$Utils.util.generateKeyToCol(widgetItem.columns)
+      }
+
       this._addWidget(this.data.list, widgetItem)
     })
+  },
+  beforeDestroy () {
+    this.$Utils.EventBus.$off('on-field-add')
   },
   methods: {
     _addWidget(list, widget, isTable = false) {
       if (isTable &&
         (widget.type === 'grid' || widget.type === 'table' || widget.type === 'tabs' || widget.type === 'divider' || widget.type == 'report')) {
-        this.$message.warning('不支持添加此字段')
+        this.$message.warning(this.$t('enfo.fm.message.noPut'))
         return false
       }
 
@@ -175,7 +190,9 @@ export default {
           list.splice(index + 1, 0, widget)
 
           this.selectWidget = list[index + 1]
-          this.$nextTick(() => { EventBus.$emit('on-history-add') })
+          this.$nextTick(() => {
+            this.$Utils.EventBus.$emit('on-history-add')
+          })
         } else {
           for (let l = 0; l < list.length; l++) {
             let item = list[l]
@@ -211,14 +228,20 @@ export default {
         list.push(widget)
 
         this.selectWidget = list[list.length - 1]
-        this.$nextTick(() => { EventBus.$emit('on-history-add') })
+        this.$nextTick(() => {
+          this.$Utils.EventBus.$emit('on-history-add')
+        })
       }
     },
     handleWidgetUpdate(evt) {
-      this.$nextTick(() => { EventBus.$emit('on-history-add') })
+      this.$nextTick(() => {
+        this.$Utils.EventBus.$emit('on-history-add')
+      })
     },
     handleWidgetAdd(evt) {
       const newIndex = evt.newIndex
+
+      this.$set(this.data.list, newIndex, _.cloneDeep(this.data.list[newIndex]))
 
       // 为拖拽到容器的元素添加唯一 key
       const key = new Date().getTime() + ''
@@ -239,10 +262,14 @@ export default {
         this.data.list[newIndex].rows = this.$Utils.util.generateKeyToTD(this.data.list[newIndex].rows)
       }
 
-      this.$set(this.data.list, newIndex, _.cloneDeep(this.data.list[newIndex]))
+      if (this.data.list[newIndex].type == 'grid') {
+        this.data.list[newIndex].columns = this.$Utils.util.generateKeyToCol(this.data.list[newIndex].columns)
+      }
 
       this.selectWidget = this.data.list[newIndex]
-      this.$nextTick(() => { EventBus.$emit('on-history-add') })
+      this.$nextTick(() => {
+        this.$Utils.EventBus.$emit('on-history-add')
+      })
     },
     handleWidgetDelete(index) {
       if (this.data.list.length - 1 === index) {
@@ -257,7 +284,9 @@ export default {
 
       this.$nextTick(() => {
         this.data.list.splice(index, 1)
-        this.$nextTick(() => { EventBus.$emit('on-history-add') })
+        this.$nextTick(() => {
+          this.$Utils.EventBus.$emit('on-history-add')
+        })
       })
     },
     handleSelectChange(index) {
@@ -271,11 +300,11 @@ export default {
 </script>
 
 <style lang="scss">
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
+// .fade-enter-active,
+// .fade-leave-active {
+//   transition: opacity 0.3s;
+// }
+// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+//   opacity: 0;
+// }
 </style>

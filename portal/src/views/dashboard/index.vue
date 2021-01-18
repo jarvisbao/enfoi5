@@ -4,40 +4,31 @@
       <el-aside width="380px" class="widget-aside">
         <template v-if="showItems">
           <el-scrollbar wrap-class="scrollbar-wrapper">
-            <draggable :list="widgetItem" v-bind="{ group: 'people', sort: false, ghostClass: 'ghost' }" tag="ul"
-              class="widget-list">
+            <draggable :list="widgetItem" v-bind="{ group: 'people', sort: false, ghostClass: 'ghost' }" tag="ul" class="widget-list">
               <template v-for="(item, index) in widgetItem">
-                <li v-if="item.content_config && JSON.parse(item.content_config).border" :id="'wdgt_' + item.wdgt_id"
+                <li
+                  v-if="item.content_config && JSON.parse(item.content_config).border"
+                  :id="'wdgt_' + item.wdgt_id"
                   :key="index"
                   :style="{borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}"
                   :class="{hasColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}">
-                  <div
-                    :style="{background: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:'', borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}"
-                    class="title">
+                  <div :style="{background: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:'', borderColor: JSON.parse(item.content_config).border==='obvious'?item.wdgt_color:''}" class="title">
                     <span><i v-if="item.wdgt_icon" :class="item.wdgt_icon" />{{ item.wdgt_title }}</span>
                     <div class="tools-bar">
-                      <i v-if="updatePermission" :id="'edit'+item.wdgt_id" class="el-icon-edit"
-                        @click="updateWdgt(item.wdgt_id)" />
-                      <i v-if="removePermission" :id="'remove'+item.wdgt_id" class="el-icon-delete"
-                        @click="removeWdgt(item.wdgt_id)" />
+                      <i v-if="updatePermission" :id="'edit'+item.wdgt_id" class="el-icon-edit" @click="updateWdgt(item.wdgt_id)" />
+                      <i v-if="removePermission" :id="'remove'+item.wdgt_id" class="el-icon-delete" @click="removeWdgt(item.wdgt_id)" />
                     </div>
                   </div>
                   <div class="desc">
                     {{ item.wdgt_summary }}
                   </div>
                 </li>
-                <li v-else :id="'wdgt_' + item.wdgt_id" :key="index"
-                  :style="{borderColor: item.wdgt_color?item.wdgt_color:''}"
-                  :class="{hasColor: item.wdgt_color?item.wdgt_color:''}">
-                  <div
-                    :style="{background: item.wdgt_color?item.wdgt_color:'', borderColor: item.wdgt_color?item.wdgt_color:''}"
-                    class="title">
+                <li v-else :id="'wdgt_' + item.wdgt_id" :key="index" :style="{borderColor: item.wdgt_color?item.wdgt_color:''}" :class="{hasColor: item.wdgt_color?item.wdgt_color:''}">
+                  <div :style="{background: item.wdgt_color?item.wdgt_color:'', borderColor: item.wdgt_color?item.wdgt_color:''}" class="title">
                     <span><i v-if="item.wdgt_icon" :class="item.wdgt_icon" />{{ item.wdgt_title }}</span>
                     <div class="tools-bar">
-                      <i v-if="updatePermission" :id="'edit'+item.wdgt_id" class="el-icon-edit"
-                        @click="updateWdgt(item.wdgt_id)" />
-                      <i v-if="removePermission" :id="'remove'+item.wdgt_id" class="el-icon-delete"
-                        @click="removeWdgt(item.wdgt_id, item.wdgt_type)" />
+                      <i v-if="updatePermission" :id="'edit'+item.wdgt_id" class="el-icon-edit" @click="updateWdgt(item.wdgt_id)" />
+                      <i v-if="removePermission" :id="'remove'+item.wdgt_id" class="el-icon-delete" @click="removeWdgt(item.wdgt_id, item.wdgt_type)" />
                     </div>
                   </div>
                   <div class="desc">
@@ -52,8 +43,7 @@
       <el-container>
         <div style="width: 100%; position: relative;">
           <div class="action-btn">
-            <el-button id="create" v-permission="['ns://create_wdget@identity.wdget']" type="primary" size="mini"
-              @click="handlerAdd">
+            <el-button id="create" v-permission="['ns://create_wdget@identity.wdget']" type="primary" size="mini" @click="handlerAdd">
               新建
             </el-button>
             <el-button id="save" type="primary" plain size="mini" @click="handlerSave">
@@ -65,8 +55,7 @@
           </div>
           <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
             <el-tab-pane v-for="item in activeTabs" :key="item.name" :label="item.name" :name="item.name">
-              <widget-content :col-span="colSpan" :widget-layout="handleWidget" :select="widgetSelect"
-                :basic="widgetItem" @changeColSpan="changeColSpan($event)" />
+              <widget-content :col-span="colSpan" :widget-layout="handleWidget" :select="widgetSelect" :basic="widgetItem" @changeColSpan="changeColSpan($event)" />
             </el-tab-pane>
           </el-tabs>
         </div>

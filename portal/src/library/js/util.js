@@ -80,6 +80,7 @@ function padLeftZero(str) {
   return ('00' + str).substr(str.length)
 }
 
+// 以下为formMaking用到的方法
 export const generateKeyToTD = (rows) => {
   for (let i = 0; i < rows.length; i++) {
     for (let j = 0; j < rows[i].columns.length; j++) {
@@ -112,6 +113,77 @@ export const getParentCode = (tree, func, path) => {
   return []
 }
 
+export const splitStyleSheets = (str) => {
+  if (!str) {
+    return []
+  }
+  let r = /}\s+./
+  let arr = str.split(r).filter(item => item)
+  return arr.map(sty => {
+    sty = sty.trim()
+    if (sty[0] !== '.') {
+      sty = '.' + sty
+    }
+    if (sty[sty.length - 1] !== '}') {
+      sty = sty + '}'
+    }
+
+    return sty
+  })
+}
+
+export const splitSheetName = (sheets) => {
+  return sheets.map(sheet => {
+
+    let spaceIndex = sheet.indexOf(' ')
+    let nameIndex = sheet.indexOf('{')
+
+    let index = nameIndex
+
+    if (spaceIndex > 0 && spaceIndex < nameIndex) {
+      index = spaceIndex
+    }
+
+    sheet = sheet.substring(1, index)
+
+    return sheet
+  })
+}
+
+export const updateStyleSheets = (sheets, head) => {
+  // console.log(sheets)
+  let stylesheets = document.styleSheets[0]
+
+  let index = 0
+
+  while (stylesheets.cssRules.length > index) {
+    if (stylesheets.cssRules[index].selectorText && stylesheets.cssRules[index].selectorText.indexOf(head) === 0) {
+      stylesheets.deleteRule(index)
+    } else {
+      index++
+    }
+  }
+
+  for (let i = 0; i < sheets.length; i++) {
+    // console.log(head + sheets[i])
+
+    stylesheets.insertRule(head + sheets[i], 0)
+  }
+}
+
+export const clearStyleSheets = (head) => {
+  let stylesheets = document.styleSheets[0]
+  let index = 0
+
+  while (stylesheets.cssRules.length > index) {
+    if (stylesheets.cssRules[index].selectorText && stylesheets.cssRules[index].selectorText.indexOf(head) === 0) {
+      stylesheets.deleteRule(index)
+    } else {
+      index++
+    }
+  }
+}
+
 export default {
   loadJs_,
   loadJs,
@@ -121,5 +193,9 @@ export default {
   formatDate,
   generateKeyToTD,
   generateKeyToCol,
-  getParentCode
+  getParentCode,
+  splitStyleSheets,
+  splitSheetName,
+  updateStyleSheets,
+  clearStyleSheets
 }

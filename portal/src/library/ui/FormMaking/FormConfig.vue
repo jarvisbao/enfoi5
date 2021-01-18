@@ -70,10 +70,29 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="自定义Class">
-        <el-input v-model="data.customClass" clearable />
+      <el-form-item :label="$t('enfo.fm.config.form.styleSheets')">
+        <el-button style="width: 100%;" @click="handleSetStyleSheets">{{ $t('enfo.fm.config.widget.setting') }}</el-button>
+      </el-form-item>
+
+      <el-form-item :label="$t('enfo.fm.config.form.customClass')">
+        <el-select
+          style="width: 100%;"
+          v-model="customClassArray"
+          multiple
+          filterable
+          allow-create
+          default-first-option
+        >
+          <el-option
+            v-for="item in sheets"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
       </el-form-item>
     </el-form>
+    <code-dialog ref="styleDialog" mode="css" :title="$t('enfo.fm.config.form.styleSheets')" @on-confirm="handlestyleSheetsConfirm" />
   </div>
 </template>
 
@@ -81,12 +100,17 @@
 import pythonCodemirror from '../pythonCodemirror'
 export default {
   components: {
-    pythonCodemirror
+    pythonCodemirror,
+    CodeDialog: () => import('./CodeDialog')
   },
   props: {
     data: {
       type: Object,
       default: () => {}
+    },
+    sheets: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -96,7 +120,8 @@ export default {
       param_code: '',
       prop_code: '',
       variable: '',
-      showEdit: false
+      showEdit: false,
+      customClassArray: this.data.customClass.split(' ').filter(item => item)
     }
   },
   watch: {
@@ -108,6 +133,12 @@ export default {
         this.data.layout = 'horizontal'
         this.data.labelCol = 3
       }
+    },
+    'data.customClass': function(val) {
+      this.customClassArray = this.data.customClass.split(' ').filter(item => item)
+    },
+    customClassArray (val) {
+      this.data.customClass = val.join(' ')
     }
   },
   methods: {
@@ -135,6 +166,25 @@ export default {
     },
     edit_btnname() {
       this.showEdit = true
+    },
+    handleSetStyleSheets() {
+      let sheets = document.styleSheets[0]
+
+      if (sheets.insertRule) {
+        this.$refs.styleDialog.open(this.data.styleSheets || '')
+      } else {
+        this.$message.warning(this.$t('enfo.fm.message.notSupport'))
+      }
+    },
+    handlestyleSheetsConfirm (value) {
+
+      this.data.styleSheets = value
+
+      this.$refs.styleDialog.close()
+
+      var arr = this.$Utils.util.splitStyleSheets(value)
+
+      this.$emit('on-style-update', arr)
     }
   }
 }
