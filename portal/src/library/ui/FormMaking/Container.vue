@@ -130,7 +130,14 @@
               </div>
             </el-header>
             <el-main class="config-content">
-              <widget-config v-show="configTab=='widget'" :data="widgetFormSelect" :key="widgetFormSelect ? widgetFormSelect.key : 0" :design-fields="designFields" :remote="remoteFuncsNames" />
+              <widget-config
+                v-show="configTab=='widget'"
+                :data="widgetFormSelect"
+                :key="widgetFormSelect ? widgetFormSelect.key : 0"
+                :design-fields="designFields"
+                :remote="remoteFuncsNames"
+                :templates="templates"
+              />
               <form-config v-show="configTab=='form'" :data="widgetForm.config" />
             </el-main>
           </el-container>
@@ -284,6 +291,10 @@ export default {
       default: () => []
     },
     designFields: {
+      type: Array,
+      default: () => []
+    },
+    templates: { // 自定义组件模板
       type: Array,
       default: () => []
     }

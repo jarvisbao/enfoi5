@@ -579,7 +579,7 @@
         <el-form-item label="是否引用模板">
           <el-switch v-model="data.options.isQuote" />
           <el-select v-show="data.options.isQuote" v-model="data.options.name">
-            <el-option v-for="item in component_options" :key="item.name" :label="item.name" :value="item.name" />
+            <el-option v-for="item in templates" :key="item.name" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="自定义模板">
@@ -996,7 +996,6 @@ import WidgetEvent from './WidgetEvent'
 import CodeDialog from './CodeDialog'
 import pythonCodemirror from '../pythonCodemirror'
 import { isJSON } from '@/library/js/validate'
-import templates from '@/library/ui'
 
 export default {
   components: {
@@ -1006,7 +1005,7 @@ export default {
     CodeDialog,
     pythonCodemirror
   },
-  props: ['data', 'designFields', 'remote'],
+  props: ['data', 'designFields', 'remote', 'templates'],
   data() {
     return {
       validator: {
@@ -1028,7 +1027,6 @@ export default {
       object_options: [],
       select2_option: [],
       page_options: [],
-      component_options: templates,
       DateMsg: '用于移动端，若不设置则移动端默认的最小时间为十年前，最大时间为十年后'
     }
   },
