@@ -254,6 +254,19 @@ export function column_info(repo_name, cls_name, column_name) {
   })
 }
 
+export function column_types() {
+  /**
+   * @method column_info
+   * @param column_id: 栏目ID
+   */
+  return request({
+    url: '/rpcgateway/ColumnService/types',
+    method: 'get',
+    params: {
+    }
+  })
+}
+
 export function property_create(
   repo_name,
   cls_name,
