@@ -98,3 +98,21 @@ export function list_route() {
     params: {}
   })
 }
+
+export function get_user_postlist(openid) {
+  return request({
+    url: '/rpcgateway/CommonService/user_post_list',
+    method: 'get',
+    params: {
+      openid: openid
+    }
+  })
+}
+
+export function get_all_postlist() {
+  return request({
+    url: '/rpcgateway/CommonService/post_list',
+    method: 'get',
+    params: {}
+  })
+}
