@@ -1,7 +1,7 @@
 <template>
   <div v-if="show">
     <el-form label-position="top">
-      <el-form-item v-if="!(['grid','tabs', 'report'].includes(data.type))" label="选择标题和数据绑定Key">
+      <el-form-item v-if="!(['grid','tabs', 'report','button'].includes(data.type))" label="选择标题和数据绑定Key">
         <el-select id="nameModel" v-model="data.name_model" :popper-append-to-body="false" value-key="prop" filterable placeholder="请选择" popper-class="name-dropdown">
           <el-option
             v-for="item in designFields"
@@ -50,16 +50,68 @@
         <el-input id="name" v-model="data.name" />
       </el-form-item>
 
-      <el-form-item label="文字对齐方式">
+      <el-form-item v-if="'textPosition' in data.options" label="文字对齐方式">
         <el-radio-group v-model="data.options.textPosition" size="mini">
           <el-radio-button label="left">
             左对齐
           </el-radio-button>
+          <el-radio-button label="center">
+            居中对齐
+          </el-radio-button>
           <el-radio-button label="right">
             右对齐
           </el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item v-if="'compAlign' in data.options" label="组件对齐方式">
+        <el-radio-group v-model="data.options.compAlign" size="mini">
+          <el-radio-button label="left">
+            左对齐
+          </el-radio-button>
           <el-radio-button label="center">
             居中对齐
+          </el-radio-button>
+          <el-radio-button label="right">
+            右对齐
+          </el-radio-button>
+        </el-radio-group>
+        <el-form
+          label-width="auto"
+          v-if="['left','right'].includes(data.options.compAlign)"
+          class="comp-align"
+          :rules="{
+            position: [
+              { required: true, message: '请输入正确的数值', trigger: 'change' }
+            ],}"
+        >
+          <el-form-item :label="compAlignPattern+'边距：'">
+            <el-input
+              placeholder="请输入边距像素值"
+              v-model="compAlignPosition"
+              props="position"
+            >
+              <template id="demoout" slot="append">
+                px
+              </template>
+            </el-input>
+          </el-form-item>
+        </el-form>
+      </el-form-item>
+
+      <el-form-item v-if="'btnSize' in data.options" label="按钮尺寸">
+        <el-radio-group v-model="data.options.btnSize" size="mini">
+          <el-radio-button label="large">
+            大
+          </el-radio-button>
+          <el-radio-button label="medium">
+            中
+          </el-radio-button>
+          <el-radio-button label="small">
+            小
+          </el-radio-button>
+          <el-radio-button label="mini">
+            迷你
           </el-radio-button>
         </el-radio-group>
       </el-form-item>
@@ -84,11 +136,25 @@
         <el-input-number v-model="data.options.labelWidth" :disabled="!data.options.isLabelWidth" :min="0" :max="200" :step="10" size="small" />
       </el-form-item>
 
-      <el-form-item v-if="!(['grid','tabs', 'report', 'divider'].includes(data.type))" label="隐藏标签">
+      <el-form-item v-if="!(['grid','tabs', 'report', 'divider','button'].includes(data.type))" label="隐藏标签">
         <el-switch v-model="data.options.hideLabel" />
       </el-form-item>
 
-      <el-form-item v-if="!(['grid','tabs', 'report', 'divider', 'innerobject', 'outerobject'].includes(data.type))" label="字段说明">
+      <el-form-item
+        v-if="'btnColor' in data.options"
+        label="按钮颜色"
+        class="btn-color-picker"
+      >
+        <el-color-picker
+          class=""
+          v-model="data.options.btnColor"
+        />
+        <span class="color-picker-box-right">
+          颜色(十六进制)：<span :style="'color:'+ data.options.btnColor">{{ data.options.btnColor }}</span>
+        </span>
+      </el-form-item>
+
+      <el-form-item v-if="!(['grid','tabs', 'report', 'divider', 'innerobject', 'outerobject','button'].includes(data.type))" label="字段说明">
         <div style="display: flex;">
           <el-input v-model="data.options.fieldTips" />
           <el-color-picker v-model="data.options.textColor" style="margin-left: 10px;" />
@@ -358,10 +424,14 @@
                 设置默认值
               </el-button>
             </template>
-            <el-button type="text" @click="handleClearSelect">重置选择</el-button>
+            <el-button type="text" @click="handleClearSelect">
+              重置选择
+            </el-button>
           </div>
           <template v-if="data.type == 'cascader'">
-            <el-button style="width: 100%;" @click="handleSetCascader">{{ $t('enfo.fm.config.widget.setting') }}</el-button>
+            <el-button style="width: 100%;" @click="handleSetCascader">
+              {{ $t('enfo.fm.config.widget.setting') }}
+            </el-button>
           </template>
         </template>
       </el-form-item>
@@ -946,7 +1016,7 @@
         </el-checkbox>
       </el-form-item>
 
-      <template v-if="!(['grid','tabs', 'report', 'divider', 'td', 'col'].includes(data.type))">
+      <template v-if="!(['grid','tabs', 'report', 'divider', 'td', 'col','button'].includes(data.type))">
         <el-form-item label="校验">
           <div v-if="Object.keys(data.options).indexOf('required')>=0" class="validate-block">
             <el-checkbox id="required" v-model="data.options.required">
@@ -1008,26 +1078,28 @@ export default {
   props: ['data', 'designFields', 'remote', 'templates'],
   data() {
     return {
+      dialogVisible: false, // 对话框显示/隐藏
+      isChangeValue: false,
+      changeIndex: 1,
+      showErrorMsg: false,
+      DateMsg: '用于移动端，若不设置则移动端默认的最小时间为十年前，最大时间为十年后',
+
+      proj_options: [],
+      object_options: [],
+      select2_option: [],
+      page_options: [],
+      defaultValue: {
+        value: '',
+        label: ''
+      },
       validator: {
         type: null,
         required: null,
         pattern: null,
         range: null,
         length: null
-      },
-      dialogVisible: false,
-      isChangeValue: false,
-      changeIndex: 1,
-      showErrorMsg: false,
-      defaultValue: {
-        value: '',
-        label: ''
-      },
-      proj_options: [],
-      object_options: [],
-      select2_option: [],
-      page_options: [],
-      DateMsg: '用于移动端，若不设置则移动端默认的最小时间为十年前，最大时间为十年后'
+      }
+
     }
   },
   computed: {
@@ -1036,10 +1108,34 @@ export default {
         return true
       }
       return false
+    },
+    compAlignPattern() { // 组件对齐方式
+      switch (this.data.options.compAlign) {
+        case 'left':
+          return '左'
+        case 'center':
+          return '中'
+        case 'right':
+          return '右'
+        default:
+          return '左'
+      }
+    },
+    compAlignPosition: { // 组件对齐左/右边距
+      get() {
+        return this.data.options.compAlignPosition
+      },
+      set(newVal) {
+        if (typeof Number(newVal) == 'number' && !Number.isNaN(Number(newVal))) { // 判断输入数值是否合法，不合法则放弃结果，重置为0
+          this.data.options.compAlignPosition = Number(newVal)
+        } else {
+          this.data.options.compAlignPosition = 0
+        }
+      }
     }
   },
   watch: {
-    'data.name_model': function(val) {
+    'data.name_model': function (val) {
       if (val) {
         this.data.name = val.label
         this.data.model = val.prop
@@ -1070,48 +1166,48 @@ export default {
         delete val['type']
         delete val['uselist']
         delete val['can_query']
-      // this.data.design = val.design
+        // this.data.design = val.design
       }
     },
-    'data.model': function(val) {
+    'data.model': function (val) {
       if (val) {
         this.data.name_model.prop = val
       }
     },
-    'data.options.isRange': function(val) {
+    'data.options.isRange': function (val) {
       if (typeof val !== 'undefined') {
         if (val) {
           this.data.options.defaultValue = null
-        } else {
-          if (Object.keys(this.data.options).indexOf('defaultValue') >= 0) { this.data.options.defaultValue = '' }
+        } else if (Object.keys(this.data.options).indexOf('defaultValue') >= 0) {
+          this.data.options.defaultValue = ''
         }
       }
     },
-    'data.options.required': function(val) {
+    'data.options.required': function (val) {
       this.validateRequired(val)
     },
-    'data.options.requiredMessage': function(val) {
+    'data.options.requiredMessage': function (val) {
       this.validateRequired(this.data && this.data.options ? this.data.options.required : false)
     },
     // 'data.options.dataType': function(val) {
     //   this.validateDataType(val)
     // },
-    'data.options.dataTypeCheck': function(val) {
+    'data.options.dataTypeCheck': function (val) {
       this.validateDataType(this.data && this.data.options ? this.data.options.dataType : '')
     },
-    'data.options.dataTypeMessage': function(val) {
+    'data.options.dataTypeMessage': function (val) {
       this.validateDataType(this.data && this.data.options ? this.data.options.dataType : '')
     },
-    'data.options.pattern': function(val) {
+    'data.options.pattern': function (val) {
       this.valiatePattern(val)
     },
-    'data.options.patternCheck': function(val) {
+    'data.options.patternCheck': function (val) {
       this.valiatePattern(this.data && this.data.options ? this.data.options.pattern : '')
     },
-    'data.options.patternMessage': function(val) {
+    'data.options.patternMessage': function (val) {
       this.valiatePattern(this.data && this.data.options ? this.data.options.pattern : '')
     },
-    'data.name': function(val) {
+    'data.name': function (val) {
       if (this.data.options) {
         this.validateRequired(this.data.options.required)
         this.validateDataType(this.data.options.dataType)
@@ -1121,7 +1217,7 @@ export default {
         this.data.name_model.label = val
       }
     },
-    'data.options.type': function(val) {
+    'data.options.type': function (val) {
       // if (val === 'dates') {
       //   this.data.options.defaultValue = null
       // } else {
@@ -1142,29 +1238,38 @@ export default {
   created() {
     if (this.show) {
       if (this.data.type === 'select2' || this.data.type === 'innerobject' || this.data.type === 'outerobject') {
-        this.$Apis.project.project_list().then(response => {
+        this.$Apis.project.project_list().then((response) => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.proj_options = response.payload.items
           }
         })
         if (this.data.options.proj_code) {
-          this.$Apis.object.object_list(this.data.options.proj_code).then(response => {
+          this.$Apis.object.object_list(this.data.options.proj_code).then((response) => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
               this.object_options = response.payload.items
             }
           })
         }
         if (this.data.options.object_code) {
-          this.$Apis.object.page_list_by_code(this.data.options.proj_code, this.data.options.object_code).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.page_options = response.payload.items
-            }
-          })
-          this.$Apis.object.get_headers_by_code(this.data.options.proj_code, this.data.options.object_code, this.data.options.page_code, true).then(response => {
-            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-              this.select2_option = response.payload
-            }
-          })
+          this.$Apis.object
+            .page_list_by_code(this.data.options.proj_code, this.data.options.object_code)
+            .then((response) => {
+              if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+                this.page_options = response.payload.items
+              }
+            })
+          this.$Apis.object
+            .get_headers_by_code(
+              this.data.options.proj_code,
+              this.data.options.object_code,
+              this.data.options.page_code,
+              true
+            )
+            .then((response) => {
+              if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+                this.select2_option = response.payload
+              }
+            })
         }
       }
     }
@@ -1212,7 +1317,7 @@ export default {
     },
     generateRule() {
       this.data.rules = []
-      Object.keys(this.validator).forEach(key => {
+      Object.keys(this.validator).forEach((key) => {
         if (this.validator[key]) {
           this.data.rules.push(this.validator[key])
         }
@@ -1225,12 +1330,10 @@ export default {
         } else {
           this.data.options.defaultValue = []
         }
+      } else if (this.data.options.defaultValue.length > 0) {
+        this.data.options.defaultValue = this.data.options.defaultValue[0]
       } else {
-        if (this.data.options.defaultValue.length > 0) {
-          this.data.options.defaultValue = this.data.options.defaultValue[0]
-        } else {
-          this.data.options.defaultValue = ''
-        }
+        this.data.options.defaultValue = ''
       }
     },
 
@@ -1259,7 +1362,10 @@ export default {
 
     validateRequired(val) {
       if (val) {
-        this.validator.required = { required: true, message: this.data.options.requiredMessage ? this.data.options.requiredMessage : '必须填写' }
+        this.validator.required = {
+          required: true,
+          message: this.data.options.requiredMessage ? this.data.options.requiredMessage : '必须填写'
+        }
       } else {
         this.validator.required = null
       }
@@ -1276,9 +1382,15 @@ export default {
 
       if (val && (this.data.options.dataTypeCheck || !Object.keys(this.data.options).includes('dataTypeCheck'))) {
         if (this.data.options.dataType === 'money') {
-          this.validator.type = { type: 'number', message: this.data.options.dataTypeMessage ? this.data.options.dataTypeMessage : '格式不正确' }
+          this.validator.type = {
+            type: 'number',
+            message: this.data.options.dataTypeMessage ? this.data.options.dataTypeMessage : '格式不正确'
+          }
         } else {
-          this.validator.type = { type: val, message: this.data.options.dataTypeMessage ? this.data.options.dataTypeMessage : '格式不正确' }
+          this.validator.type = {
+            type: val,
+            message: this.data.options.dataTypeMessage ? this.data.options.dataTypeMessage : '格式不正确'
+          }
         }
       } else {
         this.validator.type = null
@@ -1292,7 +1404,10 @@ export default {
       }
 
       if (val && (this.data.options.patternCheck || !Object.keys(this.data.options).includes('patternCheck'))) {
-        this.validator.pattern = { pattern: val, message: this.data.options.patternMessage ? this.data.options.patternMessage : '格式不匹配' }
+        this.validator.pattern = {
+          pattern: val,
+          message: this.data.options.patternMessage ? this.data.options.patternMessage : '格式不匹配'
+        }
       } else {
         this.validator.pattern = null
       }
@@ -1327,12 +1442,10 @@ export default {
             this.data.options.defaultValue = this.defaultValue.value
           }
         }
+      } else if (this.data.type === 'cascader') {
+        this.data.options.remoteOptions[this.changeIndex] = this.defaultValue
       } else {
-        if (this.data.type === 'cascader') {
-          this.data.options.remoteOptions[this.changeIndex] = this.defaultValue
-        } else {
-          this.data.options.options[this.changeIndex] = this.defaultValue
-        }
+        this.data.options.options[this.changeIndex] = this.defaultValue
       }
     },
     changeDefaultValue(index) {
@@ -1376,7 +1489,7 @@ export default {
       this.data.options.page_code = null
       this.data.options.option = {}
       if (val) {
-        this.$Apis.object.object_list(val).then(response => {
+        this.$Apis.object.object_list(val).then((response) => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.object_options = response.payload.items
           }
@@ -1391,8 +1504,9 @@ export default {
       this.data.options.page_code = null
       this.data.options.option = {}
       const object_code = val
+
       if (val) {
-        this.$Apis.object.page_list_by_code(this.data.options.proj_code, object_code).then(response => {
+        this.$Apis.object.page_list_by_code(this.data.options.proj_code, object_code).then((response) => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.page_options = response.payload.items
           }
@@ -1410,15 +1524,22 @@ export default {
     },
     handlerFocus() {
       if (this.select2_option.length < 1) {
-        this.$Apis.object.get_headers_by_code(this.data.options.proj_code, this.data.options.object_code, this.data.options.page_code, true).then(response => {
-          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
-            this.select2_option = response.payload
-          }
-        })
+        this.$Apis.object
+          .get_headers_by_code(
+            this.data.options.proj_code,
+            this.data.options.object_code,
+            this.data.options.page_code,
+            true
+          )
+          .then((response) => {
+            if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+              this.select2_option = response.payload
+            }
+          })
       }
     },
     handleClearSelect() {
-      if (this.data.type=='checkbox' || (this.data.type=='select' && this.data.options.multiple)) {
+      if (this.data.type == 'checkbox' || (this.data.type == 'select' && this.data.options.multiple)) {
         this.data.options.defaultValue = []
       } else {
         this.data.options.defaultValue = null
@@ -1427,6 +1548,7 @@ export default {
   }
 }
 </script>
+<!--  -->
 <style lang="scss" scoped>
 .remote-databox {
   display: flex;
@@ -1463,5 +1585,44 @@ export default {
 .el-form .el-button.is-plain:hover,
 .el-form .el-button.is-plain:focus {
   color: #ffffff;
+}
+</style>
+<!-- 组件对齐 -->
+<style lang="scss" scoped>
+/deep/ .comp-align {
+  // display: flex;
+  // flex-wrap: nowrap;
+  padding-top: 10px;
+  span {
+    margin-right: 2px;
+    // line-height: 32px;
+  }
+  .el-form-item {
+    border: 0 !important;
+  }
+  .el-input {
+    // flex: 1;
+    .el-input-group__append {
+      background-color: #fff;
+      padding: 5px;
+    }
+  }
+}
+</style>
+<!-- 按钮颜色 -->
+<style lang="scss" scoped>
+/deep/ .btn-color-picker {
+  .el-color-picker__trigger {
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .color-picker-box-right {
+    vertical-align: middle;
+    cursor: default;
+
+    span {
+      cursor: text;
+    }
+  }
 }
 </style>

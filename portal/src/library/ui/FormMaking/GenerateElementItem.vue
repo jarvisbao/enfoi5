@@ -425,6 +425,7 @@
         :list="widget.options.list"
       />
     </div>
+
     <div v-if="widget.type == 'select2'">
       <select-table
         :id="id"
@@ -440,6 +441,19 @@
         @change="events['change']"
       />
     </div>
+
+    <template v-if="widget.type == 'button'">
+      <div :class="compAlign">
+        <el-button
+          type="primary"
+          class="comp-align-positon"
+          :style="compAlignStyle"
+          :disabled="widget.options.disabled"
+          :size="widget.options.btnSize"
+          @click="events['click']"
+        >{{ widget.name }}</el-button>
+      </div>
+    </template>
   </span>
 </template>
 
@@ -467,9 +481,10 @@ export default {
     FmFormInnerobject,
     FmFormOuterobject
   },
-  filters: { // 局部过滤器
-    toChies: function(amount) {
-      const negative = amount.toString().slice(0,1) === '-'
+  filters: {
+    // 局部过滤器
+    toChies: function (amount) {
+      const negative = amount.toString().slice(0, 1) === '-'
       const cnNums = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'] // 汉字的数字
       const cnIntRadice = ['', '拾', '佰', '仟'] // 基本单位
       const cnIntUnits = ['', '万', '亿', '兆'] // 对应整数部分扩展单位
@@ -477,10 +492,15 @@ export default {
       const cnInteger = '整' // 整数金额时后面跟的字符
       const cnIntLast = '元' // 整型完以后的单位
       const maxNum = 9999999999999999.99 // 最大处理的数字
+
       let integerNum // 金额整数部分
+
       let decimalNum // 金额小数部分
+
       let chineseStr = '' // 输出的中文金额字符串
+
       let parts // 分离金额后用的数组，预定义
+
       if (amount === '') {
         return ''
       }
@@ -511,11 +531,13 @@ export default {
       if (parseInt(integerNum, 10) > 0) {
         let zeroCount = 0
         const IntLen = integerNum.length
+
         for (let i = 0; i < IntLen; i++) {
           const n = integerNum.substr(i, 1)
           const p = IntLen - i - 1
           const q = p / 4
           const m = p % 4
+
           if (n === '0') {
             zeroCount++
           } else {
@@ -535,8 +557,10 @@ export default {
       // 小数部分
       if (decimalNum !== '') {
         const decLen = decimalNum.length
+
         for (let i = 0; i < decLen; i++) {
           const n = decimalNum.substr(i, 1)
+
           if (n !== '0') {
             chineseStr += cnNums[Number(n)] + cnDecUnits[i]
           }
@@ -553,39 +577,57 @@ export default {
       return chineseStr
     }
   },
-  props: ['widget', 'value', 'models', 'remote', 'isTable', 'blanks', 'edit', 'id', 'rules', 'designFields', 'helpers', 'formValue'],
+  props: [
+    'widget',
+    'value',
+    'models',
+    'remote',
+    'isTable',
+    'blanks',
+    'edit',
+    'id',
+    'rules',
+    'designFields',
+    'helpers',
+    'formValue'
+  ],
   data() {
     const that = this
+
     return {
+      fieldUnit: this.widget.options.unit,
+      conversion: this.widget.options.conversion,
+      textPosition: 'input_text_' + this.widget.options.textPosition, //文本对齐方式
+      compAlign: 'comp-align-' + this.widget.options.compAlign, //组件对齐方式
       dataModel: this.value,
-      dataModels: { ...this.models },
       moneyUnit: '',
       text: null,
       searchLoading: false,
-      event_names: ['change', 'blur', 'focus', 'input', 'clear'],
-      events: {},
-      key: new Date().getTime(),
-      tableColumns: [],
       dataLabel: null,
       isDisable: this.widget.options.disabled,
+
+      key: new Date().getTime(),
+      tableColumns: [],
+      dataModels: { ...this.models },
+      event_names: ['change', 'blur', 'focus', 'input', 'clear', 'click'],
+      events: {},
       cascaderProp: {
         emitPath: this.widget.options.emitPath,
         checkStrictly: true,
         lazy: this.widget.options.lazy,
-        lazyLoad (node, resolve) {
+        lazyLoad(node, resolve) {
           that.loadChild(node, resolve)
         }
-      },
-      fieldUnit: this.widget.options.unit,
-      conversion: this.widget.options.conversion,
-      textPosition: 'input_text_' + this.widget.options.textPosition
+      }
     }
   },
   computed: {
     Capitalization() {
       let total = this.dataLabel
+
       if (!this.edit || this.isDisable) {
         total = this.dataModel
+        return total
       }
       if (this.widget.options.dataType === 'money') {
         if (this.moneyUnit) {
@@ -596,6 +638,31 @@ export default {
           return total
         }
       }
+      return total
+    },
+    compAlignStyle() { //按钮组件样式
+      let styleSheet = {}
+
+      // 左右对齐的边距样式
+      if (this.widget.options.compAlign == 'right') {
+        styleSheet.right = this.widget.options.compAlignPosition + 'px'
+      } else {
+        styleSheet.left = this.widget.options.compAlignPosition + 'px'
+      }
+      // 设置按钮禁用样式
+      if (this.widget.options.disabled) {
+        styleSheet.filter = 'opacity(50%)'
+      }
+      // 按钮颜色
+      styleSheet.backgroundColor = styleSheet.borderColor = this.widget.options.btnColor;
+
+      // 自动识别按钮颜色设置按钮文字颜色
+      if (parseInt(styleSheet.backgroundColor.slice(1, 3), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(3, 5), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(5, 8), 16) > 136) {
+        styleSheet.color = '#000'
+      }
+      return styleSheet
     }
   },
   watch: {
@@ -604,6 +671,7 @@ export default {
     },
     dataModel(val) {
       let value = null
+
       if (val) {
         value = val
       }
@@ -626,7 +694,7 @@ export default {
   created() {
     if (this.widget.type === 'table') {
       if (JSON.stringify(this.widget.tableColumns) === '[]' && this.designFields) {
-        this.designFields.forEach(item => {
+        this.designFields.forEach((item) => {
           if (item.prop === this.widget.model) {
             this.widget.uselist = item.uselist
             if (item.object_form && !Array.isArray(item.object_form)) {
@@ -640,12 +708,10 @@ export default {
       this.getRemoteData()
     } else {
       if (this.widget.options.required && this.widget.type === 'select') {
-        if (this.widget.options.multiple && (this.widget.options.defaultValue.length < 1 && this.dataModel.length < 1)) {
+        if (this.widget.options.multiple && this.widget.options.defaultValue.length < 1 && this.dataModel.length < 1) {
           this.dataModel.push(this.widget.options.options[0].value)
-        } else {
-          if (!this.widget.options.defaultValue && !this.dataModel) {
-            this.dataModel = this.widget.options.options[0].value
-          }
+        } else if (!this.widget.options.defaultValue && !this.dataModel) {
+          this.dataModel = this.widget.options.options[0].value
         }
       }
       if (this.widget.type === 'select' && this.dataModel) {
@@ -661,7 +727,13 @@ export default {
       })
     }
 
-    if (this.widget.type === 'input' && (this.widget.options.dataType === 'number' || this.widget.options.dataType === 'integer' || this.widget.options.dataType === 'float' || this.widget.options.dataType === 'money')) {
+    if (
+      this.widget.type === 'input' &&
+      (this.widget.options.dataType === 'number' ||
+        this.widget.options.dataType === 'integer' ||
+        this.widget.options.dataType === 'float' ||
+        this.widget.options.dataType === 'money')
+    ) {
       if (this.conversion) {
         if (this.dataModel) {
           this.dataLabel = this.dataModel / this.conversion.replace('*', '')
@@ -679,26 +751,27 @@ export default {
         this.moneyUnit = this.conversion.replace('*', '')
         if (!this.edit || this.isDisable) {
           const val = Number(this.dataLabel)
+
           this.dataLabel = val.toLocaleString()
         }
-
       }
     }
 
     const events = this.widget.options.events || {}
+
     for (var index in this.event_names) {
       const event_name = this.event_names[index]
       const event = events[event_name] || {}
       const args = event.args || []
       const func_body = event.func_body || ''
       const func = new Function(args.toString(), func_body)
+
       this.events[event_name] = func.bind(this)
       // this.events[event_name] = func
     }
 
     if (this.widget.type === 'component' && !this.widget.options.isQuote) {
       Vue.component(`component-${this.widget.key}-${this.key}`, {
-        template: `<span>${this.widget.options.template}</span>`,
         props: ['value'],
         data: () => ({
           dataModel: this.value
@@ -714,7 +787,9 @@ export default {
           value(val) {
             this.dataModel = val
           }
-        }
+        },
+        template: `<span>${this.widget.options.template}</span>`
+
       })
       // 如果不是在主应用中打开表单生成器，需先把要注册的信息传入子应用后再注册
       if (this.$actions) {
@@ -724,6 +799,7 @@ export default {
           props: ['value'],
           value: this.value
         }
+
         this.$actions.setGlobalState({
           showComponent: data
         })
@@ -732,8 +808,10 @@ export default {
 
     if (this.widget.options.defaultValue) {
       let value = this.widget.options.defaultValue
+
       if (Array.isArray(value)) {
         const arr = []
+
         if (this.dataModel && Array.isArray(this.dataModel)) {
           for (var i = 0; i < this.dataModel.length; i++) {
             if (this.dataModel[i]) {
@@ -750,7 +828,11 @@ export default {
             this.dataModel = this.dataModel
           } else {
             value = this.widget.options.defaultValue
-            if (this.widget.options.multiple || this.widget.type === 'checkbox' || (this.widget.type === 'cascader' && this.widget.options.emitPath)) {
+            if (
+              this.widget.options.multiple ||
+              this.widget.type === 'checkbox' ||
+              (this.widget.type === 'cascader' && this.widget.options.emitPath)
+            ) {
               this.dataModel = []
               for (var i = 0; i < value.length; i++) {
                 if (value[i] && value[i].toString().match(/##(\S*)##/)) {
@@ -762,27 +844,35 @@ export default {
             }
           }
         })
+      } else if (this.dataModel && !this.dataModel.toString().match(/##(\S*)##/)) {
+        this.dataModel = this.dataModel
       } else {
-        if (this.dataModel && !this.dataModel.toString().match(/##(\S*)##/)) {
-          this.dataModel = this.dataModel
+        value = this.widget.options.defaultValue
+        if (value && value.toString().match(/##(\S*)##/)) {
+          this.dataModel = eval(value.match(/##(\S*)##/)[1])
         } else {
-          value = this.widget.options.defaultValue
-          if (value && value.toString().match(/##(\S*)##/)) {
-            this.dataModel = eval(value.match(/##(\S*)##/)[1])
-          } else {
-            this.dataModel = value
-          }
+          this.dataModel = value
         }
       }
     }
     if (['select', 'radio', 'checkbox', 'cascader'].includes(this.widget.type)) {
       if (this.widget.options.remote) {
         for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
-          if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
-            this.widget.options.remoteOptions[i].value = eval(this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1])
+          if (
+            this.widget.options.remoteOptions[i].value &&
+            this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)
+          ) {
+            this.widget.options.remoteOptions[i].value = eval(
+              this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1]
+            )
           }
-          if (this.widget.options.remoteOptions[i].label && this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)) {
-            this.widget.options.remoteOptions[i].label = eval(this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1])
+          if (
+            this.widget.options.remoteOptions[i].label &&
+            this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)
+          ) {
+            this.widget.options.remoteOptions[i].label = eval(
+              this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1]
+            )
           }
         }
       } else {
@@ -818,32 +908,43 @@ export default {
     this.helpers.instances[this.widget.model] = this
     Object.assign(this.helpers.refs, this.$refs)
   },
-  destroyed() {
-  },
+  destroyed() { },
   methods: {
     isDate(date) {
-      if (date === null || date === undefined) return false
-      if (isNaN(new Date(date).getTime())) return false
-      if (Array.isArray(date)) return false // deal with `new Date([ new Date() ]) -> new Date()`
+      if (date === null || date === undefined) {
+        return false
+      }
+      if (isNaN(new Date(date).getTime())) {
+        return false
+      }
+      if (Array.isArray(date)) {
+        return false
+      } // deal with `new Date([ new Date() ]) -> new Date()`
       return true
     },
     getRemoteData() {
       return new Promise((resolve, reject) => {
         let uri = ''
+
         let page = true
         const page_index = 1
         const newParams = { text: text, page_index: page_index }
+
         let page_size = 10
         const text = null
+
         if (this.widget.options.remoteUri) {
           // 判断是否开启分页
           uri = this.widget.options.remoteUri
 
           const params = uri.split('?')[1] || ''
+
           uri = uri.split('?')[0]
           const paramArr = params.split('&')
+
           for (let i = 0; i < paramArr.length; i++) {
             const str = paramArr[i].split('=')
+
             newParams[str[0]] = str[1]
           }
           if (this.widget.options.pagination) {
@@ -854,6 +955,7 @@ export default {
           }
           if (this.widget.options.remoteParams) {
             const uriParams = JSON.parse(this.widget.options.remoteParams)
+
             Object.assign(newParams, uriParams)
           }
         }
@@ -861,15 +963,17 @@ export default {
         newParams['page_size'] = page_size
         async function remote_http(uri, newParams) {
           const response = await _that.remote[_that.widget.options.remoteFunc](uri, newParams)
+
           if (response) {
             var data = response
+
             if (_that.widget.options.remoteData) {
               data = eval(_that.widget.options.remoteData)
               if (_that.widget.options.pagination && _that.widget.options.pageCount) {
                 _that.widget.options.pageCount = response.payload.pagination.pages
               }
             }
-            _that.widget.options.remoteOptions = data.map(item => {
+            _that.widget.options.remoteOptions = data.map((item) => {
               if (_that.widget.type !== 'cascader') {
                 return {
                   value: item[_that.widget.options.props.value],
@@ -886,23 +990,29 @@ export default {
                   return {
                     value: item[_that.widget.options.props.value],
                     label: item[_that.widget.options.props.label],
-                    children: _that.processRemoteProps(item[_that.widget.options.props.children], _that.widget.options.props)
+                    children: _that.processRemoteProps(
+                      item[_that.widget.options.props.children],
+                      _that.widget.options.props
+                    )
                   }
                 }
               }
             })
             if (_that.widget.options.required && _that.widget.type === 'select') {
-              if (_that.widget.options.multiple && (_that.widget.options.defaultValue.length < 1 && _that.dataModel.length < 1)) {
+              if (
+                _that.widget.options.multiple &&
+                _that.widget.options.defaultValue.length < 1 &&
+                _that.dataModel.length < 1
+              ) {
                 _that.dataModel.push(_that.widget.options.remoteOptions[0].value)
-              } else {
-                if (!_that.widget.options.defaultValue && !_that.dataModel) {
-                  _that.dataModel = _that.widget.options.remoteOptions[0].value
-                }
+              } else if (!_that.widget.options.defaultValue && !_that.dataModel) {
+                _that.dataModel = _that.widget.options.remoteOptions[0].value
               }
             }
           }
         }
         const _that = this
+
         remote_http(uri, newParams).then(() => {
           resolve(_that.dataModel)
         })
@@ -920,47 +1030,54 @@ export default {
         let uri = this.widget.options.remoteUri
         const newParams = {}
         const params = uri.split('?')[1] || ''
+
         if (params) {
           uri = uri.split('?')[0]
           const paramArr = params.split('&')
+
           for (let i = 0; i < paramArr.length; i++) {
             const str = paramArr[i].split('=')
+
             newParams[str[0]] = str[1]
           }
           if (this.widget.options.remoteParams) {
             const uriParams = JSON.parse(this.widget.options.remoteParams)
+
             Object.assign(newParams, uriParams)
           }
         }
         this.$set(newParams, this.widget.options.primary, node.data.value)
 
-        this.$Utils.request({
-          url: uri,
-          method: 'get',
-          params: newParams
-        }).then(response => {
-          if (response.code === 200) {
-            var data = response
-            if (this.widget.options.remoteData) {
-              data = eval(this.widget.options.remoteData)
-              setTimeout(() => {
-                const nodes = data
-                  .map(item => ({
+        this.$Utils
+          .request({
+            url: uri,
+            method: 'get',
+            params: newParams
+          })
+          .then((response) => {
+            if (response.code === 200) {
+              var data = response
+
+              if (this.widget.options.remoteData) {
+                data = eval(this.widget.options.remoteData)
+                setTimeout(() => {
+                  const nodes = data.map((item) => ({
                     value: item[this.widget.options.props.value],
                     label: item[this.widget.options.props.label]
                   }))
-                resolve(nodes)
-              }, 1000)
+
+                  resolve(nodes)
+                }, 1000)
+              }
+            } else {
+              resolve([])
             }
-          } else {
-            resolve([])
-          }
-        })
+          })
       }
     },
     processRemoteProps(children, props) {
       if (children && children.length) {
-        return children.map(item => {
+        return children.map((item) => {
           if (this.processRemoteProps(item[props.children], props).length) {
             return {
               value: item[props.value],
@@ -987,20 +1104,21 @@ export default {
         this.dataLabel = val
         this.dataModel = val * this.widget.options.conversion.replace('*', '')
       } else {
-        this.dataModel = val * 1
+        this.dataModel = Number(val)
       }
     },
     onInputMoney(value) {
-      const val = value.replace(/[^(\-)\d^\.]/g,'')
+      const val = value.replace(/[^(\-)\d^\.]/g, '')
+
       if (this.widget.options.conversion === '' || this.widget.options.conversion === '*1') {
         this.dataLabel = val.replace(/^(\-)*(\d*)\.(\d\d).*$/, '$1$2.$3')
-        this.dataModel = val * 1
+        this.dataModel = Number(val)
       }
       if (this.widget.options.conversion) {
         this.dataLabel = val
         this.dataModel = val * this.widget.options.conversion.replace('*', '')
       } else {
-        this.dataModel = val * 1
+        this.dataModel = Number(val)
       }
     },
     loadMore() {
@@ -1013,32 +1131,44 @@ export default {
     },
     getList() {
       var uri = this.widget.options.remoteUri || ''
-      const newParams = { page: true, page_index: this.widget.options.pageIndex, page_size: this.widget.options.pageSize, text: this.text }
+      const newParams = {
+        page: true,
+        page_index: this.widget.options.pageIndex,
+        page_size: this.widget.options.pageSize,
+        text: this.text
+      }
+
       if (uri) {
         const params = uri.split('?')[1] || ''
+
         uri = uri.split('?')[0]
         const paramArr = params.split('&')
+
         for (let i = 0; i < paramArr.length; i++) {
           const str = paramArr[i].split('=')
+
           newParams[str[0]] = str[1]
         }
         if (this.widget.options.remoteParams) {
           const uriParams = JSON.parse(this.widget.options.remoteParams)
+
           Object.assign(newParams, uriParams)
         }
       }
-      this.remote[this.widget.options.remoteFunc](uri, newParams).then(response => {
+      this.remote[this.widget.options.remoteFunc](uri, newParams).then((response) => {
         var data = response
+
         if (data) {
           if (this.widget.options.remoteData) {
             data = eval(this.widget.options.remoteData)
           }
-          const res = data.map(item => {
+          const res = data.map((item) => {
             return {
               value: item[this.widget.options.props.value],
               label: item[this.widget.options.props.label]
             }
           })
+
           this.widget.options.remoteOptions.push(...res)
         }
         this.searchLoading = false
@@ -1068,13 +1198,17 @@ export default {
     },
     onCascaderChange() {
       this.$nextTick(() => {
-        this.$parent && this.$parent.$parent && this.$parent.$parent.$refs.generateFormItem && this.$parent.$parent.$refs.generateFormItem.clearValidate()
+        this.$parent &&
+          this.$parent.$parent &&
+          this.$parent.$parent.$refs.generateFormItem &&
+          this.$parent.$parent.$refs.generateFormItem.clearValidate()
       })
     }
   }
 }
 </script>
 <style lang="scss">
+// 文本对齐样式-
 .input_text_left input {
   text-align: left;
 }
@@ -1083,5 +1217,24 @@ export default {
 }
 .input_text_center input {
   text-align: center;
+}
+// -文本对齐样式
+</style>
+<!--组件对齐样式-->
+<style lang="scss">
+.comp-align-left {
+  text-align: left;
+  .comp-align-positon {
+    position: relative;
+  }
+}
+.comp-align-center {
+  text-align: center;
+}
+.comp-align-right {
+  text-align: right;
+  .comp-align-positon {
+    position: relative;
+  }
 }
 </style>

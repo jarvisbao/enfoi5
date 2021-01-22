@@ -276,11 +276,37 @@ export default {
     },
     basicFields: {
       type: Array,
-      default: () => ['input', 'textarea', 'number', 'radio', 'checkbox', 'time', 'date', 'rate', 'select', 'switch', 'slider', 'text', 'carousel', 'html', 'select2']
+      default: () => [
+        'input',
+        'textarea',
+        'number',
+        'radio',
+        'checkbox',
+        'time',
+        'date',
+        'rate',
+        'select',
+        'switch',
+        'slider',
+        'text',
+        'carousel',
+        'html',
+        'select2',
+        'button'
+      ]
     },
     advanceFields: {
       type: Array,
-      default: () => ['blank', 'component', 'fileupload', 'imgupload', 'editor', 'cascader', 'innerobject', 'outerobject']
+      default: () => [
+        'blank',
+        'component',
+        'fileupload',
+        'imgupload',
+        'editor',
+        'cascader',
+        'innerobject',
+        'outerobject'
+      ]
     },
     layoutFields: {
       type: Array,
@@ -387,13 +413,12 @@ export default {
           }
         },
         funcGetToken(resolve) {
-          request.get('http://tools-server.xiaoyaoji.cn/api/uptoken').then(res => {
+          request.get('http://tools-server.xiaoyaoji.cn/api/uptoken').then((res) => {
             resolve(res.uptoken)
           })
         }
       },
-      widgetModels: {
-      },
+      widgetModels: {},
       blank: '',
       htmlTemplate: '',
       jsonTemplate: '',
@@ -453,20 +478,20 @@ export default {
   watch: {
     widgetForm: {
       deep: true,
-      handler: function(val) {
+      handler: function (val) {
         // console.log(this.$refs.widgetForm)
       }
     },
     codeActiveName(val) {
       this.codeCopyValue = this.codeActiveName === 'vue' ? this.vueTemplate : this.htmlTemplate
     },
-    '$lang': function(val) {
+    $lang: function (val) {
       this._loadComponents()
     }
   },
   created() {
     this._loadComponents()
-    Object.keys(this.remoteFuncs).forEach(element => {
+    Object.keys(this.remoteFuncs).forEach((element) => {
       this.remoteFuncsNames.push({ label: element, value: element })
     })
   },
@@ -475,11 +500,12 @@ export default {
 
     historyManager.clear().then(() => {
       EventBus.$on('on-history-add', () => {
-        // console.log('xxx', this.widgetFormSelect)
-        historyManager.add(this.widgetForm, (this.widgetFormSelect && this.widgetFormSelect.key) ? this.widgetFormSelect.key : '').then(() => {
-          _this.undo = true
-          _this.redo = false
-        })
+        historyManager
+          .add(this.widgetForm, this.widgetFormSelect && this.widgetFormSelect.key ? this.widgetFormSelect.key : '')
+          .then(() => {
+            _this.undo = true
+            _this.redo = false
+          })
       })
     })
   },
@@ -500,7 +526,6 @@ export default {
       return true
     },
     handlePreview() {
-      // console.log('2222', this.widgetForm)
       this.previewForm = _.cloneDeep(this.widgetForm)
       this.previewVisible = true
     },
@@ -508,23 +533,26 @@ export default {
       this.$refs.generateForm.reset()
     },
     handleTest() {
-      this.$refs.generateForm.getData().then(data => {
-        this.jsonVisible = true
-        this.jsonTemplate = data
-        this.$nextTick(() => {
-          if (!this.jsonClipboard) {
-            this.jsonClipboard = new Clipboard('.json-btn')
-            this.jsonClipboard.on('success', (e) => {
-              this.$message.success('复制成功')
-            })
-          }
-          this.jsonCopyValue = JSON.stringify(data)
+      this.$refs.generateForm
+        .getData()
+        .then((data) => {
+          this.jsonVisible = true
+          this.jsonTemplate = data
+          this.$nextTick(() => {
+            if (!this.jsonClipboard) {
+              this.jsonClipboard = new Clipboard('.json-btn')
+              this.jsonClipboard.on('success', (e) => {
+                this.$message.success('复制成功')
+              })
+            }
+            this.jsonCopyValue = JSON.stringify(data)
+          })
+          this.$refs.widgetPreview.end()
         })
-        this.$refs.widgetPreview.end()
-      }).catch(e => {
-        this.$message.error(e)
-        this.$refs.widgetPreview.end()
-      })
+        .catch((e) => {
+          this.$message.error(e)
+          this.$refs.widgetPreview.end()
+        })
     },
     handleGenerateJson() {
       this.jsonVisible = true
@@ -591,7 +619,7 @@ export default {
         json = JSON.parse(json)
       }
 
-      json.list.forEach(element => {
+      json.list.forEach((element) => {
         if (!('name_model' in element)) {
           element['name_model'] = { label: eval('element.name'), prop: eval('element.model') }
         }
@@ -605,6 +633,7 @@ export default {
         } else {
           const tips = this.widgetForm.config.events[event_name].tips
           const args = this.widgetForm.config.events[event_name].args
+
           json.config.events[event_name].tips = tips
           json.config.events[event_name].args = args
         }
@@ -628,25 +657,31 @@ export default {
       } else {
         this.widgetFormSelect = {}
       }
-      this.$nextTick(() => { EventBus.$emit('on-history-add') })
+
+      this.$nextTick(() => {
+        EventBus.$emit('on-history-add')
+      })
     },
     handleInput(val) {
-      // console.log(val)
       this.blank = val
     },
     handleField(item) {
-      // console.log(item)
       EventBus.$emit('on-field-add', item)
     },
     handleUndo() {
-      historyManager.updateLatest(this.widgetForm, (this.widgetFormSelect && this.widgetFormSelect.key) ? this.widgetFormSelect.key : '').then(() => {
-        historyManager.undo().then((data) => {
-          this.widgetForm = { ...data.data }
-          this.widgetFormSelect = this._findWidgetItem(this.widgetForm.list, data.key)
-          this.undo = data.undo
-          this.redo = data.redo
+      historyManager
+        .updateLatest(
+          this.widgetForm,
+          this.widgetFormSelect && this.widgetFormSelect.key ? this.widgetFormSelect.key : ''
+        )
+        .then(() => {
+          historyManager.undo().then((data) => {
+            this.widgetForm = { ...data.data }
+            this.widgetFormSelect = this._findWidgetItem(this.widgetForm.list, data.key)
+            this.undo = data.undo
+            this.redo = data.redo
+          })
         })
-      })
     },
     handleRedo() {
       historyManager.redo().then((data) => {
@@ -658,7 +693,7 @@ export default {
       })
     },
     _findWidgetItem(list, key) {
-      const index = list.findIndex(item => item.key === key)
+      const index = list.findIndex((item) => item.key === key)
 
       if (index >= 0) {
         return list[index]
@@ -704,7 +739,7 @@ export default {
       //   }
       // })
 
-      this.customComponents = this.customFields.map(item => {
+      this.customComponents = this.customFields.map((item) => {
         return {
           ...item,
           type: 'custom',

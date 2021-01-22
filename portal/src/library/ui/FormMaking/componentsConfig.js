@@ -381,7 +381,8 @@ export const basicComponents = [
         },
         {
           value: '下拉框2'
-        }, {
+        },
+        {
           value: '下拉框3'
         }
       ],
@@ -594,6 +595,32 @@ export const basicComponents = [
       }
     },
     name_model: { 'label': name, 'prop': null }
+  },
+  {
+    type: 'button',
+    name: '按钮',
+    icon: 'icon-input',
+    options: {
+      customClass: '',
+      disabled: false,
+      hideLabel: true,
+      hidden: false,
+      compAlign: 'left',
+      compAlignPosition: 0,
+      btnColor: '#409EFF',
+      btnSize: 'small',
+      events: {
+        click: {
+          args: ['number'],
+          tips: 'event: Event',
+          func_body: '',
+          func_name: ''
+        }
+      },
+      conversion: ''
+    },
+    name_model: { 'label': name, 'prop': null }
+
   }
 ]
 
@@ -696,15 +723,17 @@ export const advanceComponents = [
       hidden: false,
       dataBind: true,
       customToolbar: [
-        ['bold', 'italic', 'underline', 'strike',
+        ['bold',
+          'italic',
+          'underline',
+          'strike',
           { 'color': [] },
           { 'background': [] },
           { 'align': [] },
           { 'list': 'ordered' },
           { 'list': 'bullet' },
           { 'indent': '-1' },
-          { 'indent': '+1' }
-        ],
+          { 'indent': '+1' }],
         [{ 'font': [] }, { 'header': [1, 2, 3, 4, 5, 6, false] }],
         [{ 'script': 'sub' }, { 'script': 'super' }],
         ['link', 'image', 'blockquote', 'code-block'],
@@ -730,16 +759,17 @@ export const advanceComponents = [
           value: 'Option 1',
           label: 'Option 1',
           children: [
-            {value: 'Option 1 - children', label: 'Option 1 - children'}
+            { value: 'Option 1 - children', label: 'Option 1 - children' }
           ]
         },
         {
           value: 'Option 2',
           label: 'Option 2',
           children: [
-            {value: 'Option 2 - children', label: 'Option 2 - children'}
+            { value: 'Option 2 - children', label: 'Option 2 - children' }
           ]
-        },{
+        },
+        {
           value: 'Option 3',
           label: 'Option 3'
         }
@@ -845,7 +875,7 @@ export const layoutComponents = [
           customClass: ''
         },
         list: []
-      },
+      }
     ],
     options: {
       gutter: 0,
@@ -866,7 +896,7 @@ export const layoutComponents = [
       customClass: '',
       hidden: false,
       borderWidth: 1,
-      borderColor: '#999',
+      borderColor: '#999'
     },
     rows: [
       {
@@ -880,7 +910,7 @@ export const layoutComponents = [
               align: 'left',
               valign: 'top',
               width: '',
-              height: '',
+              height: ''
             },
             list: []
           }

@@ -241,6 +241,18 @@
     <template v-if="element.type == 'select2'">
       <el-button type="primary">选择</el-button>
     </template>
+
+    <template v-if="element.type == 'button'">
+      <div :class="compAlign">
+        <el-button
+          type="primary"
+          class="comp-align-positon"
+          :style="compAlignStyle"
+          :disabled="element.options.disabled"
+          :size="element.options.btnSize"
+        >{{ element.name }}</el-button>
+      </div>
+    </template>
   </span>
 </template>
 
@@ -260,8 +272,37 @@ export default {
       key: new Date().getTime()
     }
   },
+  computed: {
+    //组件对齐方式
+    compAlign: function () {
+      return 'comp-align-' + this.element.options.compAlign
+    },
+    compAlignStyle() { //按钮组件样式
+      let styleSheet = {}
+
+      // 左右对齐的边距样式
+      if (this.element.options.compAlign == 'right') {
+        styleSheet.right = this.element.options.compAlignPosition + 'px'
+      } else {
+        styleSheet.left = this.element.options.compAlignPosition + 'px'
+      }
+      // 设置按钮禁用样式
+      if (this.element.options.disabled) {
+        styleSheet.filter = 'opacity(50%)'
+      }
+      // 按钮颜色
+      styleSheet.backgroundColor = styleSheet.borderColor = this.element.options.btnColor;
+      // 自动识别按钮颜色设置按钮文字颜色
+      if (parseInt(styleSheet.backgroundColor.slice(1, 3), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(3, 5), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(5, 8), 16) > 136) {
+        styleSheet.color = '#000'
+      }
+      return styleSheet
+    }
+  },
   watch: {
-    'element.options.template': function(val) {
+    'element.options.template': function (val) {
       Vue.component(`component-${this.element.key}`, {
         props: ['dataModel'],
         template: `<span>${val}</span>`
@@ -275,12 +316,13 @@ export default {
           component: `<span>${val}</span>`,
           props: ['dataModel']
         }
+
         this.$actions.setGlobalState({
           rsgComponent: data
         })
       }
     },
-    'element.options.type': function(val) {
+    'element.options.type': function (val) {
       if (val === 'dates') {
         this.element.options.defaultValue = null
       } else {
@@ -291,8 +333,8 @@ export default {
   created() {
     if (this.element.type === 'component' && !this.element.options.isQuote) {
       Vue.component(`component-${this.element.key}`, {
-        template: `<span>${this.element.options.template}</span>`,
-        props: ['dataModel']
+        props: ['dataModel'],
+        template: `<span>${this.element.options.template}</span>`
       })
       // 如果不是在主应用中打开表单设计器，需先把要注册的信息传入子应用后再注册
       if (this.$actions) {
@@ -301,6 +343,7 @@ export default {
           component: `<span>${this.element.options.template}</span>`,
           props: ['dataModel']
         }
+
         this.$actions.setGlobalState({
           rsgComponent: data
         })
@@ -314,3 +357,27 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.center {
+  text-align: center;
+}
+</style>
+<!-- 组件对齐样式 -->
+<style lang="scss" scoped>
+.comp-align-left {
+  text-align: left;
+  .comp-align-positon {
+    position: relative;
+  }
+}
+.comp-align-center {
+  text-align: center;
+}
+.comp-align-right {
+  text-align: right;
+  .comp-align-positon {
+    position: relative;
+  }
+}
+</style>
