@@ -82,15 +82,14 @@
   </div>
 </template>
 <script>
-import CommonTitle from '@/components/CommonTitle'
 import classCreate from '../class/classCreate'
 import classUpdate from '../class/classUpdate'
 import { saveAs } from 'file-saver'
 import { instance as Vue } from '@/life-cycle'
 const checkPermission = Vue.$Utils.checkPermission
+
 export default {
   components: {
-    CommonTitle,
     classCreate,
     classUpdate
   },

@@ -467,7 +467,6 @@ import Vue from 'vue'
 import selectTable from './select2'
 import FmFormInnerobject from './FormObject/innerObject'
 import FmFormOuterobject from './FormObject/outerObject'
-import fecha from '../../js/date'
 
 export default {
   name: 'GenerateElementItem',
@@ -899,7 +898,7 @@ export default {
 
     if (this.widget.type === 'date' && this.widget.options.defaultValue && this.widget.options.type !== 'dates') {
       if (this.isDate(this.dataModel)) {
-        this.dataModel = fecha.format(new Date(this.dataModel), this.widget.options.format)
+        this.dataModel = this.$Utils.fecha.format(new Date(this.dataModel), this.widget.options.format)
       }
     }
   },

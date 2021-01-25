@@ -448,6 +448,19 @@
         @change="events['change']"
       />
     </div>
+
+    <template v-if="widget.type == 'button'">
+      <div :class="compAlign">
+        <van-button
+          type="info"
+          class="comp-align-positon"
+          :style="compAlignStyle"
+          :disabled="widget.options.disabled"
+          :size="widget.options.btnSize == 'medium' ? 'normal' : widget.options.btnSize"
+          @click="events['click']"
+        >{{ widget.name }}</van-button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -461,7 +474,6 @@ import Vue from 'vue'
 import selectTable from './select2'
 import FmFormInnerobject from './FormObject/innerObject'
 import FmFormOuterobject from './FormObject/outerObject'
-import fecha from '../../js/date'
 
 export default {
   name: 'GenerateElementItem',
@@ -570,7 +582,7 @@ export default {
       moneyUnit: '',
       text: null,
       searchLoading: false,
-      event_names: ['change', 'blur', 'focus', 'input', 'clear'],
+      event_names: ['change', 'blur', 'focus', 'input', 'clear', 'click'],
       events: {},
       key: new Date().getTime(),
       tableColumns: [],
@@ -605,6 +617,7 @@ export default {
       let total = this.dataLabel
       if (!this.edit || this.isDisable) {
         total = this.dataModel
+        return total
       }
       if (this.widget.options.dataType === 'money') {
         if (this.moneyUnit) {
@@ -614,6 +627,31 @@ export default {
         total *= 1
         return total
       }
+      return total
+    },
+    compAlignStyle() { //按钮组件样式
+      let styleSheet = {}
+
+      // 左右对齐的边距样式
+      if (this.widget.options.compAlign == 'right') {
+        styleSheet.right = this.widget.options.compAlignPosition + 'px'
+      } else {
+        styleSheet.left = this.widget.options.compAlignPosition + 'px'
+      }
+      // 设置按钮禁用样式
+      if (this.widget.options.disabled) {
+        styleSheet.filter = 'opacity(50%)'
+      }
+      // 按钮颜色
+      styleSheet.backgroundColor = styleSheet.borderColor = this.widget.options.btnColor;
+
+      // 自动识别按钮颜色设置按钮文字颜色
+      if (parseInt(styleSheet.backgroundColor.slice(1, 3), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(3, 5), 16) > 136 &&
+        parseInt(styleSheet.backgroundColor.slice(5, 8), 16) > 136) {
+        styleSheet.color = '#000'
+      }
+      return styleSheet
     }
   },
   watch: {
@@ -729,7 +767,6 @@ export default {
 
     if (this.widget.type === 'component' && !this.widget.options.isQuote) {
       Vue.component(`component-${this.widget.key}-${this.key}`, {
-        template: `<span>${this.widget.options.template}</span>`,
         props: ['value'],
         data: () => ({
           dataModel: this.value
@@ -745,7 +782,8 @@ export default {
           value(val) {
             this.dataModel = val
           }
-        }
+        },
+        template: `<span>${this.widget.options.template}</span>`
       })
       // 如果不是在主应用中打开表单生成器，需先把要注册的信息传入子应用后再注册
       if (this.$actions) {
@@ -786,7 +824,7 @@ export default {
         }
       }
     }
-    if (this.widget.type === 'select' || this.widget.type === 'radio' || this.widget.type === 'checkbox') {
+    if (['select', 'radio', 'checkbox', 'cascader'].includes(this.widget.type)) {
       if (this.widget.options.remote) {
         for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
           if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
@@ -807,19 +845,19 @@ export default {
         }
       }
     }
-    if (this.widget.type === 'cascader') {
-      for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
-        if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
-          this.widget.options.remoteOptions[i].value = eval(this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1])
-        }
-        if (this.widget.options.remoteOptions[i].label && this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)) {
-          this.widget.options.remoteOptions[i].label = eval(this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1])
-        }
-      }
-    }
+    // if (this.widget.type === 'cascader') {
+    //   for (var i = 0; i < this.widget.options.remoteOptions.length; i++) {
+    //     if (this.widget.options.remoteOptions[i].value && this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)) {
+    //       this.widget.options.remoteOptions[i].value = eval(this.widget.options.remoteOptions[i].value.match(/##(\S*)##/)[1])
+    //     }
+    //     if (this.widget.options.remoteOptions[i].label && this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)) {
+    //       this.widget.options.remoteOptions[i].label = eval(this.widget.options.remoteOptions[i].label.match(/##(\S*)##/)[1])
+    //     }
+    //   }
+    // }
 
     if (this.widget.type === 'date' && this.widget.options.defaultValue && this.widget.options.type !== 'dates') {
-      this.dataModel = fecha.format(new Date(this.dataModel), this.widget.options.format)
+      this.dataModel = this.$Utils.fecha.format(new Date(this.dataModel), this.widget.options.format)
       this.minDate = this.widget.options.minDate ? new Date(this.widget.options.minDate) : new Date(new Date().getFullYear() - 10, 0, 1)
       this.maxDate = this.widget.options.maxDate ? new Date(this.widget.options.maxDate) : new Date(new Date().getFullYear() + 10, 0, 1)
     }
@@ -1022,7 +1060,7 @@ export default {
         this.dataLabel = val
         this.dataModel = val * this.widget.options.conversion.replace('*', '')
       } else {
-        this.dataModel = val * 1
+        this.dataModel = Number(val)
       }
     },
     onInputMoney(value) {
@@ -1106,7 +1144,7 @@ export default {
       if (this.widget.type === 'time') {
         this.dataModel = value
       } else {
-        this.dataModel = fecha.format(new Date(value), this.widget.options.format)
+        this.dataModel = this.$Utils.fecha.format(new Date(value), this.widget.options.format)
       }
       this.showPicker = false
     },

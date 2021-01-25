@@ -11,6 +11,7 @@
         跳取当前页面
       </el-button>
       <top-other-methods
+        :is-outer-obj="true"
         :object_id="object_id"
         :page_id="page_id"
         :ids="ids"
@@ -24,6 +25,7 @@
         @showMtdEdit="showMtdEdit"
         @openDialog="openDialog"
         @refresh="refresh"
+        @mtdCreate="mtdCreate"
       />
       <div class="right-btn" style="display: flex; justify-content: flex-end;">
         <!-- 查询 -->
@@ -100,6 +102,16 @@
     <el-dialog v-if="dialogMtd" :visible.sync="dialogMtd" :title="mtdTitle" :close-on-click-modal="false" width="85%" append-to-body>
       <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
     </el-dialog>
+    <el-dialog :visible.sync="dialogMtdCreate" :close-on-click-modal="false" append-to-body title="新建">
+      <obj-mtd-create
+        :params="mtdParams"
+        :pntfk="pntfk"
+        :pntid="pntid"
+        :page_id="page_id"
+        @show="isMtdShow"
+        @refresh="refresh"
+      />
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -112,7 +124,8 @@ import commonFun from '@/library/ui/pageData/mixin/commonFun'
 export default {
   components: {
     objectCreate,
-    objectUpdate
+    objectUpdate,
+    objMtdCreate: () => import('./objMtdCreate')
   },
   mixins: [commonFun],
   props: ['value', 'models', 'remote', 'blanks', 'disabled', 'widget', 'helpers', 'designFields', 'formValue'],
@@ -178,7 +191,9 @@ export default {
       mtdTitle: '',
       mtd_get_url: null,
       fileAction: null,
-      reloadUri: null
+      reloadUri: null,
+      dialogMtdCreate: false,
+      mtdParams: null
     }
   },
   created() {

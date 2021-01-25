@@ -271,19 +271,19 @@ export default {
         })
         ids = ids.join(',')
         this.params = { object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, id: ids }
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
+        // var _result = []
+        // for (var key in this.params) {
+        //   var value = this.params[key]
+        //   if (Array.isArray(value)) {
+        //     value.forEach(function(_value) {
+        //       _result.push(key + '=' + _value)
+        //     })
+        //   } else if (value === null) {
+        //     _result.push(key + '=')
+        //   } else {
+        //     _result.push(key + '=' + value)
+        //   }
+        // }
 
         const params = url.split('?')[1] || ''
         if (params) {
@@ -312,7 +312,6 @@ export default {
         }).catch(() => {})
       } else {
         if (item.uriopentype === '0') {
-          console.log('11', newUrl)
           window.open(newUrl, '_blank')
         } else if (item.uriopentype === '1') {
           this.$Utils.util.routerGo(newUrl)

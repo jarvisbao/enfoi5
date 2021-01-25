@@ -4,6 +4,9 @@
       <el-button v-if="can_create && !is_view" type="primary" plain @click="create">
         添加
       </el-button>
+      <el-button :id="'mtd-create_'+index" v-for="(item, index) in newOtherMethods" :key="index" type="primary" plain @click="mtdCreate(item)">
+        {{ item.operate_name }}
+      </el-button>
       <div class="right-btn">
         <el-input id="search" v-if="widget.options.search" v-model="text" prefix-icon="el-icon-search" placeholder="请输入内容" class="search-input" />
       </div>
@@ -66,9 +69,9 @@
       ref="addInnerObj"
       :visible="innerObjVisible"
       :action="false"
+      :title="dialogTitle"
       width="70%"
       form
-      title="添加子对象"
     >
       <fm-generate-form ref="innerObjForm" :data="innerObjData" :remote="remoteFuncs" :value="editData" :show-btn="false" />
       <div style="text-align:center;">
@@ -87,10 +90,9 @@ import cusDialog from '../CusDialog'
 
 export default {
   components: {
-    GenerateElementItem: () => import('../GenerateElementItem.vue'),
+    // GenerateElementItem: () => import('../GenerateElementItem.vue'),
     cusDialog
   },
-  props: ['value', 'models', 'remote', 'blanks', 'disabled', 'widget', 'helpers'],
   filters: {
     formatterFun: function(value, values, labels) {
       // if (!value) return value
@@ -116,6 +118,7 @@ export default {
       return result
     }
   },
+  props: ['value', 'models', 'remote', 'blanks', 'disabled', 'widget', 'helpers'],
   data() {
     const that = this
     return {
@@ -168,7 +171,10 @@ export default {
         page: 1
       },
       page_size: 10,
-      layout: 'sizes, prev, pager, next'
+      layout: 'sizes, prev, pager, next',
+      object_id: null,
+      newOtherMethods: [],
+      dialogTitle: ''
     }
   },
   computed: {
@@ -229,7 +235,10 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.is_view = response.payload.is_view
           this.innerObjData = JSON.parse(response.payload.design_form)
+          this.object_id = response.payload.object_id
+          const other_methods = response.payload.other_methods
           this.fetchData()
+          this.get_method(other_methods)
           if (!this.page_code) {
             this.can_create = response.payload.can_create
           } else {
@@ -247,6 +256,8 @@ export default {
         if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
           this.is_view = response.payload.is_view
           this.can_create = response.payload.can_create
+          const other_methods = response.payload.other_methods
+          this.get_method(other_methods)
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'
@@ -261,9 +272,25 @@ export default {
         }
       })
     },
+    get_method(other_methods) {
+      this.$Apis.object.method_list_by_id(this.object_id).then(response => {
+        if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+          if (other_methods !== null) {
+            other_methods.forEach(element => {
+              response.payload.items.forEach(item => {
+                if (element === item.mtd_id && item.operate_type === 8) {
+                  this.newOtherMethods.push(item)
+                }
+              })
+            })
+          }
+        }
+      })
+    },
     create() {
       this.innerObjVisible = !this.innerObjVisible
       this.editData = {}
+      this.dialogTitle = '添加子对象'
     },
     handleAddInnerObj() {
       this.$refs.innerObjForm.getData().then(data => {
@@ -283,6 +310,7 @@ export default {
       this.updateIndex = index
       this.editData = row
       this.innerObjVisible = !this.innerObjVisible
+      this.dialogTitle = '修改子对象'
     },
     handleRemove(index) {
       this.objectData.splice(index, 1)
@@ -293,6 +321,82 @@ export default {
     },
     handleCurrentChange(val) {
       this.pagination.page = val
+    },
+    mtdCreate(item) {
+      this.dialogTitle = item.operate_name
+      if (item.uri) {
+        const pntfk = this.$route.query.pntfk ? this.$route.query.pntfk : null
+        const pntid = this.$route.query.pntid ? this.$route.query.pntid : null
+        const pnt_clsname = this.$route.query.pnt_clsname ? this.$route.query.pnt_clsname : null
+        let newUrl = null
+        const params = { r_objectid: this.object_id, r_pntfk: pntfk, r_pntid: pntid, r_pnt_clsname: pnt_clsname }
+        if (this.$Utils.validate.isExternal(item.uri)) {
+          newUrl = item.uri
+        } else {
+          var _result = []
+          for (var key in params) {
+            var value = params[key]
+            if (Array.isArray(value)) {
+              value.forEach(function(_value) {
+                _result.push(key + '=' + _value)
+              })
+            } else if (value === null || value === undefined) {
+              _result.push(key + '=')
+            } else {
+              _result.push(key + '=' + value)
+            }
+          }
+
+          const arg = item.uri.split('?')[1] || ''
+          if (arg) {
+            newUrl = item.uri + '&' + _result.join('&')
+          } else {
+            newUrl = item.uri + '?' + _result.join('&')
+          }
+        }
+        if (item.confirm_msg) {
+          this.$confirm(item.confirm_msg, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+            confirmButtonClass: 'confirm-button',
+            cancelButtonClass: 'cancel-button'
+          }).then(() => {
+            window.open(newUrl, '_blank')
+          }).catch(() => {})
+        } else {
+          window.open(newUrl, '_blank')
+        }
+      } else {
+        this.$Apis.object.method_info(item.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            const design_form = response.payload.design_form
+            if (!design_form && !item.uri) {
+              this.$alert('请设置表单或填写URL地址', '提示', {
+                confirmButtonText: '确定'
+              })
+              return false
+            }
+            if (item.confirm_msg) {
+              this.$confirm(item.confirm_msg, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                confirmButtonClass: 'confirm-button',
+                cancelButtonClass: 'cancel-button'
+              }).then(() => {
+                this.innerObjData = JSON.parse(response.payload.design_form)
+                this.editData = {}
+                this.innerObjVisible = !this.innerObjVisible
+              }).catch(() => {})
+            } else {
+              this.innerObjData = JSON.parse(response.payload.design_form)
+              this.editData = {}
+              this.innerObjVisible = !this.innerObjVisible
+            }
+          }
+        })
+      }
     }
   }
 }

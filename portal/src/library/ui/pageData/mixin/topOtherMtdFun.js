@@ -248,19 +248,19 @@ export default {
           })
         })
         this.params = { object_id: this.object_id, page_id: this.page_id, ids: ids, mtd_id: item.mtd_id }
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
+        // var _result = []
+        // for (var key in this.params) {
+        //   var value = this.params[key]
+        //   if (Array.isArray(value)) {
+        //     value.forEach(function(_value) {
+        //       _result.push(key + '=' + _value)
+        //     })
+        //   } else if (value === null) {
+        //     _result.push(key + '=')
+        //   } else {
+        //     _result.push(key + '=' + value)
+        //   }
+        // }
 
         const params = url.split('?')[1] || ''
         if (params) {
@@ -302,95 +302,84 @@ export default {
       }
     },
     // 类“新建”操作
-    clickType8(item) {
+    clickType8(item, isOuterObj) {
+      /**
+       * 若url有值，则以url为主，按原有逻辑跳转, 如果是外置子对象则以新窗口的方式打开
+       * 若url没有值，表单有值，则以表单值为主
+       * 或url,表单都有值，以URL为主
+      */
       // 如果有注入JavaScript代码，先注入JS代码
       if (item.append_script) {
         this.add_script(item.append_script)
       }
       const url = item.uri
-      if (!url) {
-        this.$alert('没有URL地址', '提示', {
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      let newUrl = null
-      this.params = { r_objectid: this.object_id, r_pntfk: this.pntfk, r_pntid: this.pntid, r_pnt_clsname: this.pnt_clsname }
-      if (this.$Utils.validate.isExternal(url)) {
-        newUrl = url
-      } else {
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
 
-        const params = url.split('?')[1] || ''
-        if (params) {
-          newUrl = url + '&' + _result.join('&')
+      if (url) {
+        let newUrl = null
+        this.params = { r_objectid: this.object_id, r_pntfk: this.pntfk, r_pntid: this.pntid, r_pnt_clsname: this.pnt_clsname }
+        if (this.$Utils.validate.isExternal(url)) {
+          newUrl = url
         } else {
-          newUrl = url + '?' + _result.join('&')
-        }
-      }
-
-      if (item.confirm_msg) {
-        this.$confirm(item.confirm_msg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          confirmButtonClass: 'confirm-button',
-          cancelButtonClass: 'cancel-button'
-        }).then(() => {
-          if (item.uriopentype === '0' && !this.$Utils.validate.isExternal(url)) {
-            this.$Utils.request({
-              url: url,
-              method: 'post',
-              data: this.params
-            }).then((response) => {
-              this.$alert(response.payload, '提示', {
-                confirmButtonText: '确定',
-                callback: action => {
-                  this.$emit('refresh')
-                }
+          var _result = []
+          for (var key in this.params) {
+            var value = this.params[key]
+            if (Array.isArray(value)) {
+              value.forEach(function(_value) {
+                _result.push(key + '=' + _value)
               })
-            })
-          } else if(item.uriopentype === '1') {
-            window.open(newUrl, '_blank')
-          } else if (item.uriopentype === '2') {
-            this.$Utils.util.routerGo(newUrl)
-          } else {
-            this.$emit('openDialog', { title: item.operate_name, url: newUrl})
+            } else if (value === null || value === undefined) {
+              _result.push(key + '=')
+            } else {
+              _result.push(key + '=' + value)
+            }
           }
-        }).catch(() => {})
-      } else {
-        if (item.uriopentype === '0' && !this.$Utils.validate.isExternal(url)) {
-          this.$Utils.request({
-            url: url,
-            method: 'post',
-            data: this.params
-          }).then((response) => {
-            this.$alert(response.payload, '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                this.$emit('refresh')
-              }
-            })
-          })
-        } else if(item.uriopentype === '1') {
-          window.open(newUrl, '_blank')
-        } else if (item.uriopentype === '2') {
-          this.$Utils.util.routerGo(newUrl)
-        } else {
-          this.$emit('openDialog', { title: item.operate_name, url: newUrl})
+
+          const params = url.split('?')[1] || ''
+          if (params) {
+            newUrl = url + '&' + _result.join('&')
+          } else {
+            newUrl = url + '?' + _result.join('&')
+          }
         }
+
+        if (item.confirm_msg) {
+          this.$confirm(item.confirm_msg, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+            confirmButtonClass: 'confirm-button',
+            cancelButtonClass: 'cancel-button'
+          }).then(() => {
+            this.isUrlTodo(item, url, newUrl, isOuterObj)
+          }).catch(() => {})
+        } else {
+          this.isUrlTodo(item, url, newUrl, isOuterObj)
+        }
+      } else {
+        this.$Apis.object.method_info(item.mtd_id).then(response => {
+          if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
+            const data = response.payload
+            if (!data.design_form && !url) {
+              this.$alert('请设置表单或填写URL地址', '提示', {
+                confirmButtonText: '确定'
+              })
+              return false
+            }
+            if (item.confirm_msg) {
+              this.$confirm(item.confirm_msg, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                confirmButtonClass: 'confirm-button',
+                cancelButtonClass: 'cancel-button'
+              }).then(() => {
+                this.isFormTodo(item, isOuterObj)
+              }).catch(() => {})
+            } else {
+              this.isFormTodo(item, isOuterObj)
+            }
+          }
+        })
       }
     },
     // 文件导入操作
@@ -430,6 +419,64 @@ export default {
         })
       }
       fileList = []
+    },
+    isUrlTodo(item, url, newUrl, isOuterObj) {
+      if (isOuterObj) {
+        if (item.uriopentype === '3') {
+          this.$emit('openDialog', { title: item.operate_name, url: newUrl})
+        } else {
+          window.open(newUrl, '_blank')
+        }
+      } else {
+        if (item.uriopentype === '0' && !this.$Utils.validate.isExternal(url)) {
+          this.$Utils.request({
+            url: url,
+            method: 'post',
+            data: this.params
+          }).then((response) => {
+            this.$alert(response.payload, '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.$emit('refresh')
+              }
+            })
+          })
+        } else if (item.uriopentype === '1') {
+          window.open(newUrl, '_blank')
+        } else if (item.uriopentype === '2') {
+          this.$Utils.util.routerGo(newUrl)
+        } else {
+          this.$emit('openDialog', { title: item.operate_name, url: newUrl})
+        }
+      }
+    },
+    isFormTodo(item, isOuterObj) {
+      if (isOuterObj) {
+        if (item.uriopentype === '3') {
+          this.$emit('mtdCreate', {object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, mtd_code: item.mtd_code})
+        } else {
+          const route = this.$router.resolve({
+            name: 'data_mtd_create',
+            query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id, mtd_id: item.mtd_id, mtd_code: item.mtd_code }
+          })
+          window.open(route.href, '_blank')
+        }
+      } else {
+        if (item.uriopentype === '0' || item.uriopentype === '2') {
+          this.$router.push({
+            name: 'data_mtd_create',
+            query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id, mtd_id: item.mtd_id, mtd_code: item.mtd_code }
+          })
+        } else if (item.uriopentype === '1') {
+          const route = this.$router.resolve({
+            name: 'data_mtd_create',
+            query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id, mtd_id: item.mtd_id, mtd_code: item.mtd_code }
+          })
+          window.open(route.href, '_blank')
+        } else {
+          this.$emit('mtdCreate', {object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, mtd_code: item.mtd_code})
+        }
+      }
     }
   }
 }

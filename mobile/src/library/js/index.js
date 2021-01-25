@@ -11,6 +11,8 @@ import request from './request'
 import * as validate from './validate'
 import * as util from './util'
 import router_permission from './permission'
+import { UpgradeData } from './version-upgrade'
+import fecha from './date'
 
 const _exports = {
   auth,
@@ -24,7 +26,9 @@ const _exports = {
   checkPermission,
   request,
   util,
-  router_permission
+  router_permission,
+  UpgradeData,
+  fecha
 }
 
 export default _exports

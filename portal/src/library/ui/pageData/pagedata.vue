@@ -35,6 +35,7 @@
           @showMtdEdit="showMtdEdit"
           @openDialog="openDialog"
           @refresh="refresh"
+          @mtdCreate="mtdCreate"
         />
         <div class="right-btn" style="display: flex; justify-content: flex-end;">
           <!-- 查询 -->
@@ -71,7 +72,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-      <el-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
+      <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
         <!-- <assignments-create v-if="assignmentVisible" :action_id="action_id" :assignments_list="items" @show="isShow" @refresh="refresh"/> -->
         <method-batch-edit
           :batch-data="batchData"
@@ -85,8 +86,16 @@
           @refresh="refresh"
         />
       </el-dialog>
-      <el-dialog v-if="dialogMtd" :visible.sync="dialogMtd" :title="mtdTitle" :close-on-click-modal="false" width="85%" append-to-body>
+      <el-dialog :visible.sync="dialogMtd" :title="mtdTitle" :close-on-click-modal="false" width="85%" append-to-body>
         <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
+      </el-dialog>
+      <el-dialog :visible.sync="dialogMtdCreate" :close-on-click-modal="false" append-to-body title="新建">
+        <page-data-mtd-create
+          :is-module="true"
+          :params="mtdParams"
+          @show="isMtdShow"
+          @refresh="refresh"
+        />
       </el-dialog>
     </div>
   </div>
@@ -99,6 +108,7 @@ import commonFun from './mixin/commonFun'
 export default {
   name: 'PageData',
   components: {
+    pageDataMtdCreate: () => import('./pageDataMtdCreate')
   },
   mixins: [commonFun],
   props: {
@@ -191,7 +201,9 @@ export default {
       mtdTitle: '',
       mtd_get_url: null,
       fileAction: null,
-      reloadUri: null
+      reloadUri: null,
+      dialogMtdCreate: false,
+      mtdParams: null
     }
   },
   created() {

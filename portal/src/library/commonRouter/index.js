@@ -51,6 +51,12 @@ export default [
         component: () => import('@/library/ui/pageData/page_object_update'),
         props: { edit: false },
         meta: { title: '查看界面数据', isBack: true }
+      },
+      {
+        path: 'mtd_create',
+        name: 'data_mtd_create',
+        component: () => import('@/library/ui/pageData/pageDataMtdCreate'),
+        meta: { title: '创建界面数据', isBack: true }
       }
     ]
   },

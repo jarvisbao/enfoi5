@@ -179,6 +179,7 @@ export default {
       generateShow: false,
       resetModels: {},
       formKey: new Date().getTime(),
+      formStyleKey: Math.random().toString(36).slice(-8),
       formValue: this.value,
       helpers: {
         nameModels: {},
@@ -232,6 +233,22 @@ export default {
         func(this.value)
       }
     }
+
+    const _this = this
+
+    this.$Utils.EventBus.$on('on-change', (value, field) => {
+      _this.$emit('on-change', field, value, _this.models)
+      _this.$emit(`on-${field}-change`, value)
+      console.log('------------on-change---------------', _this.models)
+
+      _this.setData({
+        [field]: value
+      })
+    })
+
+    let head = '.fm-' + this.formStyleKey + ' '
+
+    this.$Utils.util.updateStyleSheets(this.$Utils.util.splitStyleSheets(this.data.config.styleSheets), head)
   },
   destroyed() {
     delete this.helpers.nameModels
@@ -240,6 +257,11 @@ export default {
     delete this.helpers.itemNameModels
     delete this.helpers.itemRefs
     delete this.helpers.itemInstances
+
+    this.$Utils.EventBus.$off('on-change')
+
+    let head = '.fm-' + this.formStyleKey + ' '
+    this.$Utils.util.clearStyleSheets(head)
   },
   methods: {
     _initForm() {
@@ -250,6 +272,7 @@ export default {
       }
 
       this.resetModels = _.cloneDeep(this.models)
+      this.models = {...this.models}
     },
     generateModel(genList) {
       for (let i = 0; i < genList.length; i++) {
@@ -404,35 +427,61 @@ export default {
         }
       }
     },
-    getData() {
+    getData(isValidate = true) {
       return new Promise((resolve, reject) => {
-        this.$refs.generateForm.validate().then(() => {
-          const resData = {}
-          const models = JSON.parse(JSON.stringify(this.formValue))
-          Object.keys(models).forEach(key => {
-            if (key in this.displayFields && this.displayFields[key]) {
-              resData[key] = models[key]
-            } else {
-              resData[key] = models[key]
-            }
-          })
-          const events = this.data.config.events || {}
-          if ('onsubmit' in events) {
-            const event = events.onsubmit || {}
-            const args = event.args || []
-            const func_body = event.func_body || ''
-            if (func_body !== '') {
-              const func = new Function(args.toString(), func_body).bind(this)
-              const errmsg = func(resData)
-              if (errmsg) {
-                reject(new Error(errmsg).message)
+        if (isValidate) {
+          this.$refs.generateForm.validate().then(() => {
+            const resData = {}
+            const models = JSON.parse(JSON.stringify(this.formValue))
+            Object.keys(models).forEach(key => {
+              if (key in this.displayFields && this.displayFields[key]) {
+                resData[key] = models[key]
+              } else {
+                resData[key] = models[key]
+              }
+            })
+            const events = this.data.config.events || {}
+            if ('onsubmit' in events) {
+              const event = events.onsubmit || {}
+              const args = event.args || []
+              const func_body = event.func_body || ''
+              if (func_body !== '') {
+                const func = new Function(args.toString(), func_body).bind(this)
+                const errmsg = func(resData)
+                if (errmsg) {
+                  reject(new Error(errmsg).message)
+                }
               }
             }
-          }
-          resolve(JSON.parse(JSON.stringify(resData)))
-        }).catch(e => {
-          reject(new Error('表单数据校验失败').message)
-        })
+            resolve(JSON.parse(JSON.stringify(resData)))
+          }).catch(e => {
+            reject(new Error('表单数据校验失败').message)
+          })
+        } else {
+          const resData = {}
+            const models = JSON.parse(JSON.stringify(this.formValue))
+            Object.keys(models).forEach(key => {
+              if (key in this.displayFields && this.displayFields[key]) {
+                resData[key] = models[key]
+              } else {
+                resData[key] = models[key]
+              }
+            })
+            const events = this.data.config.events || {}
+            if ('onsubmit' in events) {
+              const event = events.onsubmit || {}
+              const args = event.args || []
+              const func_body = event.func_body || ''
+              if (func_body !== '') {
+                const func = new Function(args.toString(), func_body).bind(this)
+                const errmsg = func(resData)
+                if (errmsg) {
+                  reject(new Error(errmsg).message)
+                }
+              }
+            }
+            resolve(JSON.parse(JSON.stringify(resData)))
+        }
       })
     },
     reset() {
@@ -464,9 +513,43 @@ export default {
     disabled(fields, disabled) {
       this._setDisabled(this.data.list, fields, disabled)
     },
-    refresh() {},
+    refresh() {
+      this._initForm()
+    },
     setData(value) {
-      this.models = { ...this.models, ...value }
+      // this.models = { ...this.models, ...value }
+      Object.keys(value).forEach(item => {
+        this.$set(this.models, item, value[item])
+      })
+    },
+    _findComponentDownward(context, name, result) {
+      let children = context.$children
+
+      if (result) {
+        return result
+      }
+
+      if (children.length == 0) {
+        result = null
+      } else {
+        for (let i = 0; i < children.length; i++) {
+          let currentComponent = children[i]
+
+          let currentRefArray = Object.keys(currentComponent.$refs)
+
+          if (currentRefArray.indexOf(name) >= 0) {
+            result = currentComponent.$refs[name]
+            break
+          } else {
+            result = this._findComponentDownward(currentComponent, name, result)
+          }
+        }
+      }
+      return result
+    },
+    // 获取对应字段的组件
+    getComponent (refName) {
+      return this._findComponentDownward(this, refName, null)
     }
   }
 }

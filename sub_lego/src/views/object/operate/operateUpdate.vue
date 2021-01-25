@@ -65,14 +65,14 @@
               </el-checkbox-group>
             </el-form-item> -->
           </template>
-          <template v-if="operate.operate_type===3 || operate.operate_type===2">
+          <template v-if="[2, 3, 8].includes(operate.operate_type)">
             <el-form-item label="表单设计">
               <div class="form-design-btn" @click="formDesign">
                 自定义表单
               </div>
             </el-form-item>
           </template>
-          <template v-if="operate.operate_type===4||operate.operate_type===5||operate.operate_type===6||operate.operate_type===7||operate.operate_type===8||operate.operate_type===9">
+          <template v-if="[4, 5, 6, 7, 8, 9].includes(operate.operate_type)">
             <el-form-item label="URL地址" prop="uri">
               <el-input id="operateUrl" v-model="operate.uri" />
               <div class="tips">
@@ -80,7 +80,7 @@
               </div>
             </el-form-item>
           </template>
-          <el-form-item v-if="operate.operate_type===5||operate.operate_type===7||operate.operate_type===8" label="页面打开方式">
+          <el-form-item v-if="[5, 7, 8].includes(operate.operate_type)" label="页面打开方式">
             <el-select id="openType" v-model="operate.uriopentype" placeholder="请选择">
               <template v-if="operate.operate_type===8">
                 <el-option value="0" label="无" />
@@ -345,7 +345,7 @@ export default {
           const mtd_id = this.get_mtd_id()
           const operate_name = this.operate.operate_name
           const operate_type = this.operate.operate_type
-          if (operate_type !== 3 && operate_type !== 2) {
+          if (![2, 3, 8].includes(operate_type)) {
             this.operate.design_form = null
           }
           const edit_prop = this.operate.edit_prop

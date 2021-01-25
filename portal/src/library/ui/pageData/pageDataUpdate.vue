@@ -12,7 +12,7 @@
       @handle-back="handleReset"
     />
     <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
-      <el-button v-if="edit" id="submit" :loading="$store.state.app.loading" type="danger" @click="handleSubmit">
+      <el-button v-if="edit" id="submit" :loading="loading" type="danger" @click="handleSubmit">
         立即修改
       </el-button>
       <el-button id="cancel" plain @click="handleReset">
@@ -22,8 +22,6 @@
   </div>
 </template>
 <script>
-  import Vue from 'vue'
-  const request = Vue.prototype.$Utils.request
 
   export default {
     props: {
@@ -33,6 +31,7 @@
       }
     },
     data() {
+      const that = this
       return {
         jsonData: {},
         editData: {},
@@ -41,7 +40,7 @@
         remoteFuncs: {
           remote_http_get(uri, body) {
             if (uri) {
-              return request({
+              return that.$Utils.request({
                 url: uri,
                 method: 'get',
                 params: body
@@ -54,7 +53,7 @@
           },
           remote_http_post(uri, body) {
             if (uri) {
-              return request({
+              return that.$Utils.request({
                 url: uri,
                 method: 'get',
                 params: body
@@ -77,7 +76,8 @@
         objid: null,
         inIframe: false,
         custom_btn: false,
-        reloadUri: null
+        reloadUri: null,
+        loading: false
       }
     },
     computed: {

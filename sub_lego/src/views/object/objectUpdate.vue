@@ -90,7 +90,8 @@
               filterable
               filter-placeholder="请输入搜索内容"
               target-order="push"
-              @right-check-change="rightCheck">
+              @right-check-change="rightCheck"
+            >
               <el-button slot="right-footer" :disabled="upDisable" size="mini" @click="upData" style="margin-left: 15px;">
                 上移
               </el-button>
@@ -341,7 +342,7 @@
             </div>
           </el-form-item>
           <el-form-item label="对象用途描述">
-            <el-input id="description" v-model="object.description" />
+            <el-input id="description" v-model="object.description" type="textarea" />
           </el-form-item>
         </el-tab-pane>
         <!-- 结果:results -->
@@ -421,6 +422,7 @@
       <fm-making-form
         ref="makingform"
         :design-fields="fields"
+        :templates="templates"
         style="height: 500px;"
         clearable
         preview
@@ -461,12 +463,26 @@ export default {
         callback()
       }
     }
+    var validateFm = (rule, value, callback) => {
+      let json = null
+      if (value && typeof value === 'string') {
+        json = JSON.parse(value)
+      }
+      if (!value) {
+        callback(new Error('请设计表单!'))
+      } else if (json.list.length < 1) {
+        callback(new Error('未定义表单内容!'))
+      } else {
+        callback()
+      }
+    }
     return {
       biz_id_up: [],
       rules: {
         object_name: [{ required: true, message: '请输入对象名称', trigger: 'blur' }],
         object_code: [{ required: true, message: '请输入对象代码', trigger: 'blur' }],
         biz_id: [{ required: true, message: '请选择业务类', trigger: 'change' }],
+        design_form: [{ validator: validateFm, trigger: 'blur' }],
         props: [{ validator: validateJson, trigger: 'blur' }]
       },
       loading: false,
@@ -641,7 +657,6 @@ export default {
       }
     },
     fetchData() {
-      this.loading = true
       this.get_object_code()
       this.get_proj_code()
       this.get_biz_name()
@@ -702,7 +717,6 @@ export default {
           })
           this.getFields()
           this.getMethods(this.object.object_id)
-          this.loading = false
         } else {
           this.$alert(response.message, '提示', {
             confirmButtonText: '确定'
@@ -712,7 +726,6 @@ export default {
     },
     getMethods(object_id) {
       this.$Apis.object.method_list_by_id(object_id).then(response => {
-        this.loading = false
         this.methodsItems = response.payload.items
         this.methodsItems.forEach(element => {
           if (element.operate_type === 3 || element.operate_type === 4 || element.operate_type === 5) {
@@ -858,6 +871,8 @@ export default {
                 }
               })
             }
+          }).catch(e => {
+            this.loading = false
           })
         } else {
           return false
@@ -887,12 +902,26 @@ export default {
     formDesign() {
       if (this.object.design_form) {
         setTimeout(() => {
-          this.$refs.makingform.setJSON(JSON.parse(this.object.design_form))
+          this.$refs.makingform.setJSON(this.object.design_form)
         }, 500)
       }
       this.dialogVisible = !this.dialogVisible
     },
     getjsonData() {
+      // this.dialogVisible = !this.dialogVisible
+      const json = this.$refs.makingform.getJSON()
+      if (json.list.length < 1) {
+        this.$confirm('未定义表单，确认关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          confirmButtonClass: 'confirm-button',
+          cancelButtonClass: 'cancel-button'
+        }).then(() => {
+          this.dialogVisible = !this.dialogVisible
+        }).catch(() => {})
+        return
+      }
       this.dialogVisible = !this.dialogVisible
       this.object.design_form = JSON.stringify(this.$refs.makingform.getJSON())
     },
@@ -1073,17 +1102,17 @@ export default {
     },
     rightCheck(selectionKeys, changeKeys) {
       this.tempSelectionKeys = selectionKeys
-      if(this.tempSelectionKeys.length > 0){
+      if (this.tempSelectionKeys.length > 0){
         this.upDisable = false
         this.downDisable = false
-      }else{
+      } else {
         this.upDisable = true
         this.downDisable = true
       }
     },
     upData(){
       this.downDisable = false
-      if(this.tempSelectionKeys.length > 1){
+      if (this.tempSelectionKeys.length > 1){
         this.$message({
           type: 'warning',
           message: '仅支持单选调顺序'
@@ -1091,10 +1120,10 @@ export default {
         return
       }
       let indexNum = 0
-      for(let i = 0; i < this.tempSelectionKeys.length; i++){
+      for (let i = 0; i < this.tempSelectionKeys.length; i++){
         indexNum = this.object.fields.indexOf(this.tempSelectionKeys[i])
 
-        if(indexNum > 0){
+        if (indexNum > 0){
           this.object.fields.splice(indexNum - 1, 0, this.tempSelectionKeys[i])
           this.object.fields.splice(indexNum + 1, 1)
         }
@@ -1105,7 +1134,7 @@ export default {
     },
     downData(){
       this.upDisable = false
-      if(this.tempSelectionKeys.length > 1){
+      if (this.tempSelectionKeys.length > 1){
         this.$message({
           type: 'warning',
           message: '仅支持单选调顺序'
@@ -1113,9 +1142,9 @@ export default {
         return
       }
       let indexNum = 0
-      for(let i = 0; i < this.tempSelectionKeys.length; i++){
+      for (let i = 0; i < this.tempSelectionKeys.length; i++){
         indexNum = this.object.fields.indexOf(this.tempSelectionKeys[i])
-        if(indexNum > -1 && indexNum !== this.object.fields.length - 1){
+        if (indexNum > -1 && indexNum !== this.object.fields.length - 1){
           this.object.fields.splice(indexNum + 2, 0, this.tempSelectionKeys[i])
           this.object.fields.splice(indexNum, 1)
         }

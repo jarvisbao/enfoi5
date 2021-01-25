@@ -25,7 +25,7 @@
 
 /*eslint-disable*/
 // 把 YYYY-MM-DD 改成了 yyyy-MM-dd
-(function (main) {
+// (function (main) {
   'use strict';
 
   /**
@@ -356,13 +356,17 @@
   };
 
   /* istanbul ignore next */
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = fecha;
-  } else if (typeof define === 'function' && define.amd) {
-    define(function () {
-      return fecha;
-    });
-  } else {
-    main.fecha = fecha;
-  }
-})(this);
+  // if (typeof module !== 'undefined' && module.exports) {
+  //   console.log('001a', module)
+  //   module.exports = fecha;
+  // } else if (typeof define === 'function' && define.amd) {
+  //   console.log('002a')
+  //   define(function () {
+  //     return fecha;
+  //   });
+  // } else {
+  //   console.log('003a', main)
+  //   main.fecha = fecha;
+  // }
+// })(this);
+export default fecha

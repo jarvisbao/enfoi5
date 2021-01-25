@@ -160,6 +160,8 @@
             .catch(() => {
               this.loading = false
             })
+        }).catch((e) => {
+          this.$message.error(e)
         })
       },
       handleReset() {

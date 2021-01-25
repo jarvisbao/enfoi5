@@ -6,7 +6,7 @@
         <span v-if="item.operate_type===2" id="plxg" @click="clickType2(item)">{{ item.operate_name }}</span>
         <span v-if="item.operate_type===6" id="plPost" @click="clickType6(item)">{{ item.operate_name }}</span>
         <span v-if="item.operate_type===7" id="plGet" @click="clickType7(item)">{{ item.operate_name }}</span>
-        <span v-if="item.operate_type===8" id="clsCreate" @click="clickType8(item)">{{ item.operate_name }}</span>
+        <span v-if="item.operate_type===8" id="clsCreate" @click="clickType8(item, isOuterObj)">{{ item.operate_name }}</span>
         <span v-if="item.operate_type===9" id="fileUpload" @click="clickType9(item)">{{ item.operate_name }}</span>
       </div>
     </template>
@@ -27,6 +27,10 @@ export default {
   name: 'topOtherMethods',
   mixins: [topBtnFun],
   props: {
+    isOuterObj: {
+      type: Boolean,
+      default: false
+    },
     isAll: {
       type: Boolean,
       default: false
