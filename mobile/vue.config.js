@@ -57,6 +57,7 @@ module.exports = {
       alias: {
         '@': resolve('src'),
         'vant': '@hzenfo/vant',
+        'vue-form-making': '@hzenfo/vue-form-making',
         'vue$': 'vue/dist/vue.esm.js'
       }
     }

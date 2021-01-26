@@ -231,19 +231,19 @@ export default {
         })
         ids = ids.join(',')
         this.params = { object_id: this.object_id, page_id: this.page_id, mtd_id: item.mtd_id, id: ids }
-        var _result = []
-        for (var key in this.params) {
-          var value = this.params[key]
-          if (Array.isArray(value)) {
-            value.forEach(function(_value) {
-              _result.push(key + '=' + _value)
-            })
-          } else if (value === null) {
-            _result.push(key + '=')
-          } else {
-            _result.push(key + '=' + value)
-          }
-        }
+        // var _result = []
+        // for (var key in this.params) {
+        //   var value = this.params[key]
+        //   if (Array.isArray(value)) {
+        //     value.forEach(function(_value) {
+        //       _result.push(key + '=' + _value)
+        //     })
+        //   } else if (value === null) {
+        //     _result.push(key + '=')
+        //   } else {
+        //     _result.push(key + '=' + value)
+        //   }
+        // }
 
         const params = url.split('?')[1] || ''
         if (params) {
@@ -257,14 +257,14 @@ export default {
         this.$dialog.confirm({ message: item.confirm_msg }).then(() => {
           // this.set_session()
           if (item.uriopentype === '0' || item.uriopentype === '1') {
-            window.open(newUrl, '_self')
+            this.$router.push({path: newUrl})
           } else {
             this.$emit('openDialog', { title: item.operate_name, url: newUrl })
           }
         }).catch(() => {})
       } else {
         if (item.uriopentype === '0' || item.uriopentype === '1') {
-          window.open(newUrl, '_self')
+          this.$router.push({path: newUrl})
         } else {
           this.$emit('openDialog', { title: item.operate_name, url: newUrl })
         }

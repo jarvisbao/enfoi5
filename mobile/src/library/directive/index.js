@@ -1,10 +1,9 @@
 import drag from './drag-dialog'
-import loadmore from './loadmore'
 import { permission, rolepermission } from './permission'
 import display from './display'
 import longtap from './longTap'
 
-const directives = [drag, loadmore, permission, display, rolepermission, longtap]
+const directives = [drag, permission, display, rolepermission, longtap]
 const _export = {}
 const install = function(Vue) {
   directives.forEach(directive => {

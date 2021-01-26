@@ -32,6 +32,7 @@
         <!-- 其他操作 -->
         <top-other-methods
           ref="otherMtd"
+          :is-outer-obj="true"
           :object_id="object_id"
           :page_id="page_id"
           :ids="ids"
@@ -43,6 +44,7 @@
           @showMtdEdit="showMtdEdit"
           @openDialog="openDialog"
           @refresh="refresh"
+          @mtdCreate="mtdCreate"
         />
       </div>
       <div class="list-box">
@@ -138,6 +140,16 @@
       />
       <iframe :src="mtd_get_url" width="100%" height="500px" frameborder="0" />
     </van-popup>
+    <van-popup v-model="dialogMtdCreate" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <obj-mtd-create
+        :params="mtdParams"
+        :pntfk="pntfk"
+        :pntid="pntid"
+        :page_id="page_id"
+        @show="isMtdShow"
+        @refresh="refresh"
+      />
+    </van-popup>
     <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
@@ -148,7 +160,8 @@ import commonFun from '@/library/ui/pageDataMobile/mixin/commonFun'
 export default {
   components: {
     objectCreate: () => import('./objCreate'),
-    objectUpdate: () => import('./objUpdate')
+    objectUpdate: () => import('./objUpdate'),
+    objMtdCreate: () => import('./objMtdCreate')
   },
   mixins: [commonFun],
   props: ['value', 'models', 'remote', 'blanks', 'disabled', 'widget', 'helpers', 'designFields', 'formValue', 'id'],
@@ -222,7 +235,9 @@ export default {
       isOuterObj: true,
       mulBtn: false,
       offsetTop: 0,
-      otherMtdBtn: false
+      otherMtdBtn: false,
+      dialogMtdCreate: false,
+      mtdParams: null
     }
   },
   watch: {
@@ -252,7 +267,9 @@ export default {
     }
   },
   mounted() {
-    this.offsetTop = this.$refs.otherMtd.$el.getBoundingClientRect().top
+    if (this.pntid) {
+      this.offsetTop = this.$refs.otherMtd.$el.getBoundingClientRect().top
+    }
   },
   methods: {
     handleScroll() {

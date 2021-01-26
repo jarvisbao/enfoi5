@@ -2,7 +2,7 @@ import router from './router'
 import store from './store'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { Message } from 'element-ui'
+import { Notify } from 'vant'
 import { getToken } from '@/library/js/auth' // getToken from cookie
 import checkPermission from '@/library/js/permission'
 import Constlib from '@/library/js/constlib'
@@ -33,7 +33,10 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }
@@ -43,9 +46,10 @@ router.beforeEach(async(to, from, next) => {
           await store.dispatch('GetUserRoles').then((response) => {
             if (response.code !== Constlib.ERROR_CODE_OK) {
               store.dispatch('FedLogOut')
-              Message.error(
-                response.message || 'Verification failed, please login again'
-              )
+              Notify({
+                type: 'danger',
+                message: response.message || 'Verification failed, please login again'
+              })
               next(`/login?redirect=${to.fullPath}`)
               NProgress.done()
             }
@@ -53,7 +57,10 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: error || 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }
@@ -63,9 +70,10 @@ router.beforeEach(async(to, from, next) => {
           await store.dispatch('GetUserOrgs').then((response) => {
             if (response.code !== Constlib.ERROR_CODE_OK) {
               store.dispatch('FedLogOut')
-              Message.error(
-                response.message || 'Verification failed, please login again'
-              )
+              Notify({
+                type: 'danger',
+                message: response.message || 'Verification failed, please login again'
+              })
               next(`/login?redirect=${to.fullPath}`)
               NProgress.done()
             }
@@ -73,7 +81,10 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: error || 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }
@@ -84,9 +95,10 @@ router.beforeEach(async(to, from, next) => {
           await store.dispatch('GetUserActiveOrg').then((response) => {
             if (response.code !== Constlib.ERROR_CODE_OK) {
               store.dispatch('FedLogOut')
-              Message.error(
-                response.message || 'Verification failed, please login again'
-              )
+              Notify({
+                type: 'danger',
+                message: response.message || 'Verification failed, please login again'
+              })
               next(`/login?redirect=${to.fullPath}`)
               NProgress.done()
             }
@@ -111,7 +123,10 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: error || 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }
@@ -121,9 +136,10 @@ router.beforeEach(async(to, from, next) => {
           await store.dispatch('GetPermissionMenus', { device: 'mobile' }).then((response) => {
             if (response.code !== Constlib.ERROR_CODE_OK) {
               store.dispatch('FedLogOut')
-              Message.error(
-                response.message || 'Verification failed, please login again'
-              )
+              Notify({
+                type: 'danger',
+                message: response.message || 'Verification failed, please login again'
+              })
               next(`/login?redirect=${to.fullPath}`)
               NProgress.done()
             }
@@ -131,7 +147,10 @@ router.beforeEach(async(to, from, next) => {
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: error || 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }
@@ -140,16 +159,20 @@ router.beforeEach(async(to, from, next) => {
           await store.dispatch('GetAppConfig', { device: 'mobile' }).then(response => {
             if (response.code !== Constlib.ERROR_CODE_OK) {
               store.dispatch('FedLogOut')
-              Message.error(
-                response.message || 'Verification failed, please login again'
-              )
+              Notify({
+                type: 'danger',
+                message: response.message || 'Verification failed, please login again'
+              })
               next(`/login?redirect=${to.fullPath}`)
               NProgress.done()
             }
           })
         } catch (error) {
           await store.dispatch('FedLogOut')
-          Message.error(error || 'Verification failed, please login again')
+          Notify({
+            type: 'danger',
+            message: error || 'Verification failed, please login again'
+          })
           next(`/login?redirect=${to.fullPath}`)
         }
       }

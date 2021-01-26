@@ -8,9 +8,9 @@
         <el-select id="colType" v-model="classColumn.column_type" filterable placeholder="请选择">
           <el-option
             v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            :key="item"
+            :label="item"
+            :value="item"
           />
         </el-select>
       </el-form-item>
@@ -112,57 +112,9 @@ export default {
         callback()
       }
     }
+
     return {
-      options: [
-        {
-          value: 'Integer',
-          label: 'Integer'
-        },
-        {
-          value: 'String',
-          label: 'String'
-        },
-        {
-          value: 'Float',
-          label: 'Float'
-        },
-        {
-          value: 'DECIMAL',
-          label: 'DECIMAL'
-        },
-        {
-          value: 'Boolean',
-          label: 'Boolean'
-        },
-        {
-          value: 'Date',
-          label: 'Date'
-        },
-        {
-          value: 'DateTime',
-          label: 'DateTime'
-        },
-        {
-          value: 'Time',
-          label: 'Time'
-        },
-        {
-          value: 'Enum',
-          label: 'Enum'
-        },
-        {
-          value: 'Text',
-          label: 'Text'
-        },
-        {
-          value: 'JSONType',
-          label: 'JSONType'
-        },
-        {
-          value: 'Unicode',
-          label: 'Unicode'
-        }
-      ],
+      options: [],
       format_func: [
         {
           value: 'money',
@@ -196,6 +148,11 @@ export default {
         default: ''
       }
     }
+  },
+  mounted() {
+    this.$Apis.class.column_types().then(response => { // 请求栏目类型
+      this.options = response.payload
+    })
   },
   created() {
     const column_props = JSON.parse(JSON.stringify(this.classColumn.column_props))
@@ -233,6 +190,7 @@ export default {
           const data_format = this.classColumn.data_format
           const suffix_letter = this.classColumn.suffix_letter
           const deferred = this.classColumn.deferred
+
           if (column_type_args && column_type_args !== 'null') {
             column_type_args = JSON.parse(this.classColumn.column_type_args)
           } else if (column_type_args === 'null' || !column_type_args) {

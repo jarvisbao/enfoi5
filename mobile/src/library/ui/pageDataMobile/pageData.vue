@@ -28,6 +28,7 @@
           @showMtdEdit="showMtdEdit"
           @openDialog="openDialog"
           @refresh="refresh"
+          @mtdCreate="mtdCreate"
         />
       </div>
     </van-sticky>
@@ -64,6 +65,14 @@
     <van-popup v-model="dialogMtd" :overlay="false" closeable position="right" :style="{ height: '100%', width: '100%' }">
       <iframe :src="mtd_get_url" width="100%" height="100%" frameborder="0" style="margin-top: 38px;" />
     </van-popup>
+    <van-popup v-model="dialogMtdCreate" :overlay="false" position="right" :style="{ height: '100%', width: '100%' }">
+      <page-data-mtd-create
+        :is-module="true"
+        :params="mtdParams"
+        @show="isMtdShow"
+        @refresh="refresh"
+      />
+    </van-popup>
     <overlay-loading :show="showOverlay" :text="loadingText" />
   </div>
 </template>
@@ -73,6 +82,9 @@ import commonFun from './mixin/commonFun'
 
 export default {
   name: 'PageData',
+  components: {
+    pageDataMtdCreate: () => import('./pageDataMtdCreate')
+  },
   mixins: [commonFun],
   props: {
     object_id: {
@@ -169,7 +181,9 @@ export default {
       // cellAllBtns: [],
       // dialogCell: false,
       // cellItem: {},
-      pageFilters: this.filters
+      pageFilters: this.filters,
+      dialogMtdCreate: false,
+      mtdParams: null
       // cellIndex: 0
     }
   },

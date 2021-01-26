@@ -160,6 +160,13 @@ export default {
       this.selectionData = args.selectionData
       this.ids = args.ids
       this.isAll = args.isAll
+    },
+    mtdCreate(args) {
+      this.dialogMtdCreate = !this.dialogMtdCreate
+      this.mtdParams = args
+    },
+    isMtdShow() {
+      this.dialogMtdCreate = !this.dialogMtdCreate
     }
   }
 }

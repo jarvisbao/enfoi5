@@ -34,3 +34,7 @@ window.jQuery = jQuery
 window.$ = jQuery
 Vue.prototype.$Utils = utils
 Vue.prototype.$Apis = apis
+
+import FormMaking from 'vue-form-making'
+import 'vue-form-making/dist/FormMaking.css'
+Vue.use(FormMaking)

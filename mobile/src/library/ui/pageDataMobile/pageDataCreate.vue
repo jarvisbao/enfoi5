@@ -53,7 +53,7 @@ export default {
         }
       },
       object_id: null,
-      page_id: null,
+      // page_id: null,
       design_form: null,
       headersAll: [],
       show: false,

@@ -1,5 +1,5 @@
 import pageFooter from './pageFooter.vue'
-import GenerateFormMobile from './FormMakingMobile/GenerateFormMobile.vue'
+// import GenerateFormMobile from './FormMakingMobile/GenerateFormMobile.vue'
 import pageDataMobile from './pageDataMobile/pageData'
 import pageDataMobileByCode from './pageDataMobile/pageDataByCode'
 // import exportData from './pageData/components/exportData'
@@ -21,7 +21,7 @@ const components = [
   methodBatchEdit,
   // setQuery,
   portalWidget,
-  GenerateFormMobile,
+  // GenerateFormMobile,
   pageDataMobile,
   pageDataMobileByCode,
   overlayLoading,

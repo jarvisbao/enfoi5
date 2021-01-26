@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hzenfo/vant": "^0.2.2",
+    "@hzenfo/vue-form-making": "^0.1.2",
     "async-validator": "^3.4.0",
     "axios": "^0.19.2",
     "bpmn-js": "^6.5.1",

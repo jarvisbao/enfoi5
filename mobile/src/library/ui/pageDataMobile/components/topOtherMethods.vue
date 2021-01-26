@@ -17,7 +17,7 @@
         <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
         {{ method.operate_name }}
       </span>
-      <span v-if="method.operate_type===8" id="clsCreate" @click="clickType8(method)">
+      <span v-if="method.operate_type===8" id="clsCreate" @click="clickType8(method, isOuterObj)">
         <i :class="[method.icon || 'icon-vehicles']" :style="{color: method.btn_color || '#409eff'}" />
         {{ method.operate_name }}
       </span>
@@ -36,6 +36,10 @@ export default {
   name: 'TopOtherMethods',
   mixins: [topBtnFun],
   props: {
+    isOuterObj: {
+      type: Boolean,
+      default: false
+    },
     isAll: {
       type: Boolean,
       default: false
