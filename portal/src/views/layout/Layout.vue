@@ -1,5 +1,5 @@
 <template>
-  <div class="master-app-wrapper" :style="{'background': inIframe ? '#fff' : 'transparent'}" v-wechat-title="company_title">
+  <div class="master-app-wrapper" v-wechat-title="company_title">
     <div v-if="!inIframe" class="master-topbar-container">
       <router-link :to="{name: 'index'}" class="logo">
         <img v-if="company_logo" :src="require(`@/assets/images/${company_logo}`)" class="company_logo">
@@ -40,6 +40,12 @@ export default {
     Sidebar
   },
   mixins: [ResizeMixin],
+  // 提供可注入子组件属性
+  provide() {
+    return {
+      reload: this.reload
+    }
+  },
   props: {
     content: String,
     loading: Boolean
@@ -48,12 +54,6 @@ export default {
     return {
       isShow: true,
       inIframe: false
-    }
-  },
-  // 提供可注入子组件属性
-  provide() {
-    return {
-      reload: this.reload
     }
   },
   computed: {
@@ -79,6 +79,13 @@ export default {
   created() {
     if (self.frameElement && self.frameElement.tagName === 'IFRAME') {
       this.inIframe = true
+    }
+  },
+  mounted() {
+    if (this.inIframe) {
+      document.body.style.backgroundColor = '#fff'
+    } else {
+      document.body.style.backgroundColor = '#f2f3f8'
     }
   },
   methods: {

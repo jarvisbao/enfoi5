@@ -518,14 +518,17 @@ $bg: #f7f8fa;
 $dark_gray: #bababa;
 $light_gray: #7e6b6b;
 .login-container {
-  position: fixed;
+  // position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   width: 100%;
+  min-height: calc(100vh);
   background: url('~@/assets/images/loing_bg.svg') center center no-repeat #f7f8fa;
   .login-form {
     width: 500px;
     max-width: 100%;
-    margin: 180px auto 50px;
   }
 
   .svg-container {
