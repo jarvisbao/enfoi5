@@ -37,6 +37,10 @@
           @refresh="refresh"
           @mtdCreate="mtdCreate"
         />
+        <!-- 展开表格 -->
+        <el-tooltip effect="dark" :content="isExpand ? '展开表格' : '展开表格'" placement="top-start">
+          <el-switch v-model="isExpand" :width="55" class="switch-expand-tabel" />
+        </el-tooltip>
         <div class="right-btn" style="display: flex; justify-content: flex-end;">
           <!-- 查询 -->
           <set-query ref="setQuery" :object_id="object_id" :page_id="page_id" @getQueryData="getQueryData" />
@@ -44,6 +48,7 @@
         </div>
       </div>
       <table-list
+        ref="pageDateTabList"
         :loading="loading"
         :is-multiple="isMultiple"
         :can_export="can_export"
@@ -103,6 +108,7 @@
 <script>
 import path from 'path'
 const Base64 = require('js-base64').Base64
+
 import commonFun from './mixin/commonFun'
 
 export default {
@@ -134,7 +140,9 @@ export default {
     },
     filters: {
       type: Array,
-      default: () => { return [] }
+      default: () => {
+        return []
+      }
     }
   },
   data() {
@@ -203,7 +211,17 @@ export default {
       fileAction: null,
       reloadUri: null,
       dialogMtdCreate: false,
-      mtdParams: null
+      mtdParams: null,
+      isExpand: false //是否展开表格
+    }
+  },
+  watch: {
+    isExpand(newVal) { // 实现子组件的数据绑定
+      try {
+        this.isExpand = this.$refs.pageDateTabList.setExpanTableIs(newVal)
+      } catch {
+        this.isExpand = false
+      }
     }
   },
   created() {
@@ -218,8 +236,9 @@ export default {
   },
   mounted() {
     const _that = this
-    window.addEventListener('message', function(e){
-      if (e.data.msg === 'closeDialog'){
+
+    window.addEventListener('message', function (e) {
+      if (e.data.msg === 'closeDialog') {
         _that.closeDialog()
       }
     }, false)
@@ -397,7 +416,7 @@ export default {
       })
     },
     create() {
-      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id }})
+      this.$router.push({ name: 'data_create', query: { object_id: this.object_id, pntfk: this.pntfk, pntid: this.pntid, page_id: this.page_id } })
     },
     refresh(val) {
       this.pageFilters = val
@@ -405,6 +424,7 @@ export default {
     },
     getQueryData(params) {
       const queryparam = []
+
       params.forEach(item => {
         queryparam.push(Object.values(item).join(''))
       })
@@ -439,7 +459,7 @@ export default {
     padding: 18px 10px;
     color: #666666;
     &::after {
-      content: "";
+      content: '';
       display: block;
       width: 100%;
       height: 1px;
@@ -449,5 +469,21 @@ export default {
       bottom: 0;
     }
   }
+}
+</style>
+<!-- 表格展开按钮样式 -->
+<style lang="scss" scoped>
+/deep/ .switch-expand-tabel {
+  .el-switch__core {
+    height: 28px;
+    border-radius: 20px;
+    &::after {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+/deep/ .el-switch.is-checked .el-switch__core::after {
+  margin-left: -25px;
 }
 </style>
