@@ -51,7 +51,7 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-for="(item, index) in scope.row.buttons.slice(3)" :key="index">
-                <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)">
+                <span @click="item.isMtd ? mtdCall(item.fun, item, scope.row) : fnCall(item.fun, scope.row)" style="display:block">
                   <span v-if="item.icon"><i :class="item.icon" :title="item.name" /> {{ item.name }}</span>
                   <span v-else>{{ item.name }}</span>
                 </span>

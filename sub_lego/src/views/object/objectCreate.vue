@@ -386,6 +386,7 @@
       <fm-making-form
         ref="makingform"
         :design-fields="fields"
+        :templates="templates"
         style="height: 500px;"
         clearable
         preview
@@ -559,7 +560,8 @@ export default {
       ],
       upDisable: false,
       downDisable: false,
-      tempSelectionKeys: []
+      tempSelectionKeys: [],
+      templates: []
     }
   },
   created() {
@@ -568,6 +570,7 @@ export default {
   mounted() {
     this.getList()
     this.getRoleList()
+    this.templates = Vue.$Components
   },
   methods: {
     get_proj_code() {

@@ -620,7 +620,8 @@ export default {
       ],
       upDisable: false,
       downDisable: false,
-      tempSelectionKeys: []
+      tempSelectionKeys: [],
+      templates: []
     }
   },
   created() {
@@ -630,6 +631,7 @@ export default {
   },
   mounted() {
     // this.getList()
+    this.templates = Vue.$Components
   },
   methods: {
     get_object_code() {

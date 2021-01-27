@@ -326,7 +326,7 @@
         :clearable="widget.options.clearable"
         :placeholder="widget.options.placeholder"
         :style="{width: isTable ? '100%' : widget.options.width}"
-        :options="widget.options.remote ? remoteOptions : widget.options.options"
+        :options="widget.options.remote ? widget.options.remoteOptions : widget.options.options"
         :filterable="widget.options.filterable"
         :props="cascaderProp"
         @change="onCascaderChange"

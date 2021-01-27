@@ -343,7 +343,7 @@
         :border="false"
         is-link
         :emit-path="widget.options.emitPath"
-        :columns="widget.options.remoteOptions"
+        :columns="widget.options.remote ? widget.options.remoteOptions : widget.options.options"
         :props="cascaderProp"
         :check-data="checkData"
       />

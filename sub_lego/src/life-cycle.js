@@ -39,6 +39,7 @@ const lifeCycle = () => {
 
       // 注册全局指令
       Vue.use(props.directive)
+      Vue.prototype.$Components = props.components // 挂载公共组件
       // 注册公共组件
       props.components.forEach((component) => {
         Vue.use(component)
