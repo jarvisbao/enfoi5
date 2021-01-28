@@ -32,14 +32,6 @@
         @handle-submit="handleSubmit"
         @handle-back="handleReset"
       />
-      <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
-        <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
-          立即修改
-        </el-button>
-        <el-button id="cancel" plain @click="handleReset">
-          返回
-        </el-button>
-      </div>
     </div>
   </div>
 </template>
@@ -114,9 +106,7 @@ export default {
         }
       },
       fmshow: false,
-      styleObject: null,
       mtd_code: undefined,
-      custom_btn: false,
       editData: {}
     }
   },
@@ -136,15 +126,6 @@ export default {
           this.mtd_code = method.operate_code
           if (method.operate_type === 3 || method.operate_type === 2) {
             this.design_form = JSON.parse(method.design_form)
-            if (this.design_form) {
-              // this.fmshow = true
-              this.styleObject = {
-                paddingLeft: this.design_form.config.labelWidth + 'px'
-              }
-              if (this.design_form.config.button === undefined) {
-                this.custom_btn = true
-              }
-            }
           }
           this.$Apis.object.data_info(this.object_id, this.ids, this.mtd_code, this.page_id).then(data => {
             if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
@@ -222,7 +203,7 @@ export default {
     },
     handleSubmit() {
       this.$refs.generateForm.getData().then(data => {
-        this.loading = true
+        this.$refs.generateForm.loading = true
         let ids = null
         if (this.isAll) {
           ids = {}
@@ -266,7 +247,7 @@ export default {
             })
           }
         })
-        this.loading = false
+        this.$refs.generateForm.loading = false
       }).catch(e => {
         // 数据校验失败
         this.$alert(e, '提示', {

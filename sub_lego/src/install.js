@@ -27,3 +27,7 @@ import 'v-charts/lib/style.css'
 
 import VueI18n from 'vue-i18n'
 Vue.use(VueI18n)
+
+import FormMaking from 'vue-form-making'
+import 'vue-form-making/dist/FormMaking.css'
+Vue.use(FormMaking)

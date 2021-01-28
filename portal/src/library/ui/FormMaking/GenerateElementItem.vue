@@ -963,7 +963,7 @@ export default {
         async function remote_http(uri, newParams) {
           const response = await _that.remote[_that.widget.options.remoteFunc](uri, newParams)
 
-          if (response) {
+          if (response && response.code === _that.$Utils.Constlib.ERROR_CODE_OK) {
             var data = response
 
             if (_that.widget.options.remoteData) {

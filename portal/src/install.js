@@ -19,7 +19,8 @@ import '@/library/directive/install'
 import '@/library/ui/install'
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
-import '@/iconfont/iconfont.css'
+import '@/iconfont/iconfont.css' // 字体图标
+// import '@/library/ui/FormMaking/iconfont/iconfont.css' // form-making字体图标
 import '@/library/styles/common.scss' // 公共css
 import '@/styles/index.scss' // global css
 import '@/icons' // icon
@@ -42,3 +43,7 @@ import 'v-charts/lib/style.css'
 [VeChart, VeLine, VeHistogram, VePie].forEach(comp => {
   Vue.component(comp.name, comp);
 })
+
+import FormMaking from 'vue-form-making'
+import 'vue-form-making/dist/FormMaking.css'
+Vue.use(FormMaking)

@@ -9,14 +9,6 @@
         @handle-submit="handleSubmit"
         @handle-back="handleReset"
       />
-      <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
-        <el-button id="submit" :loading="loading" type="danger" @click="handleSubmit">
-          立即添加
-        </el-button>
-        <el-button id="cancel" plain @click="handleReset">
-          取消
-        </el-button>
-      </div>
     </div>
   </div>
 </template>
@@ -79,13 +71,10 @@
         },
         design_form: null,
         headersAll: [],
-        styleObject: null,
         show: false,
         designFields: [],
         mtd_id: null,
-        mtd_code: undefined,
-        custom_btn: false,
-        loading: false
+        mtd_code: undefined
       }
     },
     computed: {
@@ -113,12 +102,6 @@
             this.designFields = designFields
             this.jsonData = design_form
             this.show = true
-            this.styleObject = {
-              paddingLeft: design_form.config.labelWidth + 'px'
-            }
-            if (design_form.config.button === undefined) {
-              this.custom_btn = true
-            }
           }
         }
       }
@@ -146,8 +129,7 @@
       handleSubmit() {
         this.mtd_code = this.$route.query.mtd_code ? this.$route.query.mtd_code : undefined
         this.$refs.generateForm.getData().then(data => {
-          // this.$store.commit('SET_LOADING', true)  删除
-          this.loading = true
+          this.$refs.generateForm.loading = true
           this.$Apis.object.data_create(this.object_id, data, this.mtd_code, this.pntfk, this.pntid, this.page_id)
             .then(response => {
               if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
@@ -163,11 +145,12 @@
                   confirmButtonText: '确定'
                 })
               }
-              // this.$store.commit('SET_LOADING', false) 删除
-              this.loading = false
+              this.$refs.generateForm.loading = false
             }).catch(() => { // 响应错误处理
-              this.loading = false
+              this.$refs.generateForm.loading = false
             })
+        }).catch((e) => {
+          this.$message.error(e)
         })
 
       },

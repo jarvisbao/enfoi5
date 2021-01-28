@@ -1,5 +1,5 @@
-import MakingForm from './FormMaking/Container.vue'
-import GenerateForm from './FormMaking/GenerateForm.vue'
+// import MakingForm from './FormMaking/Container.vue'
+// import GenerateForm from './FormMaking/GenerateForm.vue'
 import PageData from './pageData/pagedata.vue'
 import AlifontIcon from './iconChoose/alifontIcon.vue'
 import ElementIcon from './iconChoose/elementIcon.vue'
@@ -12,13 +12,13 @@ import portalWidget from './portalWidget/index'
 import widgetCreate from './widgetDesign/index'
 import widgetUpdate from './widgetDesign/update'
 
-import '@/library/styles/form-making-cover.scss'
-import '@/library/styles/form-making-index.scss'
-import '@/library/styles/form-making-editor.scss'
+// import '@/library/styles/form-making-cover.scss'
+// import '@/library/styles/form-making-index.scss'
+// import '@/library/styles/form-making-editor.scss'
 
 const components = [
-  MakingForm,
-  GenerateForm,
+  // MakingForm,
+  // GenerateForm,
   PageData,
   AlifontIcon,
   ElementIcon,

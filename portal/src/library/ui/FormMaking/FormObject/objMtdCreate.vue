@@ -121,6 +121,7 @@ export default {
     handleSubmit() {
       this.mtd_code = this.$route.query.mtd_code ? this.$route.query.mtd_code : undefined
       this.$refs.generateForm.getData().then(data => {
+        this.$refs.generateForm.loading = true
         this.$Apis.object.data_create(this.object_id, data, this.mtd_code, this.pntfk, this.pntid, this.page_id).then(response => {
           if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
             this.$alert(response.message, '提示', {
@@ -135,8 +136,11 @@ export default {
               confirmButtonText: '确定'
             })
           }
+          this.$refs.generateForm.loading = false
         })
-        .catch(() => {})
+        .catch(() => {
+          this.$refs.generateForm.loading = false
+        })
       }).catch((e) => {
         this.$message.error(e)
       })

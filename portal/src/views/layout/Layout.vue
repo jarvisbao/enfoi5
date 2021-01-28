@@ -103,7 +103,7 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import 'src/library/styles/mixin.scss';
-  @import url('//at.alicdn.com/t/font_1321656_qrlhtqp5ah.css');
+  // @import url('//at.alicdn.com/t/font_1321656_qrlhtqp5ah.css');
   .master-app-wrapper {
     @include clearfix;
     position: relative;

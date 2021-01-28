@@ -11,14 +11,6 @@
       @handle-submit="handleSubmit"
       @handle-back="handleReset"
     />
-    <div v-if="custom_btn" :style="styleObject" class="handle-btn el-form">
-      <el-button v-if="edit" id="submit" :loading="loading" type="danger" @click="handleSubmit">
-        立即修改
-      </el-button>
-      <el-button id="cancel" plain @click="handleReset">
-        取消
-      </el-button>
-    </div>
   </div>
 </template>
 <script>
@@ -81,13 +73,10 @@
             }
           }
         },
-        styleObject: null,
         show: false,
         fmshow: false,
         designFields: [],
-        mtd_code: undefined,
-        custom_btn: false,
-        loading: false
+        mtd_code: undefined
       }
     },
     computed: {
@@ -115,12 +104,6 @@
             this.designFields = designFields
             this.jsonData = design_form
             this.show = true
-            this.styleObject = {
-              paddingLeft: design_form.config.labelWidth + 'px'
-            }
-            if (design_form.config.button === undefined) {
-              this.custom_btn = true
-            }
           }
         }
       }
@@ -184,8 +167,7 @@
       },
       handleSubmit() {
         this.$refs.generateForm.getData().then(data => {
-          // this.$store.commit('SET_LOADING', true)  删除
-          this.loading = true
+          this.$refs.generateForm.loading = true
           this.$Apis.object.data_update(this.object_id, this.objid, data, this.mtd_code, this.page_id)
             .then(response => {
               if (response.code === this.$Utils.Constlib.ERROR_CODE_OK) {
@@ -201,12 +183,13 @@
                   confirmButtonText: '确定'
                 })
               }
-              // this.$store.commit('SET_LOADING', false)  删除
-              this.loading = false
+              this.$refs.generateForm.loading = false
             })
             .catch(() => {
-              this.loading = false
+              this.$refs.generateForm.loading = false
             })
+        }).catch((e) => {
+          this.$message.error(e)
         })
       },
       handleReset() {

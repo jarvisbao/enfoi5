@@ -132,7 +132,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import url('//at.alicdn.com/t/font_1321656_qrlhtqp5ah.css');
+// @import url('//at.alicdn.com/t/font_1321656_qrlhtqp5ah.css');
 .app-wrapper {
   position: relative;
   height: 100%;

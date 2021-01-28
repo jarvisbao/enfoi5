@@ -102,10 +102,10 @@
         </generate-form-item>
       </template>
       <el-form-item v-if="showBtn && data.config.button">
-        <el-button id="submit" v-if="data.config.button.onsubmit.show && edit" :loading="$store.state.app.loading" type="danger" @click="onSubmit">
+        <el-button id="submit" v-if="data.config.button.onsubmit.show && edit && !form_edit" :loading="loading" type="danger" @click="onSubmit">
           {{ data.config.button.onsubmit.label }}
         </el-button>
-        <el-button id="cancel" v-if="data.config.button.back.show" :loading="$store.state.app.loading" plain @click="onBack">
+        <el-button id="cancel" v-if="data.config.button.back.show && isBack" plain @click="onBack">
           {{ data.config.button.back.label }}
         </el-button>
       </el-form-item>
@@ -222,7 +222,9 @@ export default {
         itemInstances: {}
       },
       form_edit: !this.edit || this.data.config.readOnly,
-      formShow: false
+      formShow: false,
+      isBack: true,
+      loading: false
     }
   },
   watch: {
@@ -251,7 +253,24 @@ export default {
         func(this.value)
       }
     }
+    // 兼容老版本没有自定义表单按钮
+    if (this.data.config.button === undefined) {
+      this.data.config.button = {
+        onsubmit: {
+          label: '提交',
+          show: true
+        },
+        back: {
+          label: '返回',
+          show: true
+        }
+      }
+    }
     this._initForm()
+
+    if (window.history.length < 2) { // 如果是新窗口打开不显示返回按钮
+      this.isBack = false
+    }
   },
   mounted() {
     this.helpers.generate = this
