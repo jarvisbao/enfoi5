@@ -22,6 +22,7 @@ import * as object from './object'
 import * as sysControl from './sysControl'
 import * as ticket from './ticket'
 import * as mobileMenu from './mobileMenu'
+import * as dataaudit from './dataaudit'
 
 export default {
   attachment,
@@ -47,5 +48,6 @@ export default {
   object,
   sysControl,
   ticket,
-  mobileMenu
+  mobileMenu,
+  dataaudit
 }

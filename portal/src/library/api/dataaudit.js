@@ -1,20 +1,16 @@
 /**
- * 生成数据
- * @module data
+ * 数据审核
+ * @module dataaudit
  */
 import request from '@/library/js/request'
 
-export function tabel_data(
-  task_id
-) {
+export function tabel_data(task_id) {
   /**
-   * @method data_list
-   * @param repo_id: 仓库ID
-   * @param class_id: 类ID
+   * @method tabel_data
+   * @param task_id: 审核错误信息表id
    */
   return request({
-    url: 'http://192.168.100.243:8000/rpcgateway/DAError/task_list',
-    // url: 'http://localhost:3000/rpcgateway/DAError/task_list',
+    url: '/rpcgateway/DAError/task_list',
     method: 'get',
     params: {
       task_id
@@ -24,13 +20,11 @@ export function tabel_data(
 
 export function data_detail(error_id) {
   /**
-   * @method get_headers
-   * @param repo_id: 仓库ID
-   * @param class_id: 类ID
+   * @method data_detail
+   * @param error_id: 错误id
    */
   return request({
-    url: 'http://192.168.100.243:8000/rpcgateway/DAError/info',
-    // url: 'http://localhost:3000/rpcgateway/DAError/info',
+    url: '/rpcgateway/DAError/info',
     method: 'get',
     params: {
       error_id
