@@ -157,7 +157,6 @@ export default {
           } else {
             this.$emit('showMtdEdit', { mtd_id: item.mtd_id, data: [], dialogTitle: item.name, ids: ids, uri: item.uri })
           }
-          // this.$router.push({ name: 'data_update', query: { object_id: this.object_id, mtd_id: item.mtd_id, objid: ids, record: this.enable_record, page_id: this.page_id }})
         }
       }
     },
