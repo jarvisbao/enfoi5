@@ -67,6 +67,11 @@ export default {
       type: Function,
       default: null
     }
+  },
+  data() {
+    return {
+      flag: true // 防止重复点击
+    }
   }
 }
 </script>

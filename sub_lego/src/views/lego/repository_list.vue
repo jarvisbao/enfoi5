@@ -8,7 +8,7 @@
       <div v-if="removePermission" class="btn create-btn delete" @click="repository_deletes">
         删除所选
       </div>
-      <!--      <div v-permission="['ns://create_orm@lego.repository']" class="btn" @click="create_orm">生成orm</div>-->
+      <div class="btn" @click="create_orm">生成orm</div>
       <div v-permission="['ns://upload_repository@lego.repository']" class="btn export-btn" @click="download">
         导出
       </div>

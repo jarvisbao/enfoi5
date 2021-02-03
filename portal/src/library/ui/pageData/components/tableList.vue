@@ -171,7 +171,8 @@ export default {
         isTabelOverflow: true, // 表格是否溢出隐藏
         tableAutoWidth: { // 表格各列的宽度
         }
-      }
+      },
+      flag: true // 防止重复点击
     }
   },
   watch: {
